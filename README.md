@@ -23,5 +23,13 @@ lib/
 └── observer.dart                # BLoC observer
 ```
 
+backend:
+    in a new terminal: 
+    cd backend
+    docker-compose up -d
+
+frontend:
+    in a new terminal in project root:
+    flutter run 
 ---
 
