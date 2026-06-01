@@ -9,9 +9,3 @@ class SelectMapEvent extends MapEvent {
 
   SelectMapEvent(this.post);
 }
-
-class UpdateMapBounds extends MapEvent {
-  final GeoBounds bounds;
-
-  UpdateMapBounds(this.bounds);
-}
