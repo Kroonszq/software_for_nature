@@ -35,6 +35,16 @@ class EventPostApiClient {
         timestamp: DateTime.now().subtract(const Duration(hours: 5)),
         coordinates: null, // timeline-only event
       ),
+      EventPost(
+        id: '4',
+        title: 'Event 4',
+        description: '4444444444',
+        timestamp: DateTime.now().subtract(const Duration(days: 1)),
+        coordinates: const Coordinates(
+          lat: 52.2,
+          lng: 5.2100,
+        ),
+      ),
     ];
   }
 }
