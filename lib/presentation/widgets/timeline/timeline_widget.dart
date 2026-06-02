@@ -2,35 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:software_for_nature/data/models/event.dart';
+import 'package:software_for_nature/data/models/event_post.dart';
 
-class TimeLine extends StatefulWidget {
-  TimeLine({super.key, required this.listOfEvents});
+class TimelineWidget extends StatelessWidget {
 
+  static const double pixelsPerMinute = 2.0;
+  final List<EventPost> listOfEvents;
+  Map<int, List<EventPost>> listOfRows = {};
 
-  final List<Event> listOfEvents;
-
-  @override
-  State<StatefulWidget> createState() => _TimeLineState();
-}
-
-class _TimeLineState extends State<TimeLine> {
-
-  static const double pixelsPerMinute = 2.0; // ← tweak this to scale up/down
-
-  double getHeight(Event event) {
-    final minutes = event.endDuration.difference(event.startDuration).inMinutes;
-    return minutes * pixelsPerMinute;
-  }
-
-  Map<int, List<Event>> listOfRows = {};
-
-  @override initState(){
-    super.initState();
+  TimelineWidget({super.key, required this.listOfEvents})
+  {
     calculateRows();
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +27,7 @@ class _TimeLineState extends State<TimeLine> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  for (Event event in entry.value)
+                  for (EventPost event in entry.value)
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
@@ -54,7 +37,7 @@ class _TimeLineState extends State<TimeLine> {
                       padding: const EdgeInsets.all(4),
                       width: 100,
                       height: getHeight(event),
-                      child: Text(event.name),
+                      child: Text(event.title),
                     ),
                 ],
               ),
@@ -64,7 +47,7 @@ class _TimeLineState extends State<TimeLine> {
   }
 
   void calculateRows() {
-    for (Event event in widget.listOfEvents) {
+    for (EventPost event in listOfEvents) {
       bool placed = false;
 
       for (int row = 0; row < listOfRows.length; row++) {
@@ -72,7 +55,7 @@ class _TimeLineState extends State<TimeLine> {
           (existing) =>
             event.startDuration.isBefore(existing.endDuration) &&
             event.endDuration.isAfter(existing.startDuration) &&
-            event.startDuration != existing.startDuration, // ← same time = no overlap
+            event.startDuration != existing.startDuration,
         );
 
         if (!overlaps) {
@@ -87,4 +70,16 @@ class _TimeLineState extends State<TimeLine> {
       }
     }
   }
+  double getHeight(EventPost event) {
+    final minutes = event.endDuration.difference(event.startDuration).inMinutes;
+    return minutes * pixelsPerMinute;
+  }
+
+
+  @override initState(){
+    // super.initState();
+    calculateRows();
+
+  }
 }
+
