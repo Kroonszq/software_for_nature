@@ -5,6 +5,7 @@ import 'package:software_for_nature/data/repositories/event_post_repository.dart
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
+import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/observer.dart';
 
 
@@ -27,16 +28,12 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(create: (context) => TimelineBloc()),
           BlocProvider(create: (_) => NavigationBloc()),
           BlocProvider(
             create: (context) =>
             MapBloc(context.read<EventPostRepository>())
             ..add(LoadMapEvents()),
-          ),
-          BlocProvider(
-            create: (context) =>
-            TimelineBloc(context.read<EventPostRepository>())
-            ..add(LoadTimelineEvents()),
           ),
         ], 
         child: MaterialApp(

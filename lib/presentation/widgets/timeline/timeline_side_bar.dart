@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
-import 'package:software_for_nature/presentation/widgets/timeline/timeline_widget.dart';
+import 'package:software_for_nature/presentation/widgets/timeline/timeline_column.dart';
 
-class TimelineSelector extends StatelessWidget {
+class TimelineSideBar extends StatelessWidget {
 
-  const TimelineSelector({super.key});
+  const TimelineSideBar({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,30 +1,22 @@
 import 'package:bloc/bloc.dart';
 import '../../../data/models/event_post.dart';
-import '../../../data/repositories/event_post_repository.dart';
 
 part 'timeline_event.dart';
 part 'timeline_state.dart';
 
 class TimelineBloc extends Bloc<TimelineEvent, TimelineState> {
-  final EventPostRepository repository;
 
-  TimelineBloc(this.repository) : super(TimelineInitial()) {
-    on<LoadTimelineEvents>(_onLoadTimelineEvents);
+  TimelineBloc() : super(TimelineInitial()) {
     on<SelectTimelineEvent>(_onSelectTimelineEvent);
-  }
 
-  Future<void> _onLoadTimelineEvents(
-    LoadTimelineEvents event,
-    Emitter<TimelineState> emit,
-  ) async {
-    emit(TimelineLoading());
+    on<UnSelectTimelineEvent>((event, emit){
 
-    final posts = await repository.getEventPosts();
+      final current = state;
 
-    // sort by time (newest first)
-    posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-    emit(TimelineLoaded(posts));
+      if (current is TimelineInitial) {
+        emit(current.copyWith(selectedPost: null));
+      }
+    }); 
   }
 
   void _onSelectTimelineEvent(
@@ -33,7 +25,7 @@ class TimelineBloc extends Bloc<TimelineEvent, TimelineState> {
   ) {
     final current = state;
 
-    if (current is TimelineLoaded) {
+    if (current is TimelineInitial) {
       emit(current.copyWith(selectedPost: event.post));
     }
   }

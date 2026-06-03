@@ -9,3 +9,8 @@ class SelectTimelineEvent extends TimelineEvent {
 
   SelectTimelineEvent(this.post);
 }
+
+class UnSelectTimelineEvent extends TimelineEvent {
+  UnSelectTimelineEvent();
+
+}

@@ -19,3 +19,16 @@ final class SetTimelineInActive extends TimeLinesWrapperEvent{
 
   SetTimelineInActive(this.timelineHash);
 }
+
+final class TimelineScroll extends TimeLinesWrapperEvent{
+  final ScrollController scrollController;
+
+  TimelineScroll(this.scrollController);
+}
+
+
+final class ReorderTimeline extends TimeLinesWrapperEvent {
+  final int oldIndex;
+  final int newIndex;
+  ReorderTimeline(this.oldIndex, this.newIndex);
+}
