@@ -26,7 +26,7 @@ sealed class Media {
   });
 }
 
-sealed class ImageMedia extends Media {
+final class ImageMedia extends Media {
 
 
   const ImageMedia({
@@ -37,7 +37,7 @@ sealed class ImageMedia extends Media {
   });
 }
 
-sealed class VideoMedia extends Media {
+final class VideoMedia extends Media {
 
 
   const VideoMedia({
@@ -48,7 +48,7 @@ sealed class VideoMedia extends Media {
   });
 }
 
-sealed class PdfMedia extends Media {
+final class PdfMedia extends Media {
 
 
   const PdfMedia({

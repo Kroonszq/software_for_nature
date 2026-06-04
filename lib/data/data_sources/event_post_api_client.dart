@@ -1,4 +1,5 @@
 import 'package:software_for_nature/data/models/coordinates.dart';
+import 'package:software_for_nature/data/models/media.dart';
 
 import '../models/event_post.dart';
 
@@ -17,6 +18,20 @@ class EventPostApiClient {
           lat: 52.0907,
           lng: 5.1214,
         ),
+        media: [
+          const ImageMedia(
+            id: "1",
+            title: "image 1",
+            altText: "image 1 alt text",
+            source: "/pics/EMOV/20260322/1500/EMOV_20260322-150000.jpg",
+          ),
+          const VideoMedia(
+            id: "2",
+            title: "video 1",
+            altText: "video 1 alt text",
+            source: "/multimedia/avi/EMOV_20260322-150000.avi",
+          ),
+        ]
       ),
       EventPost(
         id: '2',
