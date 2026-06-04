@@ -7,9 +7,13 @@ import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/observer.dart';
+import 'package:media_kit/media_kit.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
+  
   Bloc.observer = const Observer();
 
   runApp(const MyApp());

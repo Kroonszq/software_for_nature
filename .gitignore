@@ -7,7 +7,9 @@
 .buildlog/
 .history
 
-
+#backend node.js
+node_modules/
+.DS_Store
 
 # Flutter repo-specific
 /bin/cache/

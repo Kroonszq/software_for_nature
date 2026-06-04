@@ -1,0 +1,43 @@
+
+#thanks to using nodemon in docker-compose.yaml, 
+#running ''docker-compose up -d'' should now be sufficient to 
+#apply backend changes to Docker and reload express endpoints in Docker as well
+
+
+###
+#get events
+http://localhost:3000/events
+
+###
+#get 10 events
+http://localhost:3000/events?limit=10
+
+###
+#get latest events
+http://localhost:3000/events?latest=true
+
+
+
+###
+# post event
+POST http://localhost:3000/events
+Content-Type: application/json
+
+{
+  "title": "New Cleanup",
+  "description": "Beach cleanup event",
+  "lat": 52.1,
+  "lng": 5.12
+}
+
+###
+# update/PUT event
+PUT http://localhost:3000/events/1
+Content-Type: application/json
+
+{
+  "title": "Updated title",
+  "description": "Updated description",
+  "lat": 52.2,
+  "lng": 5.13
+}

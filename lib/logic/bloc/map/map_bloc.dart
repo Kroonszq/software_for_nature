@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:software_for_nature/data/models/geobounds.dart';
 import '../../../data/models/event_post.dart';
 import '../../../data/repositories/event_post_repository.dart';
 
@@ -10,6 +11,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
   MapBloc(this.repository) : super(MapInitial()) {
     on<LoadMapEvents>(_onLoad);
+    on<UpdateMapBounds>(_onBoundsUpdated);
   }
 
   Future<void> _onLoad(
@@ -24,6 +26,31 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         .where((e) => e.coordinates != null)
         .toList();
 
-    emit(MapLoaded(mapPosts));
+    emit(MapLoaded(
+      posts: mapPosts,
+      visiblePosts: mapPosts, // initially everything visible
+      bounds: null,
+    ));
+  }
+
+  Future<void> _onBoundsUpdated(
+    UpdateMapBounds event,
+    Emitter<MapState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! MapLoaded) return;
+
+    final filtered = currentState.posts.where((post) {
+      final coords = post.coordinates;
+      if (coords == null) return false;
+
+      return event.bounds.contains(coords);
+    }).toList();
+
+    emit(MapLoaded(
+      posts: currentState.posts,
+      visiblePosts: filtered,
+      bounds: event.bounds,
+    ));
   }
 }

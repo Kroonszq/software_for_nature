@@ -1,0 +1,58 @@
+services:
+  mock-http-server:
+    image: nginx:alpine
+    container_name: ingv_mock_http
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./mock-env/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./mock-env/mock-data:/mock-data:ro
+    networks:
+      - mock-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mock-database:
+    image: mysql:8.0
+    container_name: ingv_mock_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ingv_mock
+      MYSQL_USER: mock_user
+      MYSQL_PASSWORD: mock_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mock-env/sql-seeds:/docker-entrypoint-initdb.d:ro
+    networks:
+      - mock-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mock-api:
+    image: node:20
+    container_name: ingv_mock_api
+    working_dir: /app
+    volumes:
+      - ./mock-api:/app
+    command: sh -c "npm install && npx nodemon --legacy-watch server.js"
+    ports:
+      - "3000:3000"
+    networks:
+      - mock-network
+
+    depends_on:
+      mock-database:
+        condition: service_healthy
+
+networks:
+  mock-network:
+    driver: bridge
+    name: ingv-isolated-mock-net
