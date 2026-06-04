@@ -4,9 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/app_routes.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
 import 'package:software_for_nature/observer.dart';
+import 'package:media_kit/media_kit.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
+  
   Bloc.observer = const Observer();
 
   runApp(const MyApp());
