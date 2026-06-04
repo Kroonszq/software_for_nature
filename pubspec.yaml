@@ -41,6 +41,8 @@ dependencies:
   media_kit_video: ^2.0.1
   pdfx: ^2.9.2
   media_kit_libs_video: ^1.0.7
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 //import 'package:software_for_nature/data/models/coordinates.dart';
 //import 'package:software_for_nature/data/models/group.dart';
+import 'package:software_for_nature/data/models/coordinates.dart';
 
 class EventPost {
   final String id;
@@ -10,8 +11,7 @@ class EventPost {
   final DateTime endDuration;
 
   //final Group group;
-
-  //final Coordinates? coordinates;
+  final Coordinates? coordinates;
 
   const EventPost({
     required this.id,
@@ -21,7 +21,7 @@ class EventPost {
     required this.startDuration,
     required this.endDuration,
     //required this.group,
-    //this.coordinates,
+    this.coordinates,
   });
 }
 
