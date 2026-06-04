@@ -27,5 +27,21 @@ class EventPost {
     this.coordinates,
     this.media
   });
+
+  factory EventPost.fromJson(Map<String, dynamic> json) {
+  return EventPost(
+    id: json['id'],
+    title: json['title'],
+    description: json['description'],
+    timestamp: DateTime.parse(json['timestamp']),
+    coordinates: json['lat'] != null
+        ? Coordinates(lat: json['lat'], lng: json['lng'])
+        : null,
+    media: (json['media'] as List?)
+        ?.map((m) => Media.fromJson(m))
+        .toList(),
+  );
 }
+}
+
 

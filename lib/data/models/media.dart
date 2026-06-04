@@ -24,6 +24,33 @@ sealed class Media {
     required this.altText,
     required this.source,
   });
+
+  factory Media.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    String resolve(String path) => 'http://localhost:8080$path';
+
+    switch (json['type']) {
+      case 'image':
+        return ImageMedia(
+          id: json['id'].toString(),
+          title: json['title'],
+          altText: json['altText'],
+          source: resolve(json['source']),
+        );
+
+      case 'video':
+        return VideoMedia(
+          id: json['id'].toString(),
+          title: json['title'],
+          altText: json['altText'],
+          source: resolve(json['source']),
+        );
+
+      default:
+        throw Exception('Unknown media type');
+    }
+  }
 }
 
 final class ImageMedia extends Media {
