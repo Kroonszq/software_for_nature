@@ -2,23 +2,19 @@ part of 'timeline_bloc.dart';
 
 sealed class TimelineState {}
 
-class TimelineInitial extends TimelineState {}
+class TimelineInitial extends TimelineState{
+  EventPost? selectedPost;
 
-class TimelineLoading extends TimelineState {}
+  TimelineInitial({
+    this.selectedPost,
+  });
 
-class TimelineLoaded extends TimelineState {
-  final List<EventPost> posts;
-  final EventPost? selectedPost;
-
-  TimelineLoaded(this.posts, {this.selectedPost});
-
-  TimelineLoaded copyWith({
-    List<EventPost>? posts,
+  TimelineInitial copyWith({
     EventPost? selectedPost,
   }) {
-    return TimelineLoaded(
-      posts ?? this.posts,
-      selectedPost: selectedPost ?? this.selectedPost,
+    return TimelineInitial(
+      selectedPost: selectedPost,
     );
   }
+
 }
