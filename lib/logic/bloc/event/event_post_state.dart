@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:software_for_nature/data/models/geobounds.dart';
+
 import '../../../data/models/event_post.dart';
 
 sealed class EventPostState {}
@@ -10,18 +13,27 @@ class EventPostLoaded extends EventPostState {
   final List<EventPost> posts;
   final EventPost? selectedPost;
 
-  EventPostLoaded(
-    this.posts, {
+  final GeoBounds? bounds;
+  final DateTimeRange? timeRange;
+
+  EventPostLoaded({
+    required this.posts,
     this.selectedPost,
+    this.bounds,
+    this.timeRange,
   });
 
   EventPostLoaded copyWith({
     List<EventPost>? posts,
     EventPost? selectedPost,
+    GeoBounds? bounds,
+    DateTimeRange? timeRange,
   }) {
     return EventPostLoaded(
-      posts ?? this.posts,
+      posts: posts ?? this.posts,
       selectedPost: selectedPost ?? this.selectedPost,
+      bounds: bounds ?? this.bounds,
+      timeRange: timeRange ?? this.timeRange,
     );
   }
 }
