@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
+import 'package:software_for_nature/presentation/widgets/layout.dart';
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
@@ -12,9 +13,8 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapController = MapController();
-
-    return Scaffold(
-      body: BlocBuilder<MapBloc, MapState>(
+    return Layout(
+      child: BlocBuilder<MapBloc, MapState>(
         builder: (context, state) {
           if (state is MapLoading) {
             return const Center(child: CircularProgressIndicator());
