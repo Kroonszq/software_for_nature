@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
+import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 
-class MapPage extends StatefulWidget {
+class MapPage extends StatelessWidget {
   const MapPage({super.key});
 
   @override
-  State<MapPage> createState() => _MapPageState();
-}
-
-class _MapPageState extends State<MapPage> {
-  @override
   Widget build(BuildContext context) {
+    final mapController = MapController();
     return Layout(
       child: BlocBuilder<MapBloc, MapState>(
         builder: (context, state) {
@@ -21,22 +21,39 @@ class _MapPageState extends State<MapPage> {
           }
 
           if (state is MapLoaded) {
-            return ListView(
-              children: state.posts.map((post) {
-                return ListTile(
-                  title: Text(post.title),
-                  subtitle: Text(
-                    post.coordinates != null
-                        ? "Lat: ${post.coordinates!.lat}, Lng: ${post.coordinates!.lng}"
-                        : "No location",
-                  ),
-                  onTap: () {
-                    context.read<MapBloc>().add(
-                          SelectMapEvent(post),
-                        );
-                  },
-                );
-              }).toList(),
+            return FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                initialCenter: LatLng(52.0907, 5.1214),
+                initialZoom: 10,
+                onPositionChanged: (position, hasGesture) {
+                  final bounds =
+                      mapController.camera.visibleBounds;
+
+                  context.read<MapBloc>().add(
+                        UpdateMapBounds(bounds.toDomain()),
+                      );
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.myapp',
+                ),
+
+                MarkerLayer(
+                  markers: state.visiblePosts
+                      .map((event) {
+                    return Marker(
+                      point: event.coordinates!.latLng,
+                      width: 40,
+                      height: 40,
+                      child: const Icon(Icons.location_pin),
+                    );
+                  }).toList(),
+                ),
+              ],
             );
           }
 

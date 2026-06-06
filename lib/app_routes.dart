@@ -24,11 +24,11 @@ class AppRoutes {
   {
     switch(settings.name) {
       case timeline:
-        return buildRoute(const TimeLinePage());
+        return buildRoute(const TimelinePage());
       case map:
         return buildRoute(const MapPage());
       default:
-        return buildRoute(const TimeLinePage());
+        return buildRoute(const TimelinePage());
     }
   }
 

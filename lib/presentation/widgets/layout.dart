@@ -14,6 +14,9 @@ class Layout extends StatelessWidget {
     return Scaffold(
       appBar: Navigation(),  
       body: child,
+      drawer: Drawer(
+        child: Text("Dit is de draweer"),
+      ),
     );
   }
 }
