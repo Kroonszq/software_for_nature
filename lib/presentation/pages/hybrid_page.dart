@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
-import 'package:software_for_nature/logic/bloc/event/event_post_bloc.dart';
-import 'package:software_for_nature/logic/bloc/event/event_post_event.dart';
-import 'package:software_for_nature/logic/bloc/event/event_post_state.dart';
 
-import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
+import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
+import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
@@ -27,9 +26,9 @@ class _HybridPageState extends State<HybridPage> {
   void _onMapMove(MapCamera camera) {
     final bounds = mapController.camera.visibleBounds.toDomain();
 
-    context.read<EventPostBloc>().add(
-          SetMapBounds(bounds),
-        );
+    context.read<HybridBloc>().add(
+      HybridBoundsChanged(bounds),
+    );
   }
 
   @override
@@ -37,6 +36,7 @@ class _HybridPageState extends State<HybridPage> {
     return Layout(
       child: Row(
         children: [
+
           // ================= TIMELINE =================
           Expanded(
             flex: 1,
@@ -44,8 +44,21 @@ class _HybridPageState extends State<HybridPage> {
               create: (context) => TimeLinesWrapperBloc(
                 context.read(),
               ),
-              child: BlocProvider(
-                create: (_) => TimelineBloc(),
+              child: BlocListener<TimeLinesWrapperBloc, TimeLinesWrapperState>(
+                listener: (context, state) {
+                  // OPTIONAL BRIDGE:
+                  // sync selection into HybridBloc if needed
+                  if (state is TimeLinesWrapperLoaded &&
+                      state.timelines.isNotEmpty) {
+                    final selected = state.allEvents.firstOrNull;
+
+                    if (selected != null) {
+                      context.read<HybridBloc>().add(
+                        HybridEventSelected(selected),
+                      );
+                    }
+                  }
+                },
                 child: const TimelineView(),
               ),
             ),
@@ -54,22 +67,8 @@ class _HybridPageState extends State<HybridPage> {
           // ================= MAP =================
           Expanded(
             flex: 1,
-            child: BlocBuilder<EventPostBloc, EventPostState>(
+            child: BlocBuilder<HybridBloc, HybridState>(
               builder: (context, state) {
-                if (state is! EventPostLoaded) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final mapEvents = state.posts.where((e) {
-                  final c = e.coordinates;
-                  if (c == null) return false;
-
-                  final bounds = state.bounds;
-                  if (bounds == null) return true;
-
-                  return bounds.contains(c);
-                }).toList();
-
                 return FlutterMap(
                   mapController: mapController,
                   options: MapOptions(
@@ -87,12 +86,20 @@ class _HybridPageState extends State<HybridPage> {
                     ),
 
                     MarkerLayer(
-                      markers: mapEvents.map((event) {
+                      markers: state.events
+                          .where((e) => e.coordinates != null)
+                          .map((event) {
+                        final isSelected =
+                            state.selectedEvent == event;
+
                         return Marker(
                           point: event.coordinates!.latLng,
                           width: 40,
                           height: 40,
-                          child: const Icon(Icons.location_pin),
+                          child: Icon(
+                            Icons.location_pin,
+                            color: isSelected ? Colors.red : Colors.blue,
+                          ),
                         );
                       }).toList(),
                     ),

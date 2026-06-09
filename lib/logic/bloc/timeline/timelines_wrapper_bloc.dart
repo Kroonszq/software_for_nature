@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
+import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/models/timeline.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_column.dart';
@@ -15,7 +16,9 @@ class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperS
   TimeLinesWrapperBloc(this._eventPostRepository) : super(TimeLinesWrapperInitial()) {
 
     on<LoadTimelineEvents>((event, emit) async {
-      var events = await _eventPostRepository.getEventPosts();
+      final events = await _eventPostRepository.queryEvents(
+        const EventQuery(),
+      );
 
 
       // Group the event by there group property
