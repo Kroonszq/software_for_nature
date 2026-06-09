@@ -46,13 +46,36 @@ class TimelineEventCard extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               width: state.selectedPost == event ? 800 : 100,
               height: getHeight(event),
-              child: Text(event.title),
+             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Start: ${_formatTime(event.startDuration)}',
+                  style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'End: ${_formatTime(event.endDuration)}',
+                  style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
             ),
           ),
         );
       },
     );
   }
+
+String _formatTime(DateTime dt) =>
+    '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   double getHeight(EventPost event) {
     final minutes = event.endDuration.difference(event.startDuration).inMinutes;

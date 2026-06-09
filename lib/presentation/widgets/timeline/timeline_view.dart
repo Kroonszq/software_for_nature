@@ -136,6 +136,7 @@ class _TimelineViewState extends State<TimelineView> {
                                 Expanded(
                                   child: state.timelines[state.timelineOrder[i]]?.timelineWidget != null
                                       ? TimelineColumn(
+                                          earliest: earliest,
                                           listOfEvents: state.timelines[state.timelineOrder[i]]!.timelineWidget!.listOfEvents,
                                           scrollController: _timelineScrollControllers[state.timelineOrder[i]],
                                           minHeight: minHeight,
