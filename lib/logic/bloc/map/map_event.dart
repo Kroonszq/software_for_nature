@@ -15,3 +15,9 @@ class UpdateMapBounds extends MapEvent {
 
   UpdateMapBounds(this.bounds);
 }
+
+class UpdateTimeWindow extends MapEvent {
+  final TimeWindow window;
+
+  UpdateTimeWindow(this.window);
+}

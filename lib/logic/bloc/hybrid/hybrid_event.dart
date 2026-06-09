@@ -22,3 +22,9 @@ class HybridEventSelected extends HybridEvent {
 
 /// Reload current query (manual refresh if needed)
 class HybridReloadRequested extends HybridEvent {}
+
+class HybridTimeWindowChanged extends HybridEvent {
+  final TimeWindow window;
+
+  HybridTimeWindowChanged(this.window);
+}

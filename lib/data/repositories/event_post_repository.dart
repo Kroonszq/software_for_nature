@@ -47,6 +47,28 @@ class EventPostRepository {
     return results;
   }
 
+  Future<EventPost?> getFirstEvent() async {
+    final events = await _apiClient.fetchEventPosts(
+      query: const EventQuery(),
+      order: "asc",
+      limit: 1,
+    );
+
+    if (events.isEmpty) return null;
+    return events.first;
+  }
+
+  Future<EventPost?> getLastEvent() async {
+    final events = await _apiClient.fetchEventPosts(
+      query: const EventQuery(),
+      order: "desc",
+      limit: 1,
+    );
+
+    if (events.isEmpty) return null;
+    return events.first;
+  }
+
   // Future<List<EventPost>> getEventPosts() async {
   //   // only return cache if it already has data
   //   if (_cache != null && _cache!.isNotEmpty) {

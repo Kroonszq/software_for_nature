@@ -10,12 +10,15 @@ class HybridState {
 
   final bool loading;
 
+  final TimeWindow? timeWindow;
+
   const HybridState({
     required this.events,
     this.bounds,
     this.timeRange,
     this.selectedEvent,
     this.loading = false,
+    this.timeWindow
   });
 
   HybridState copyWith({
@@ -24,6 +27,7 @@ class HybridState {
     DateTimeRange? timeRange,
     EventPost? selectedEvent,
     bool? loading,
+    TimeWindow? timeWindow,
   }) {
     return HybridState(
       events: events ?? this.events,
@@ -31,6 +35,7 @@ class HybridState {
       timeRange: timeRange ?? this.timeRange,
       selectedEvent: selectedEvent ?? this.selectedEvent,
       loading: loading ?? this.loading,
+      timeWindow: timeWindow ?? this.timeWindow,
     );
   }
 }

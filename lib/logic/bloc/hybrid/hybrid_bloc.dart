@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/geobounds.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
+import 'package:software_for_nature/data/models/time_window.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 
 part 'hybrid_event.dart';
@@ -17,8 +18,11 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     on<HybridTimeRangeChanged>(_onTimeRangeChanged);
     on<HybridEventSelected>(_onSelected);
     on<HybridReloadRequested>(_onReload);
+    on<HybridTimeWindowChanged>(_onTimeWindowChanged);
 
     add(HybridReloadRequested());
+    
+    
   }
 
   GeoBounds? _bounds;
@@ -71,4 +75,21 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       ),
     );
   }
+
+  void _onTimeWindowChanged(
+    HybridTimeWindowChanged event,
+    Emitter<HybridState> emit,
+  ) {
+    final current = state;
+
+    final filtered = current.events.where((e) {
+      return event.window.contains(e.startDuration);
+    }).toList();
+
+    emit(current.copyWith(
+      timeWindow: event.window,
+      events: filtered,
+    ));
+  }
+  
 }
