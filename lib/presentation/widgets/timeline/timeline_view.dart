@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/timeline.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
+import 'package:software_for_nature/presentation/widgets/minimized_events_stack.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_axis_bar.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_header.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_column.dart';
@@ -84,8 +84,10 @@ class _TimelineViewState extends State<TimelineView> {
 
         return Row(
           children: [
-            // ─── Time axis bar ───
-           ScrollConfiguration(
+            // Minimized events stack
+            const MinimizedEventsStack(),
+            // Time axis bar
+            ScrollConfiguration(
               behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
               child: SingleChildScrollView(
                 controller: _axisScrollController,
@@ -95,7 +97,7 @@ class _TimelineViewState extends State<TimelineView> {
               ),
             ),
             const VerticalDivider(width: 1),
-            // ─── Timelines ───
+            // Timelines
             Expanded(
               flex: 10,
               child: LayoutBuilder(
@@ -124,15 +126,21 @@ class _TimelineViewState extends State<TimelineView> {
                             width: columnWidth, 
                             child: Column(
                               children: [
-                                // ─── Header ───
+                                // Timeline header
                                 TimelineHeader(
                                     title: 'Timeline ${state.timelineOrder[i]}',
+                                    groupName: state.timelines[state.timelineOrder[i]]!.events.isNotEmpty
+                                        ? state.timelines[state.timelineOrder[i]]!.events.first.group.title
+                                        : 'Timeline ${state.timelineOrder[i]}',
                                     position: i,
+                                    color: state.timelines[state.timelineOrder[i]]!.events.isNotEmpty
+                                        ? state.timelines[state.timelineOrder[i]]!.events.first.group.color
+                                        : Colors.blue,
                                     onMinimize: () => context
                                         .read<TimeLinesWrapperBloc>()
                                         .add(SetTimelineInActive(state.timelineOrder[i])),
                                 ),
-                                // ─── Timeline content ───
+                                // Timeline content
                                 Expanded(
                                   child: state.timelines[state.timelineOrder[i]]?.timelineWidget != null
                                       ? TimelineColumn(

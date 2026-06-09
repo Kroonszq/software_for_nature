@@ -11,6 +11,7 @@ class EventPost {
 
   final Group group;
 
+
   final Coordinates? coordinates;
 
   const EventPost({
@@ -23,5 +24,26 @@ class EventPost {
     required this.group,
     this.coordinates,
   });
-}
 
+  EventPost copyWith({
+    String? id,
+    String? title,
+    String? description,
+    DateTime? timestamp,
+    DateTime? startDuration,
+    DateTime? endDuration,
+    Group? group,
+    Coordinates? coordinates,
+  }) {
+    return EventPost(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      timestamp: timestamp ?? this.timestamp,
+      startDuration: startDuration ?? this.startDuration,
+      endDuration: endDuration ?? this.endDuration,
+      group: group ?? this.group,
+      coordinates: coordinates ?? this.coordinates,
+    );
+  }
+}
