@@ -13,6 +13,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
   List<EventPost> _allPosts = [];
 
+  EventPost? earliest;
+  EventPost? latest;
+
   GeoBounds? _currentBounds;
   TimeWindow? _currentWindow;
 
@@ -28,15 +31,28 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   ) async {
     emit(MapLoading());
 
-    _allPosts = await repository.queryEvents(const EventQuery());
+    final results = await Future.wait([
+      repository.queryEvents(const EventQuery()),
+      repository.getEarliestEvent(),
+      repository.getLatestEvent(),
+    ]);
+
+    _allPosts = results[0] as List<EventPost>;
+    earliest = results[1] as EventPost;
+    latest = results[2] as EventPost;
+
+    _currentWindow = TimeWindow(
+      start: earliest!.startDuration,
+      end: latest!.endDuration,
+    );
 
     _emitFiltered(emit);
   }
 
-  Future<void> _onBoundsUpdated(
+  void _onBoundsUpdated(
     UpdateMapBounds event,
     Emitter<MapState> emit,
-  ) async {
+  ) {
     _currentBounds = event.bounds;
     _emitFiltered(emit);
   }
@@ -69,7 +85,13 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       posts: _allPosts,
       visiblePosts: filtered,
       bounds: _currentBounds,
-      timeWindow: _currentWindow,
+      timeWindow: _currentWindow ??
+          TimeWindow(
+            start: earliest!.startDuration,
+            end: latest!.endDuration,
+          ),
+      earliest: earliest,
+      latest: latest,
     ));
   }
 }

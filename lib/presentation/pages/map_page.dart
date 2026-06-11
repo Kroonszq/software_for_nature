@@ -35,17 +35,22 @@ class MapPage extends StatelessWidget {
             return const Center(child: Text("No map data"));
           }
 
+          final minTime = state.earliest!.startDuration;
+          final maxTime = state.latest!.endDuration;
+
+          final window = state.timeWindow ??
+              TimeWindow(start: minTime, end: maxTime);
+
           return Stack(
             children: [
-              // ================= MAP =================
+              // MAP
               FlutterMap(
                 mapController: mapController,
                 options: MapOptions(
                   initialCenter: LatLng(52.0907, 5.1214),
                   initialZoom: 10,
                   onPositionChanged: (position, hasGesture) {
-                    final bounds =
-                        mapController.camera.visibleBounds;
+                    final bounds = mapController.camera.visibleBounds;
 
                     context.read<MapBloc>().add(
                       UpdateMapBounds(bounds.toDomain()),
@@ -59,24 +64,20 @@ class MapPage extends StatelessWidget {
                     userAgentPackageName: 'com.example.myapp',
                   ),
 
-                  BlocBuilder<EventSelectionBloc, EventSelectionState>(
-                    builder: (context, selectionState) {
-                      return MarkerLayer(
-                        markers: state.visiblePosts.map((event) {
-                          return Marker(
-                            point: event.coordinates!.latLng,
-                            width: 60,
-                            height: 60,
-                            child: MapMarker(event: event),
-                          );
-                        }).toList(),
+                  MarkerLayer(
+                    markers: state.visiblePosts.map((event) {
+                      return Marker(
+                        point: event.coordinates!.latLng,
+                        width: 60,
+                        height: 60,
+                        child: MapMarker(event: event),
                       );
-                    },
+                    }).toList(),
                   ),
                 ],
               ),
 
-              // ================= HOVER POPUP =================
+              // HOVER POPUP
               BlocBuilder<EventSelectionBloc, EventSelectionState>(
                 builder: (context, selectionState) {
                   if (selectionState.hovered == null) {
@@ -97,46 +98,18 @@ class MapPage extends StatelessWidget {
                 },
               ),
 
-              // ================= TIMELINE NAVIGATOR =================
+              // TIMELINE NAVIGATOR
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: BlocBuilder<MapBloc, MapState>(
-                    builder: (context, state) {
-                      if (state is! MapLoaded) {
-                        return const SizedBox();
-                      }
-
-                      final events = state.posts;
-
-                      if (events.isEmpty) {
-                        return const SizedBox();
-                      }
-
-                      final minTime = events
-                          .map((e) => e.startDuration)
-                          .reduce((a, b) => a.isBefore(b) ? a : b);
-
-                      final maxTime = events
-                          .map((e) => e.endDuration)
-                          .reduce((a, b) => a.isAfter(b) ? a : b);
-
-                      final window = state.timeWindow ??
-                          TimeWindow(
-                            start: minTime,
-                            end: maxTime,
-                          );
-
-                      return TimelineNavigator(
-                        minTime: minTime,
-                        maxTime: maxTime,
-                        window: window,
-                        onChanged: (newWindow) {
-                          context.read<MapBloc>().add(
-                            UpdateTimeWindow(newWindow),
-                          );
-                        },
+                  child: TimelineNavigator(
+                    minTime: minTime,
+                    maxTime: maxTime,
+                    window: window,
+                    onChanged: (newWindow) {
+                      context.read<MapBloc>().add(
+                        UpdateTimeWindow(newWindow),
                       );
                     },
                   ),
