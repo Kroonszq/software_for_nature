@@ -5,6 +5,21 @@ import '../models/event_post.dart';
 
 
 class EventPostApiClient {
+
+  Future<EventPost> fetchEarliestEvent() async {
+    final events = await fetchEventPosts();
+
+    return events.reduce((a, b) =>
+        a.startDuration.isBefore(b.startDuration) ? a : b);
+  }
+
+  Future<EventPost> fetchLatestEvent() async {
+    final events = await fetchEventPosts();
+
+    return events.reduce((a, b) =>
+        a.endDuration.isAfter(b.endDuration) ? a : b);
+  }
+  
   Future<List<EventPost>> fetchEventPosts() async {
     // simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
