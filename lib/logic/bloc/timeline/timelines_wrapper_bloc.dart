@@ -143,13 +143,8 @@ class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperS
       final current = state as TimeLinesWrapperLoaded;
       
       final newOrder = List<int>.from(current.timelineOrder);
-      int newIndex = event.newIndex;
-      
-      // Flutter's ReorderableListView quirk: adjust index when moving forward
-      if (newIndex > event.oldIndex) newIndex -= 1;
-      
       final item = newOrder.removeAt(event.oldIndex);
-      newOrder.insert(newIndex, item);
+      newOrder.insert(event.newIndex, item);
       
       emit(current.copyWith(timelineOrder: newOrder));
     });
