@@ -26,3 +26,7 @@ class RestoreEvent extends EventSelectionEvent {
   final EventPost event;
   RestoreEvent(this.event);
 }
+
+class ClearHoverEvent extends EventSelectionEvent {
+  ClearHoverEvent();
+}

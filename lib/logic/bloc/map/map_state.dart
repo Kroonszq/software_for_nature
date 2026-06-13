@@ -12,17 +12,17 @@ class MapLoaded extends MapState {
   final List<EventPost> visiblePosts;
   final GeoBounds? bounds;
 
-  final TimeWindow? timeWindow;
-  final EventPost? earliest;  
-  final EventPost? latest;  
+  final TimeWindow timeWindow;
+  final EventPost earliest;  
+  final EventPost latest;  
 
   MapLoaded({
     required this.posts,
     required this.visiblePosts,
     this.bounds,
-    this.timeWindow,
-    this.earliest,
-    this.latest
+    required this.timeWindow,
+    required this.earliest,
+    required this.latest
   });
 
   MapLoaded copyWith({

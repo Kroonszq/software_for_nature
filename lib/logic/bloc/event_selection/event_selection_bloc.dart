@@ -11,6 +11,7 @@ class EventSelectionBloc
     on<CloseEvent>(_onClose);
     on<MinimizeEvent>(_onMinimize);
     on<RestoreEvent>(_onRestore);
+    on<ClearHoverEvent>(_onClearHover);
   }
 
   void _onHover(HoverEvent event, Emitter<EventSelectionState> emit) {
@@ -69,4 +70,11 @@ class EventSelectionBloc
       minimized: minimized,
     ));
   }
+
+  void _onClearHover(
+  ClearHoverEvent event,
+  Emitter<EventSelectionState> emit,
+) {
+  emit(state.copyWith(hovered: null));
+}
 }
