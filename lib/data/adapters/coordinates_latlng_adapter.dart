@@ -6,7 +6,7 @@ extension CoordinatesMapper on Coordinates {
 }
 
 extension LatLngMapper on LatLng {
-  Coordinates get domain => Coordinates(
+  Coordinates get coordinates => Coordinates(
     lat: latitude,
     lng: longitude,
   );
