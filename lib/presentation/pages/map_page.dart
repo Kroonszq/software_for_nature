@@ -1,152 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 
-import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
-
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
-import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
-import 'package:software_for_nature/logic/bloc/event_selection/event_selection_event.dart';
-import 'package:software_for_nature/logic/bloc/event_selection/event_selection_state.dart';
-
-import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/map/map_marker.dart';
+import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/timeline_navigator.dart';
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final mapController = MapController();
+  State<MapPage> createState() => _MapPageState();
+}
 
+class _MapPageState extends State<MapPage> {
+  final MapController mapController = MapController();
+
+  @override
+  Widget build(BuildContext context) {
     return Layout(
       child: BlocBuilder<MapBloc, MapState>(
         builder: (context, mapState) {
-          if (mapState is MapLoading) {
+          if (mapState is! MapLoaded) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (mapState is! MapLoaded) {
-            return const Center(child: Text("No map data"));
-          }
-
-          final minTime = mapState.earliest.startDuration;
-          final maxTime = mapState.latest.endDuration;
+          final markers = mapState.visiblePosts.map((e) {
+            return Marker(
+              point: e.coordinates!.latLng,
+              width: MapMarker.markerWidth,
+              height: MapMarker.markerHeight,
+              child: MapMarker(event: e),
+            );
+          }).toList();
 
           return Stack(
             children: [
-              /// ---------------- MAP ----------------
-              MouseRegion(
-                onExit: (_) { //to not show popup when cursor leaves map
-                  context.read<EventSelectionBloc>().add(ClearHoverEvent());
-                },
-                child: FlutterMap(
-                  mapController: mapController,
-                  options: MapOptions(
-                    initialCenter: const LatLng(52.0907, 5.1214),
-                    initialZoom: 10,
-                
-                    onPositionChanged: (position, hasGesture) {
-                      final bounds =
-                          mapController.camera.visibleBounds;
-                
-                      context.read<MapBloc>().add(
-                        UpdateMapBounds(bounds.toDomain()),
-                      );
-                      if (hasGesture) { //to not show pop-up while dragging the map
-                        context.read<EventSelectionBloc>().add(ClearHoverEvent());
-                      }
-                    },
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.example.myapp',
-                    ),
-                
-                    /// ---------------- MARKERS ----------------
-                    MarkerLayer(
-                      markers: mapState.visiblePosts.map((event) {
-                        final latLng = event.coordinates!.latLng;
-                
-                        return Marker(
-                          point: latLng,
-                          width: 60,
-                          height: 60,
-                          child: MouseRegion(
-                            onEnter: (_) {
-                              context
-                                  .read<EventSelectionBloc>()
-                                  .add(HoverEvent(event));
-                            },
-                            onExit: (_) {
-                              context
-                                  .read<EventSelectionBloc>()
-                                  .add(ClearHoverEvent());
-                            },
-                            child: GestureDetector(
-                              onTap: () {
-                                context
-                                    .read<EventSelectionBloc>()
-                                    .add(SelectEvent(event));
-                              },
-                              child: MapMarker(event: event),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+              FlutterMap(
+                mapController: mapController,
+                options: MapOptions(
+                  initialCenter: const LatLng(52.09, 5.12),
+                  initialZoom: 10,
                 ),
-              ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.software_for_nature.app',
+                  ),
 
-              /// ---------------- HOVER / POPUP ----------------
-              BlocBuilder<EventSelectionBloc, EventSelectionState>(
-                builder: (context, selectionState) {
-                  final hovered = selectionState.hovered;
+                  MarkerClusterLayerWidget(
+                    options: MarkerClusterLayerOptions(
+                      markers: markers,
 
-                  if (hovered == null ||
-                      hovered.coordinates == null) {
-                    return const SizedBox();
-                  }
+                      maxClusterRadius: 70,
+                      size: const Size(45, 45),
 
-                  final screenPos = mapController.camera
-                      .latLngToScreenOffset(
-                        hovered.coordinates!.latLng,
-                      );
+                      spiderfyCluster: true,
+                      zoomToBoundsOnClick: false,
 
-                  return Positioned(
-                    left: screenPos.dx + 12,
-                    top: screenPos.dy - 40,
-                    child: Material(
-                      elevation: 6,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(hovered.title),
-                      ),
+                      builder: (context, clusterMarkers) {
+                        return _ClusterMarker(
+                          count: clusterMarkers.length,
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
 
-              /// ---------------- TIMELINE ----------------
+              /// TIMELINE
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: TimelineNavigator(
-                    minTime: minTime,
-                    maxTime: maxTime,
+                    minTime: mapState.earliest.startDuration,
+                    maxTime: mapState.latest.endDuration,
                     window: mapState.timeWindow,
                     onChanged: (newWindow) {
-                      context
-                          .read<MapBloc>()
-                          .add(UpdateTimeWindow(newWindow));
+                      context.read<MapBloc>().add(
+                            UpdateTimeWindow(newWindow),
+                          );
                     },
                   ),
                 ),
@@ -154,6 +93,41 @@ class MapPage extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _ClusterMarker extends StatelessWidget {
+  final int count;
+
+  const _ClusterMarker({
+    super.key,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue,
+        border: Border.all(
+          color: Colors.white,
+          width: 3,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          '$count',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
       ),
     );
   }
