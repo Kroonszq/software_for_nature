@@ -129,7 +129,7 @@ class TimelineEventCard extends StatelessWidget {
       Divider(height: 1, color: Colors.blue.shade200),
       const SizedBox(height: 6),
       Text(
-        'Group: ${event.group.title}',
+        'Group: ${event.group?.title ?? 'Ungrouped'}',
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
-import 'package:software_for_nature/presentation/widgets/event_drawer.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_create_drawer.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_view_drawer.dart';
 import 'package:software_for_nature/presentation/widgets/navigation.dart';
 
 @immutable
@@ -21,8 +22,11 @@ class Layout extends StatelessWidget {
           context.read<MinimizedEventsBloc>().add(MinimizeAllOpen());
         }
       },
-      body: child,
-      drawer: const EventDrawer(),
+      // The app bar already handles the top inset; protect the body from the
+      // bottom system navigation bar and side insets.
+      body: SafeArea(top: false, child: child),
+      drawer: const EventViewDrawer(),
+      endDrawer: const EventCreateDrawer(),
     );
   }
 }

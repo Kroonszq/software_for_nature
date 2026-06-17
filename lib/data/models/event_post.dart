@@ -1,33 +1,39 @@
-import 'package:flutter/material.dart';
-import 'package:software_for_nature/core/utils/color_utils.dart';
 import 'package:software_for_nature/data/models/coordinates.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
 import 'package:software_for_nature/data/models/event_chart.dart';
 import 'package:software_for_nature/data/models/group.dart';
 import 'package:software_for_nature/data/models/json_model.dart';
+import 'package:software_for_nature/data/models/user.dart';
 
 class EventPost implements JsonModel<EventPost> {
   @override
   final String id;
-  
+
   final String title;
   final String description;
   final DateTime timestamp;
   final DateTime startDuration;
   final DateTime endDuration;
-  final Group group;
+  final String groupId;
+  final String userId;
   final Coordinates? coordinates;
   final List<EventAttachment> attachments;
   final List<EventChart> charts;
 
-  const EventPost({
+  // Hydrated externally after fetch (mirrors [group]). Not serialized.
+  Group? group;
+  User? user;
+
+
+  EventPost({
     required this.id,
     required this.title,
     required this.description,
     required this.timestamp,
     required this.startDuration,
     required this.endDuration,
-    required this.group,
+    required this.groupId,
+    required this.userId,
     this.coordinates,
     this.attachments = const [],
     this.charts = const [],
@@ -40,7 +46,10 @@ class EventPost implements JsonModel<EventPost> {
     DateTime? timestamp,
     DateTime? startDuration,
     DateTime? endDuration,
+    String? groupId,
+    String? userId,
     Group? group,
+    User? user,
     Coordinates? coordinates,
     List<EventAttachment>? attachments,
     List<EventChart>? charts,
@@ -52,7 +61,8 @@ class EventPost implements JsonModel<EventPost> {
       timestamp: timestamp ?? this.timestamp,
       startDuration: startDuration ?? this.startDuration,
       endDuration: endDuration ?? this.endDuration,
-      group: group ?? this.group,
+      groupId: groupId ?? this.groupId,
+      userId: userId ?? this.userId,
       coordinates: coordinates ?? this.coordinates,
       attachments: attachments ?? this.attachments,
       charts: charts ?? this.charts,
@@ -60,38 +70,27 @@ class EventPost implements JsonModel<EventPost> {
   }
 
   @override
-  Map<String, dynamic> toJson()
-  {
+  Map<String, dynamic> toJson() {
     return {
-        'id': id,
-        'title': title,
-        'description': description,
-        'timestamp': timestamp.toIso8601String(),
-        'startDuration': startDuration.toIso8601String(),
-        'endDuration': endDuration.toIso8601String(),
-        'group': {
-          'title': group.title,
-          'color': ColorUtils.toHex(group.color),
+      'id': id,
+      'title': title,
+      'description': description,
+      'timestamp': timestamp.toIso8601String(),
+      'startDuration': startDuration.toIso8601String(),
+      'endDuration': endDuration.toIso8601String(),
+      'groupId': groupId,
+      'userId': userId,
+      if (coordinates != null)
+        'coordinates': {
+          'lat': coordinates!.lat,
+          'lng': coordinates!.lng,
         },
-        if (coordinates != null)
-          'coordinates': {
-            'lat': coordinates!.lat,
-            'lng': coordinates!.lng,
-          },
+      if (attachments.isNotEmpty)
+        'attachments': attachments.map((a) => a.toJson()).toList(),
     };
   }
-      
-  factory EventPost.fromJson(Map<String, dynamic> json) 
-  {
-    final groupJson = json['group'];
-    final group = groupJson is Map<String, dynamic>
-        ? Group(
-            id: groupJson['id']?.toString() ?? '',
-            title: groupJson['title'] as String,
-            color: ColorUtils.fromHex(groupJson['color']),
-          )
-        : const Group(id: 'ungrouped', title: 'Ungrouped', color: Colors.grey);
 
+  factory EventPost.fromJson(Map<String, dynamic> json) {
     Coordinates? coordinates;
     final coord = json['coordinates'];
     if (coord is Map<String, dynamic>) {
@@ -101,6 +100,13 @@ class EventPost implements JsonModel<EventPost> {
       );
     }
 
+    final rawAttachments = json['attachments'];
+    final attachments = rawAttachments is List
+        ? rawAttachments
+            .map((a) => EventAttachment.fromJson(a as Map<String, dynamic>))
+            .toList()
+        : <EventAttachment>[];
+
     return EventPost(
       id: json['id'].toString(),
       title: json['title'] as String,
@@ -108,8 +114,11 @@ class EventPost implements JsonModel<EventPost> {
       timestamp: DateTime.parse(json['timestamp'] as String),
       startDuration: DateTime.parse(json['startDuration'] as String),
       endDuration: DateTime.parse(json['endDuration'] as String),
-      group: group,
+      groupId: json['groupId']?.toString() ?? '',
+      // Defaults to the test user ('1') for legacy records that predate userId.
+      userId: json['userId']?.toString() ?? '1',
       coordinates: coordinates,
+      attachments: attachments,
     );
   }
 }

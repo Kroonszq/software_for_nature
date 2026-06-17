@@ -6,6 +6,22 @@ sealed class TimeLinesWrapperEvent {}
 final class LoadTimelineEvents extends TimeLinesWrapperEvent{
 }
 
+/// Dispatched whenever the active filter criteria change. The wrapper updates
+/// its query and refetches the matching events.
+final class FilterChanged extends TimeLinesWrapperEvent {
+  final List<Group> activeGroups;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String searchQuery;
+
+  FilterChanged({
+    this.activeGroups = const [],
+    this.startDate,
+    this.endDate,
+    this.searchQuery = '',
+  });
+}
+
 /// Sets the timeline active in the wrapper.
 final class SetTimelineActive extends TimeLinesWrapperEvent{
   final int timelineHash;

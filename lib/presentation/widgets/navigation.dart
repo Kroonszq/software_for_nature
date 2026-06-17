@@ -23,39 +23,69 @@ class Navigation extends StatelessWidget implements PreferredSizeWidget {
         }
       },
       child: Container(
-        decoration: BoxDecoration(color: Colors.black),
-        child: 
-          Stack(alignment: Alignment.center,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        for (final entry in AppRoutes.navRoutes.entries)
-                          BlocBuilder<NavigationBloc, NavigationState>(
-                            builder: (context, state) {
-                              final currentRoute = state is NavigationRouteChanged ? state.route : AppRoutes.timeline;
-                              final isActive = currentRoute == entry.value;
-                              return NavButton(label: entry.key, route: entry.value, isActive: isActive);
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    child: Icon(Icons.person, color: Colors.white, size: 18),
+        decoration: const BoxDecoration(color: Colors.black),
+        // Keep the black bar filling behind the status bar, but push its
+        // content below the system status bar so it isn't overlapped.
+        child: SafeArea(
+          bottom: false,
+          child: LayoutBuilder(
+          builder: (context, constraints) {
+            // On narrow screens lay everything out in a single inline row
+            // (scrollable nav buttons + compact create button + profile) so
+            // nothing overlaps; on wider screens keep the centered create
+            // button overlay design.
+            final bool isCompact = constraints.maxWidth < 600;
 
-                  )
+            final navButtons = ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (final entry in AppRoutes.navRoutes.entries)
+                  BlocBuilder<NavigationBloc, NavigationState>(
+                    builder: (context, state) {
+                      final currentRoute = state is NavigationRouteChanged
+                          ? state.route
+                          : AppRoutes.timeline;
+                      final isActive = currentRoute == entry.value;
+                      return NavButton(
+                        label: entry.key,
+                        route: entry.value,
+                        isActive: isActive,
+                      );
+                    },
+                  ),
+              ],
+            );
+
+            final profile = Padding(
+              padding: const EdgeInsets.all(16),
+              child: Icon(Icons.person, color: Colors.white, size: 18),
+            );
+
+            if (isCompact) {
+              return Row(
+                children: [
+                  Expanded(child: navButtons),
+                  const CreateEventButton(compact: true),
+                  profile,
                 ],
-              ),
-              CreateEventButton()
-            ],
-          )
-        
-        
+              );
+            }
+
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: navButtons),
+                    profile,
+                  ],
+                ),
+                const CreateEventButton(),
+              ],
+            );
+          },
+        ),
+        ),
       ),
     );
   }

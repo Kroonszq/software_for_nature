@@ -6,7 +6,7 @@ import 'event_post_state.dart';
 class EventPostBloc extends Bloc<EventPostEvent, EventPostState> {
   final EventPostRepository repository;
 
-  EventPostBloc(this.repository) : super(EventPostInitial()) {
+  EventPostBloc({ required this.repository }) : super(EventPostInitial()) {
     on<LoadEventPosts>(_onLoad);
     on<SelectEventPost>(_onSelect);
   }
@@ -18,7 +18,7 @@ class EventPostBloc extends Bloc<EventPostEvent, EventPostState> {
     emit(EventPostLoading());
 
     try {
-      final posts = await repository.getEventPosts();
+      final posts = await repository.getAll();
       emit(EventPostLoaded(posts));
     } catch (e) {
       emit(EventPostError(e.toString()));

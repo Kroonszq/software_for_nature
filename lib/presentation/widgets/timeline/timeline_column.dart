@@ -16,13 +16,21 @@ class TimelineColumn extends StatefulWidget {
   final List<EventPost> listOfEvents;
   final ScrollController? scrollController;
   final DateTime? earliest;
+  final Color? groupColor;
+
+  /// When false the column's own horizontal scroll is disabled so horizontal
+  /// drags fall through to an outer horizontal scrollable (used on mobile so
+  /// the user can swipe between timelines).
+  final bool enableHorizontalScroll;
 
   const TimelineColumn({
     super.key,
     required this.listOfEvents,
     this.earliest,
     this.scrollController,
+    this.groupColor,
     this.minHeight = 0,
+    this.enableHorizontalScroll = true,
   });
 
   @override
@@ -41,6 +49,36 @@ class _TimelineColumnState extends State<TimelineColumn> {
   }
 
   @override
+  void didUpdateWidget(covariant TimelineColumn oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // The element can be reused across rebuilds (same key/position), so when the
+    // filtered event list changes we must rebuild the row layout instead of
+    // keeping the stale one computed in initState.
+    final oldIds = oldWidget.listOfEvents.map((e) => e.id).join(',');
+    final newIds = widget.listOfEvents.map((e) => e.id).join(',');
+
+    if (oldIds != newIds) {
+      listOfRows = {};
+      calculateRows();
+    }
+
+    // Toggling horizontal scrolling (focus/unfocus on mobile) changes the
+    // scroll physics, which makes Flutter recreate the scroll position and
+    // lose the offset. Capture the current offset and restore it after the
+    // rebuild so the column stays where the user left it.
+    if (oldWidget.enableHorizontalScroll != widget.enableHorizontalScroll &&
+        _horizontalScrollController.hasClients) {
+      final double offset = _horizontalScrollController.offset;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_horizontalScrollController.hasClients) return;
+        final double max = _horizontalScrollController.position.maxScrollExtent;
+        _horizontalScrollController.jumpTo(offset.clamp(0.0, max));
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _horizontalScrollController.dispose();
     super.dispose();
@@ -48,7 +86,21 @@ class _TimelineColumnState extends State<TimelineColumn> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.listOfEvents.isEmpty) return const SizedBox();
+    if (widget.listOfEvents.isEmpty) {
+      return Container(
+        color: (widget.groupColor ?? Colors.blueGrey).withValues(alpha: 0.75),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16),
+        child: const Text(
+          'No events found',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+    }
 
     final localEarliest = widget.listOfEvents.map((e) => e.startDuration).reduce((a, b) => a.isBefore(b) ? a : b);
     final earliest = widget.earliest ?? localEarliest;
@@ -59,7 +111,7 @@ class _TimelineColumnState extends State<TimelineColumn> {
     final totalHeight = totalMinutes * TimelineColumn.pixelsPerMinute;
     final columnWidth = 108.0; // card width (100) + margins (4+4)
 
-    final groupColor = widget.listOfEvents.first.group.color;
+    final groupColor = widget.listOfEvents.first.group?.color ?? widget.groupColor ?? Colors.blue;
 
     return BlocProvider(
       create: (context) => TimelineBloc(),
@@ -88,6 +140,9 @@ class _TimelineColumnState extends State<TimelineColumn> {
                 return SingleChildScrollView(
                     controller: _horizontalScrollController,
                     scrollDirection: Axis.horizontal,
+                    physics: widget.enableHorizontalScroll
+                        ? null
+                        : const NeverScrollableScrollPhysics(),
                     child: SingleChildScrollView(
                       controller: widget.scrollController,
                       scrollDirection: Axis.vertical,

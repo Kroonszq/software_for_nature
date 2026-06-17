@@ -8,7 +8,7 @@ part 'map_state.dart';
 class MapBloc extends Bloc<MapEvent, MapState> {
   final EventPostRepository repository;
 
-  MapBloc(this.repository) : super(MapInitial()) {
+  MapBloc({ required this.repository }) : super(MapInitial()) {
     on<LoadMapEvents>(_onLoad);
   }
 
@@ -18,7 +18,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   ) async {
     emit(MapLoading());
 
-    final posts = await repository.getEventPosts();
+    final posts = await repository.getAll();
 
     final mapPosts = posts
         .where((e) => e.coordinates != null)

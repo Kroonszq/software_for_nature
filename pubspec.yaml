@@ -36,11 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   bloc: ^9.2.1
   flutter_bloc: ^9.1.1
-  file_picker: ^11.0.2
   fl_chart: ^1.2.0
   csv: ^8.0.0
   logger: ^2.7.0
   collection: ^1.19.1
+  file_picker: ^11.0.2
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -69,8 +70,8 @@ flutter:
   assets:
     - assets/data/event.json
     - assets/data/group.json
-    - assets/data/event_group.json
     - assets/data/comment.json
+    - assets/data/user.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

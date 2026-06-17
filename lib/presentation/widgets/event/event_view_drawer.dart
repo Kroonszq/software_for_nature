@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
-import 'package:software_for_nature/presentation/widgets/event_panel.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_panel.dart';
 import 'package:software_for_nature/presentation/widgets/minimized_events_stack.dart';
 
  
-class EventDrawer extends StatelessWidget {
-  const EventDrawer({super.key});
+class EventViewDrawer extends StatelessWidget {
+  const EventViewDrawer({super.key});
 
   static const double preferredPanelWidth = 500;
 

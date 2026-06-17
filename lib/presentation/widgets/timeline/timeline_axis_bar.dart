@@ -16,15 +16,22 @@ class TimeAxisBar extends StatelessWidget {
   /// The timelineaxis width
   static const double _width = 72;
 
+  /// A narrower width used on mobile/narrow screens to give the timelines more
+  /// horizontal room.
+  static const double _compactWidth = 48;
+
 @override
 Widget build(BuildContext context) {
+  final bool isCompact = MediaQuery.sizeOf(context).width < 700;
+  final double width = isCompact ? _compactWidth : _width;
+
   final totalMinutes = latest.difference(earliest).inMinutes;
   final totalHeight = totalMinutes * pixelsPerMinute + headerHeight + 16;
 
   final stackChildren = <Widget>[
     SizedBox(
       height: totalMinutes * pixelsPerMinute,
-      width: _width,
+      width: width,
     ),
   ];
 
@@ -76,7 +83,7 @@ Widget build(BuildContext context) {
 
   // Display axis
   return SizedBox(
-    width: _width,
+    width: width,
     height: totalHeight,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.end,

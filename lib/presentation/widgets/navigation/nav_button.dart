@@ -31,7 +31,7 @@ class NavButton extends StatelessWidget {
             ),
             backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
               if (states.contains(WidgetState.hovered)) {
-                return Color(0xFFFF5900).withOpacity(0.1); 
+                return Color(0xFFFF5900).withValues(alpha: 0.1);
               }
               return Colors.black;
             }),

@@ -9,16 +9,29 @@ import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events
 /// And what the state of the events are
 ///
 class MinimizedEventsStack extends StatelessWidget {
-  const MinimizedEventsStack({super.key});
+  /// The direction the events are stacked in. Vertical is used for the desktop
+  /// left rail, horizontal for the mobile bottom bar.
+  final Axis axis;
 
-  /// Deterimines the width of a the stack item
+  const MinimizedEventsStack({super.key, this.axis = Axis.vertical});
+
+  /// Deterimines the thickness (width when vertical / height when horizontal)
+  /// of the stack.
   static const double width = 52;
 
-  /// Determines how much stack items are max visable upon a time
+  /// Determines how much stack items are max visable upon a time on the
+  /// vertical desktop rail.
   static const int maxVisible = 5;
+
+  /// Determines how many stack items are visible at once on the horizontal
+  /// mobile bar before it starts scrolling.
+  static const int maxVisibleHorizontal = 3;
 
   @override
   Widget build(BuildContext context) {
+    final bool isHorizontal = axis == Axis.horizontal;
+    final int maxVisibleItems = isHorizontal ? maxVisibleHorizontal : maxVisible;
+
     return BlocBuilder<MinimizedEventsBloc, MinimizedEventsState>(
       builder: (context, state) {
         final events = state.minimized;
@@ -29,14 +42,16 @@ class MinimizedEventsStack extends StatelessWidget {
         }
 
         return Container(
-          width: width,
+          width: isHorizontal ? double.infinity : width,
+          height: isHorizontal ? width : null,
           color: Colors.blueGrey.shade50,
           child: LayoutBuilder(
             builder: (context, constraints) {
-
-              // If the event are under 5 items share the height between the items
-              if (events.length <= maxVisible) {
-                return Column(
+              // If the events are under the max share the available space
+              // evenly between the items.
+              if (events.length <= maxVisibleItems) {
+                return Flex(
+                  direction: axis,
                   children: [
                     for (final event in events)
                       Expanded(child: _MinimizedStackItem(event: event)),
@@ -44,14 +59,20 @@ class MinimizedEventsStack extends StatelessWidget {
                 );
               }
 
-              // If there are more then 5 items give each item a fixed height
-              final chipHeight = constraints.maxHeight / maxVisible;
+              // Otherwise give each item a fixed extent and allow scrolling.
+              final double chipExtent = isHorizontal
+                  ? constraints.maxWidth / maxVisibleItems
+                  : constraints.maxHeight / maxVisibleItems;
+
               return SingleChildScrollView(
-                child: Column(
+                scrollDirection: axis,
+                child: Flex(
+                  direction: axis,
                   children: [
                     for (final event in events)
                       SizedBox(
-                        height: chipHeight,
+                        width: isHorizontal ? chipExtent : null,
+                        height: isHorizontal ? null : chipExtent,
                         child: _MinimizedStackItem(event: event),
                       ),
                   ],
