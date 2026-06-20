@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 
 class TimelineEventCard extends StatelessWidget {
   static const double pixelsPerMinute = 2.0;
@@ -36,7 +36,7 @@ class TimelineEventCard extends StatelessWidget {
             hitTestBehavior: HitTestBehavior.deferToChild,
             child: InkWell(
               onTap: () {
-                context.read<MinimizedEventsBloc>().add(OpenEvent(event));
+                context.read<EventInteractionCubit>().select(event);
                 Scaffold.of(context).openDrawer();
               },
               onHover: (isHovering) {

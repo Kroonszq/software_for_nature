@@ -1,63 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_state.dart';
 
 /// A vertical stack of minimized events
-///
-/// The class uses [MinimizedEventsBloc] to deterimine what events to show
-/// And what the state of the events are
-///
 class MinimizedEventsStack extends StatelessWidget {
   const MinimizedEventsStack({super.key});
 
-  /// Deterimines the width of a the stack item
   static const double width = 52;
-
-  /// Determines how much stack items are max visable upon a time
-  static const int maxVisible = 5;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MinimizedEventsBloc, MinimizedEventsState>(
+    return BlocBuilder<EventInteractionCubit, EventInteractionState>(
       builder: (context, state) {
-        final events = state.minimized;
+        final events = state.minimizedEvents;
 
-        // If there are no events do not display it
-        if (events.isEmpty) {
-          return const SizedBox.shrink();
-        }
+        if (events.isEmpty) return const SizedBox.shrink();
 
         return Container(
-          width: width,
+          width: 52,
           color: Colors.blueGrey.shade50,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-
-              // If the event are under 5 items share the height between the items
-              if (events.length <= maxVisible) {
-                return Column(
-                  children: [
-                    for (final event in events)
-                      Expanded(child: _MinimizedStackItem(event: event)),
-                  ],
-                );
-              }
-
-              // If there are more then 5 items give each item a fixed height
-              final chipHeight = constraints.maxHeight / maxVisible;
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (final event in events)
-                      SizedBox(
-                        height: chipHeight,
-                        child: _MinimizedStackItem(event: event),
-                      ),
-                  ],
+          child: Column(
+            children: [
+              for (final event in events)
+                Expanded(
+                  child: MinimizedStackItem(event: event),
                 ),
-              );
-            },
+            ],
           ),
         );
       },
@@ -65,44 +35,31 @@ class MinimizedEventsStack extends StatelessWidget {
   }
 }
 
-class _MinimizedStackItem extends StatelessWidget {
+class MinimizedStackItem extends StatelessWidget {
   final EventPost event;
 
-  const _MinimizedStackItem({required this.event});
+  const MinimizedStackItem({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-      child: Tooltip(
-        message: event.title,
-        child: Material(
+    return BlocBuilder<EventInteractionCubit, EventInteractionState>(
+      builder: (context, state) {
+        return Material(
           color: Colors.blue.shade100,
           child: InkWell(
             onTap: () {
-              context.read<MinimizedEventsBloc>().add(OpenEvent(event));
+              context.read<EventInteractionCubit>().restore(event);
               Scaffold.of(context).openDrawer();
             },
             child: Stack(
-              fit: StackFit.expand,
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 2),
-                    Flexible(
-                      child: Text(
-                        event.title,
-                        textAlign: TextAlign.center,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                Center(
+                  child: Text(
+                    event.title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 8),
+                  ),
                 ),
                 Positioned(
                   top: 0,
@@ -110,24 +67,19 @@ class _MinimizedStackItem extends StatelessWidget {
                   child: IconButton(
                     iconSize: 12,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 20,
-                      minHeight: 20,
-                    ),
-                    tooltip: 'Close',
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       context
-                          .read<MinimizedEventsBloc>()
-                          .add(CloseEvent(event));
+                          .read<EventInteractionCubit>()
+                          .dismiss(event);
                     },
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

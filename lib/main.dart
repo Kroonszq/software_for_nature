@@ -5,10 +5,8 @@ import 'package:software_for_nature/data/repositories/event_post_repository.dart
 import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
-import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/observer.dart';
 
 
@@ -36,7 +34,6 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(create: (context) => TimelineBloc()),
           BlocProvider(create: (_) => NavigationBloc()),
-          BlocProvider(create: (_) => MinimizedEventsBloc()),
           BlocProvider(
             create: (context) =>
             MapBloc(context.read<EventPostRepository>())

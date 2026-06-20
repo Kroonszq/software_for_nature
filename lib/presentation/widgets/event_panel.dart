@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 
 /// A single panel/box shown in the drawer
 class EventPanel extends StatelessWidget {
@@ -53,8 +53,11 @@ class EventPanel extends StatelessWidget {
                   label: const Text('Minimize'),
                   onPressed: () {
                     context
-                        .read<MinimizedEventsBloc>()
-                        .add(MinimizeEvent(event));
+                      .read<EventInteractionCubit>()
+                      .minimize(event);
+                    // context
+                    //   .read<EventInteractionCubit>()
+                    //   .minimizeAllIfNeeded();
                   },
                 ),
               ),
@@ -64,7 +67,9 @@ class EventPanel extends StatelessWidget {
                   icon: const Icon(Icons.close),
                   label: const Text('Close'),
                   onPressed: () {
-                    context.read<MinimizedEventsBloc>().add(CloseEvent(event));
+                    context
+                      .read<EventInteractionCubit>()
+                     .dismiss(event);
                   },
                 ),
               ),
