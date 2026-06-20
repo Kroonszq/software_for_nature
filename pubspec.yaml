@@ -42,6 +42,9 @@ dependencies:
   collection: ^1.19.1
   file_picker: ^11.0.2
   path_provider: ^2.1.6
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+  flutter_map_marker_cluster: ^8.2.2
 
 dev_dependencies:
   flutter_test:

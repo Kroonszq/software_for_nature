@@ -16,6 +16,8 @@ import 'package:software_for_nature/data/repositories/user_repository.dart';
 import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
+import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
+import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
 import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
@@ -84,6 +86,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (_) => EventSelectionBloc(),
+          ),
           BlocProvider(create: (context) => TimelineBloc()),
           BlocProvider(create: (_) => NavigationBloc()),
           BlocProvider(create: (_) => MinimizedEventsBloc()),
@@ -92,6 +97,7 @@ class MyApp extends StatelessWidget {
             MapBloc(repository: context.read<EventPostRepository>())
             ..add(LoadMapEvents()),
           ),
+          BlocProvider(create: (context) => HybridBloc(context.read<EventPostRepository>())),
         ], 
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

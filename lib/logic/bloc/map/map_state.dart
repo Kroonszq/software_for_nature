@@ -1,5 +1,6 @@
 part of 'map_bloc.dart';
 
+
 sealed class MapState {}
 
 class MapInitial extends MapState {}
@@ -8,17 +9,37 @@ class MapLoading extends MapState {}
 
 class MapLoaded extends MapState {
   final List<EventPost> posts;
-  final EventPost? selectedPost;
+  final List<EventPost> visiblePosts;
+  final GeoBounds? bounds;
 
-  MapLoaded(this.posts, {this.selectedPost});
+  final TimeWindow timeWindow;
+  final EventPost earliest;  
+  final EventPost latest;  
+
+  MapLoaded({
+    required this.posts,
+    required this.visiblePosts,
+    this.bounds,
+    required this.timeWindow,
+    required this.earliest,
+    required this.latest
+  });
 
   MapLoaded copyWith({
     List<EventPost>? posts,
-    EventPost? selectedPost,
+    List<EventPost>? visiblePosts,
+    GeoBounds? bounds,
+    TimeWindow? timeWindow,
+    EventPost? earliest,
+    EventPost? latest
   }) {
     return MapLoaded(
-      posts ?? this.posts,
-      selectedPost: selectedPost ?? this.selectedPost,
+      posts: posts ?? this.posts,
+      visiblePosts: visiblePosts ?? this.visiblePosts,
+      bounds: bounds ?? this.bounds,
+      timeWindow: timeWindow ?? this.timeWindow,
+      earliest: earliest ?? this.earliest,
+      latest: latest ?? this.latest
     );
   }
 }
