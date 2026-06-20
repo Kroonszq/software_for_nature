@@ -1,17 +1,19 @@
 
 import 'package:software_for_nature/data/models/event_post.dart';
+import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/repositories/interfaces/base_repository_interface.dart';
 
 abstract interface class EventPostRepositoryInterface implements BaseRepositoryInterface<EventPost>  {
 
+  /// Return all events matching the group [id]
   Future<List<EventPost>?> getAllByGroupId(String id);
 
-  /// Returns the events matching every supplied criterion. A `null`/empty
-  /// criterion is ignored (i.e. it does not filter anything out).
-  Future<List<EventPost>> query({
-    Set<String>? groupIds,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? search,
-  });
+   /// Returns the events matching every criterion given in [query] argument
+  Future<List<EventPost>> queryEvents(EventQuery query);
+
+  /// The event that starts first [EventPost.startDuration]
+  Future<EventPost> getEarliestEvent();
+
+  /// The event that ends last [EventPost.endDuration]
+  Future<EventPost> getLatestEvent();
 }
