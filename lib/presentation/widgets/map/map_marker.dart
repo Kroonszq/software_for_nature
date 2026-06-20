@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
+import 'package:software_for_nature/data/models/time_window.dart';
 
 class MapMarker extends StatelessWidget {
   final EventPost event;
+  final TimeWindow timeWindow;
 
-  const MapMarker({super.key, required this.event});
+  const MapMarker({
+    super.key,
+    required this.event,
+    required this.timeWindow,
+  });
 
   static const double markerWidth = 40;
   static const double markerHeight = 52;
@@ -14,7 +20,10 @@ class MapMarker extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _DurationBar(event: event),
+        _DurationBar(
+          event: event,
+          timeWindow: timeWindow,
+        ),
         const Icon(
           Icons.location_pin,
           size: 32,
@@ -27,31 +36,44 @@ class MapMarker extends StatelessWidget {
 
 class _DurationBar extends StatelessWidget {
   final EventPost event;
+  final TimeWindow timeWindow;
 
-  const _DurationBar({required this.event});
+  const _DurationBar({
+    required this.event,
+    required this.timeWindow,
+  });
 
   @override
   Widget build(BuildContext context) {
     final end = event.endDuration;
     if (end == null) return const SizedBox(height: 4);
 
-    final durationMinutes =
+    final eventMinutes =
         end.difference(event.startDuration).inMinutes;
 
-    final width = (durationMinutes / 60).clamp(0.3, 2.0);
+    final windowMinutes =
+        timeWindow.duration.inMinutes;
+
+    final fraction =
+        (eventMinutes / windowMinutes).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      width: 18 * width,
+      width: 36, // <-- fixed width
       height: 4,
       decoration: BoxDecoration(
         color: Colors.grey.shade400,
         borderRadius: BorderRadius.circular(2),
       ),
       child: FractionallySizedBox(
-        widthFactor: 0.6,
+        widthFactor: fraction, // <-- variable width
         alignment: Alignment.centerLeft,
-        child: Container(color: Colors.green),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
       ),
     );
   }
