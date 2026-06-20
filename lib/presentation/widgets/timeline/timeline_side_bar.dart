@@ -8,14 +8,35 @@ class TimelineSideBar extends StatefulWidget {
   /// rail, horizontal is the mobile bottom bar.
   final Axis axis;
 
-  const TimelineSideBar({super.key, this.axis = Axis.vertical});
+  /// When non-null the minimized/expanded state is controlled by the parent
+  /// (used by the floating overlay so it can hug the toggle when collapsed).
+  /// When null the widget manages the state itself.
+  final bool? minimized;
+  final ValueChanged<bool>? onMinimizedChanged;
+
+  const TimelineSideBar({
+    super.key,
+    this.axis = Axis.vertical,
+    this.minimized,
+    this.onMinimizedChanged,
+  });
 
   @override
   State<TimelineSideBar> createState() => _TimelineSideBarState();
 }
 
 class _TimelineSideBarState extends State<TimelineSideBar> {
-  bool _minimized = false;
+  bool _internalMinimized = false;
+
+  bool get _minimized => widget.minimized ?? _internalMinimized;
+
+  void _setMinimized(bool value) {
+    if (widget.minimized != null) {
+      widget.onMinimizedChanged?.call(value);
+    } else {
+      setState(() => _internalMinimized = value);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +65,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
             SizedBox(
               height: 32,
               child: InkWell(
-                onTap: () => setState(() => _minimized = !_minimized),
+                onTap: () => _setMinimized(!_minimized),
                 child: Row(
                   children: [
                     const SizedBox(width: 8),
@@ -103,7 +124,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
               IconButton(
                 icon: const Icon(Icons.chevron_left),
                 tooltip: 'Show previews',
-                onPressed: () => setState(() => _minimized = false),
+                onPressed: () => _setMinimized(false),
               ),
               const RotatedBox(
                 quarterTurns: 1,
@@ -145,19 +166,24 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
                   IconButton(
                     icon: const Icon(Icons.remove_outlined),
                     tooltip: 'Hide previews',
-                    onPressed: () => setState(() => _minimized = true),
+                    onPressed: () => _setMinimized(true),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 15),
-                    child: Text(
-                      'Previews',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                  // Flexible + ellipsis so the label shrinks instead of
+                  // overflowing when the rail is narrow (e.g. in hybrid view).
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 15),
+                      child: Text(
+                        'Previews',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  const Spacer(),
                 ],
               ),
               // Previeuws

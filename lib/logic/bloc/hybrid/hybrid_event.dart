@@ -14,6 +14,22 @@ class HybridTimeRangeChanged extends HybridEvent {
   HybridTimeRangeChanged(this.range);
 }
 
+/// The category / date / search filter changed. Keeps the map in sync with the
+/// timeline so both react to the same filter criteria.
+class HybridFilterChanged extends HybridEvent {
+  final Set<String>? groupIds;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? search;
+
+  HybridFilterChanged({
+    this.groupIds,
+    this.startDate,
+    this.endDate,
+    this.search,
+  });
+}
+
 /// User selects an event (from map OR timeline)
 class HybridEventSelected extends HybridEvent {
   final EventPost event;

@@ -3,8 +3,7 @@ part of 'timelines_wrapper_bloc.dart';
 @immutable
 sealed class TimeLinesWrapperEvent {}
 
-final class LoadTimelineEvents extends TimeLinesWrapperEvent{
-}
+final class LoadTimelineEvents extends TimeLinesWrapperEvent {}
 
 /// Dispatched whenever the active filter criteria change. The wrapper updates
 /// its query and refetches the matching events.
@@ -23,25 +22,24 @@ final class FilterChanged extends TimeLinesWrapperEvent {
 }
 
 /// Sets the timeline active in the wrapper.
-final class SetTimelineActive extends TimeLinesWrapperEvent{
+final class SetTimelineActive extends TimeLinesWrapperEvent {
   final int timelineHash;
 
   SetTimelineActive(this.timelineHash);
 }
 
 /// Sets the timeline inactive in the wrapper.
-final class SetTimelineInActive extends TimeLinesWrapperEvent{
+final class SetTimelineInActive extends TimeLinesWrapperEvent {
   final int timelineHash;
 
   SetTimelineInActive(this.timelineHash);
 }
 
-final class TimelineScroll extends TimeLinesWrapperEvent{
+final class TimelineScroll extends TimeLinesWrapperEvent {
   final ScrollController scrollController;
 
   TimelineScroll(this.scrollController);
 }
-
 
 final class ReorderTimeline extends TimeLinesWrapperEvent {
   final int oldIndex;

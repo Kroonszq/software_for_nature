@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => MinimizedEventsBloc()),
           BlocProvider(
             create: (context) =>
-            MapBloc(repository: context.read<EventPostRepository>())
+            MapBloc(context.read<EventPostRepository>())
             ..add(LoadMapEvents()),
           ),
           BlocProvider(create: (context) => HybridBloc(context.read<EventPostRepository>())),

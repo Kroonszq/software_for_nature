@@ -12,21 +12,25 @@ part 'hybrid_state.dart';
 class HybridBloc extends Bloc<HybridEvent, HybridState> {
   final EventPostRepository repository;
 
-  HybridBloc(this.repository)
-      : super(const HybridState(events: [])) {
+  HybridBloc(this.repository) : super(const HybridState(events: [])) {
     on<HybridBoundsChanged>(_onBoundsChanged);
     on<HybridTimeRangeChanged>(_onTimeRangeChanged);
+    on<HybridFilterChanged>(_onFilterChanged);
     on<HybridEventSelected>(_onSelected);
     on<HybridReloadRequested>(_onReload);
     on<HybridTimeWindowChanged>(_onTimeWindowChanged);
 
     add(HybridReloadRequested());
-    
-    
   }
 
   GeoBounds? _bounds;
   DateTimeRange? _timeRange;
+
+  // Mirrors the timeline filter so the map shows the same scoped events.
+  Set<String>? _groupIds;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _search;
 
   Future<void> _onReload(
     HybridReloadRequested event,
@@ -51,10 +55,22 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     await _fetch(emit);
   }
 
-  void _onSelected(
-    HybridEventSelected event,
+  Future<void> _onFilterChanged(
+    HybridFilterChanged event,
     Emitter<HybridState> emit,
-  ) {
+  ) async {
+    _groupIds = (event.groupIds == null || event.groupIds!.isEmpty)
+        ? null
+        : event.groupIds;
+    _startDate = event.startDate;
+    _endDate = event.endDate;
+    _search = (event.search == null || event.search!.trim().isEmpty)
+        ? null
+        : event.search;
+    await _fetch(emit);
+  }
+
+  void _onSelected(HybridEventSelected event, Emitter<HybridState> emit) {
     emit(state.copyWith(selectedEvent: event.event));
   }
 
@@ -65,15 +81,14 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       EventQuery(
         bounds: _bounds,
         timeRange: _timeRange,
+        groupIds: _groupIds,
+        startDate: _startDate,
+        endDate: _endDate,
+        search: _search,
       ),
     );
 
-    emit(
-      state.copyWith(
-        events: events,
-        loading: false,
-      ),
-    );
+    emit(state.copyWith(events: events, loading: false));
   }
 
   void _onTimeWindowChanged(
@@ -86,10 +101,6 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       return event.window.contains(e.startDuration);
     }).toList();
 
-    emit(current.copyWith(
-      timeWindow: event.window,
-      events: filtered,
-    ));
+    emit(current.copyWith(timeWindow: event.window, events: filtered));
   }
-  
 }
