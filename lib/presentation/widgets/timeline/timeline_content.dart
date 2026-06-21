@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:software_for_nature/core/constants/timeline_constants.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
+import 'package:software_for_nature/presentation/models/timeline_geometry.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_event_card.dart';
 
 class TimelineContent extends StatefulWidget {
@@ -93,12 +94,7 @@ class _TimelineContentState extends State<TimelineContent> {
       );
     }
 
-    final localEarliest = widget.listOfEvents.map((e) => e.startDuration).reduce((a, b) => a.isBefore(b) ? a : b);
-    final earliest = widget.earliest ?? localEarliest;
-    final latest = widget.listOfEvents.map((e) => e.endDuration).reduce((a, b) => a.isAfter(b) ? a : b);
-
-    final totalMinutes = latest.difference(earliest).inMinutes;
-    final totalHeight = totalMinutes * TimelineConstants.pixelsPerMinute;
+    var timelineGeometry = TimelineGeometry.fromEvents(widget.listOfEvents);
 
     final groupColor =
         widget.listOfEvents.first.group?.color ??
@@ -143,6 +139,7 @@ class _TimelineContentState extends State<TimelineContent> {
                   controller: _horizontalScrollController,
                   scrollDirection: Axis.horizontal,
                   physics: widget.enableHorizontalScroll ? null : const NeverScrollableScrollPhysics(),
+                  
                   child: SingleChildScrollView(
                     controller: widget.scrollController,
                     scrollDirection: Axis.vertical,
@@ -154,55 +151,14 @@ class _TimelineContentState extends State<TimelineContent> {
                       child: BlocBuilder<TimelineBloc, TimelineState>(
                         builder: (context, state) {
                           final selectedId = state is TimelineInitial ? state.selectedPost?.id : null;
-                          final cards = <Widget>[];
-                          Widget? selectedCard;
-                          double contentWidth = TimelineConstants.cardWithIncMargins * listOfRows.length;
-
-                          // Build rows * columns
-                          for (var entry in listOfRows.entries) {
-                            for (final event in entry.value) {
-                              final card = Positioned(
-                                key: ValueKey(event.id),
-                                left: entry.key * TimelineConstants.cardWithIncMargins,
-                                top: event.startDuration.difference(earliest).inMinutes * TimelineConstants.pixelsPerMinute,
-                                child: TimelineEventCard(event: event),
-                              );
-
-                              if (event.id == selectedId) {
-                                selectedCard = card;
-                                final expandedRight = entry.key * TimelineConstants.cardWithIncMargins + TimelineConstants.expandedCardWidth;
-                                if (expandedRight > contentWidth) {
-                                  contentWidth = expandedRight;
-                                }
-                              } else {
-                                cards.add(card);
-                              }
-                            }
-                          }
-
-                          // When an event is hovered/selected darken the background
-                          if (selectedId != null) {
-                            cards.add(
-                              Positioned.fill(
-                                child: IgnorePointer(
-                                  child: Container(
-                                    color: Colors.black.withValues(alpha: 0.5),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          if (selectedCard != null) {
-                            cards.add(selectedCard);
-                          } 
+                          final result = _buildCards(selectedId, timelineGeometry.earliest);
 
                           return SizedBox(
-                            height: totalHeight + 16,
-                            width: contentWidth,
+                            height: timelineGeometry.totalHeight + 16,
+                            width: result.contentWidth,
                             child: Stack(
                               clipBehavior: Clip.none,
-                              children: cards,
+                              children: result.cards,
                             ),
                           );
                         },
@@ -216,6 +172,56 @@ class _TimelineContentState extends State<TimelineContent> {
         ),
       ),
     );
+  }
+
+  /// Builds the positioned event cards for the stack and reports the total
+  /// content width. The selected card (if any) is added last so it paints on
+  /// top, with a dimming scrim behind it to make it stand out.
+  ({List<Widget> cards, double contentWidth}) _buildCards(String? selectedId, DateTime earliest,) {
+    final cards = <Widget>[];
+    Widget? selectedCard;
+    double contentWidth = TimelineConstants.cardWithIncMargins * listOfRows.length;
+
+    // Build rows * columns
+    for (var entry in listOfRows.entries) {
+      for (final event in entry.value) {
+        final card = Positioned(
+          key: ValueKey(event.id),
+          left: entry.key * TimelineConstants.cardWithIncMargins,
+          top: event.startDuration.difference(earliest).inMinutes * TimelineConstants.pixelsPerMinute,
+          child: TimelineEventCard(event: event),
+        );
+
+        if (event.id == selectedId) {
+          selectedCard = card;
+          final expandedRight = entry.key * TimelineConstants.cardWithIncMargins + TimelineConstants.expandedCardWidth;
+          if (expandedRight > contentWidth) {
+            contentWidth = expandedRight;
+          }
+        } else {
+          cards.add(card);
+        }
+      }
+    }
+
+    // When an event is hovered/selected darken the background
+    if (selectedId != null) {
+      cards.add(
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (selectedCard != null) {
+      cards.add(selectedCard);
+    }
+
+    return (cards: cards, contentWidth: contentWidth);
   }
 
   void calculateRows() {

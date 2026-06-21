@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/models/group.dart';
-import 'package:software_for_nature/data/models/timeline.dart';
+import 'package:software_for_nature/presentation/models/timeline.dart';
 import 'package:software_for_nature/data/models/user.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';

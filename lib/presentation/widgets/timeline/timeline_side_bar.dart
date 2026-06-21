@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:software_for_nature/data/models/timeline.dart';
+import 'package:software_for_nature/presentation/models/timeline.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 
 class TimelineSideBar extends StatefulWidget {
-  /// The direction the previews are laid out in. Vertical is the desktop right
-  /// rail, horizontal is the mobile bottom bar.
+  /// The direction of the previews vertical is the desktop right rail, horizontal is the mobile bottom bar
   final Axis axis;
-
-  /// When non-null the minimized/expanded state is controlled by the parent
-  /// (used by the floating overlay so it can hug the toggle when collapsed).
-  /// When null the widget manages the state itself.
   final bool? minimized;
   final ValueChanged<bool>? onMinimizedChanged;
 
@@ -46,9 +41,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
     return _buildVertical(context);
   }
 
-  // ---------------------------------------------------------------------------
-  // Horizontal bottom bar (mobile)
-  // ---------------------------------------------------------------------------
+
   Widget _buildHorizontal(BuildContext context) {
     return BlocBuilder<TimeLinesWrapperBloc, TimeLinesWrapperState>(
       builder: (context, state) {
@@ -109,9 +102,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Vertical right rail (desktop)
-  // ---------------------------------------------------------------------------
+
   Widget _buildVertical(BuildContext context) {
     // Minimized content
     if (_minimized) {
@@ -152,8 +143,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
           );
         }
 
-        // Mirror the main view: show a preview for every timeline the wrapper
-        // bloc built (it already applies the category / search / date filters).
+        // mirror the main view: show a preview for every timeline the wrapper
         final visibleEntries = state.timelines.entries.toList();
 
         return Expanded(
@@ -168,8 +158,6 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
                     tooltip: 'Hide previews',
                     onPressed: () => _setMinimized(true),
                   ),
-                  // Flexible + ellipsis so the label shrinks instead of
-                  // overflowing when the rail is narrow (e.g. in hybrid view).
                   const Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(left: 15),
@@ -209,9 +197,6 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Shared preview card
-  // ---------------------------------------------------------------------------
   Widget _previewCard(BuildContext context, MapEntry<int, Timeline> entry) {
     return GestureDetector(
       onTap: () {

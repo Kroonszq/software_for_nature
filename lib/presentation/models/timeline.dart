@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_content.dart';
@@ -17,6 +15,6 @@ class Timeline {
     required this.color,
     required this.active,
     required this.events,
-    required this.timelineWidget
+    required this.timelineWidget,
   });
 }

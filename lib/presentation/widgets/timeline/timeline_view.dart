@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/core/constants/timeline_constants.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/data/models/timeline.dart';
+import 'package:software_for_nature/presentation/models/timeline.dart';
+import 'package:software_for_nature/presentation/models/timeline_view_layout.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/presentation/widgets/minimized_events_stack.dart';
@@ -35,6 +36,7 @@ class _TimelineViewState extends State<TimelineView> {
       c.dispose();
     }
 
+    // For each timeline create a controller with a listener so we can react and modify based upon event that are happening
     _timelineScrollControllers = {
       for (final entry in state.timelines.entries)
         entry.key: ScrollController()
@@ -91,159 +93,177 @@ class _TimelineViewState extends State<TimelineView> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final activeTimelines = state.timelines.entries.toList();
-
           // No categories show to user
           if (state.timelines.isEmpty) {
             return const Center(child: Text('No timelines'));
           }
 
-          final earliest = state.earliest ?? DateTime.now();
-          final latest = state.latest ?? earliest;
+          return _buildLoaded(context, state);
+        },
+      ),
+    );
+  }
 
-          
-          final double minHeight = _calculateMinHeight(activeTimelines,earliest);
+  /// Builds the loaded view with the layout, the main content row
+  Widget _buildLoaded(BuildContext context, TimeLinesWrapperLoaded state) {
+    final earliest = state.earliest ?? DateTime.now();
+    final latest = state.latest ?? earliest;
+    final minHeight = _calculateMinHeight(state.timelines.entries.toList(), earliest);
+    final layout = TimelineViewLayout.resolve(context, overlayRequested: widget.overlaySidebar);
 
-          // Check if we are on mobile
-          final bool isCompact = MediaQuery.sizeOf(context).width < TimelineConstants.compactBreakpoint;
+    final content = _buildContent(
+      context,
+      state,
+      layout,
+      earliest: earliest,
+      latest: latest,
+      minHeight: minHeight,
+    );
 
-          // When in hybrid view use overlay instead of placing it next to the timelines
-          const double sidebarOverlayWidth = 220;
-          final bool showSidebar = !isCompact;
-          final bool overlaySidebar = showSidebar && widget.overlaySidebar;
+    if (!layout.overlaySidebar) {
+      return content;
+    }
+    
+    return _buildSidebarOverlay(context, content);
+  }
 
-          final Widget content = Row(
-            children: [
-              // Minimized events stack
-              if (!isCompact) const MinimizedEventsStack(),
-              // Time axis bar
-              ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: SingleChildScrollView(
-                  controller: _axisScrollController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  child: TimeAxisBar(earliest: earliest, latest: latest),
-                ),
-              ),
-              const VerticalDivider(width: 1),
+  /// The main horizontal layout with the minimized stack, time axis, timelines and previews
+  Widget _buildContent(BuildContext context, TimeLinesWrapperLoaded state, TimelineViewLayout layout, { required DateTime earliest, required DateTime latest, required double minHeight }) {
+    return Row(
+      children: [
+        // Minimized events stack
+        if (!layout.isCompact) const MinimizedEventsStack(),
+        // Time axis bar
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+            controller: _axisScrollController,
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            child: TimeAxisBar(earliest: earliest, latest: latest),
+          ),
+        ),
+        const VerticalDivider(width: 1),
 
-              // Timelines
-              Expanded(
-                flex: 10,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final activeCount = state.timelineOrder
-                        .where((key) => state.timelines[key]?.active == true)
-                        .length;
+        // Timelines
+        Expanded(
+          flex: 10,
+          child: _buildTimelinesList(
+            context,
+            state,
+            layout,
+            earliest: earliest,
+            minHeight: minHeight,
+          ),
+        ),
 
-                    // On mobile show 1 1/3 columns in the viewport
-                    final double columnWidth;
-                    if (isCompact) {
-                      columnWidth = activeCount > 1
-                          ? constraints.maxWidth * 0.90
-                          : constraints.maxWidth;
-                    } else {
-                      columnWidth = activeCount > 0
-                          ? constraints.maxWidth / activeCount
-                          : constraints.maxWidth;
-                    }
+        // Inline previews rail only when we have room for it
+        if (layout.showSidebar && !layout.overlaySidebar) ...[
+          const VerticalDivider(width: 1),
+          const TimelineSideBar(),
+        ],
+      ],
+    );
+  }
 
-                    return ReorderableListView(
-                      scrollDirection: Axis.horizontal,
-                      buildDefaultDragHandles: false,
-                      onReorderItem: (oldIndex, newIndex) {
-                        context.read<TimeLinesWrapperBloc>().add(
-                          ReorderTimeline(oldIndex, newIndex),
-                        );
-                      },
-                      children: [
-                        for (int i = 0; i < state.timelineOrder.length; i++)
-                          if (state.timelines[state.timelineOrder[i]]?.active ==
-                              true)
-                            Builder(
-                              key: ValueKey(state.timelineOrder[i]),
-                              builder: (context) {
-                                final int timelineKey = state.timelineOrder[i];
-                                final Timeline timeline = state.timelines[timelineKey]!;
-                                final bool isFocused = isCompact && _focusedTimelineKey == timelineKey;
+  /// The horizontall list of timeline columns
+  Widget _buildTimelinesList(BuildContext context, TimeLinesWrapperLoaded state, TimelineViewLayout layout, { required DateTime earliest, required double minHeight}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final activeCount = state.timelineOrder
+            .where((key) => state.timelines[key]?.active == true)
+            .length;
 
-                                return TimelineColumn(
-                                  timeline: timeline,
-                                  timelineKey: timelineKey,
-                                  position: i,
-                                  width: columnWidth,
-                                  isFocused: isFocused,
-                                  enableHorizontalScroll: !isCompact || isFocused,
-                                  earliest: earliest,
-                                  minHeight: minHeight,
-                                  scrollController: _timelineScrollControllers[timelineKey],
-                                  onTap: isCompact
-                                      ? () => setState(() {
-                                          _focusedTimelineKey = isFocused
-                                              ? null
-                                              : timelineKey;
-                                        })
-                                      : null,
-                                  onMinimize: () => context
-                                      .read<TimeLinesWrapperBloc>()
-                                      .add(SetTimelineInActive(timelineKey)),
-                                );
-                              },
-                            ),
-                      ],
+        // On mobile show 1 1/3 columns in the viewport
+        final double columnWidth;
+        if (layout.isCompact) {
+          columnWidth = activeCount > 1
+              ? constraints.maxWidth * 0.90
+              : constraints.maxWidth;
+        } else {
+          columnWidth = activeCount > 0
+              ? constraints.maxWidth / activeCount
+              : constraints.maxWidth;
+        }
+
+        return ReorderableListView(
+          scrollDirection: Axis.horizontal,
+          buildDefaultDragHandles: false,
+          onReorderItem: (oldIndex, newIndex) {
+            context.read<TimeLinesWrapperBloc>().add(
+              ReorderTimeline(oldIndex, newIndex),
+            );
+          },
+          children: [
+            for (int i = 0; i < state.timelineOrder.length; i++)
+              if (state.timelines[state.timelineOrder[i]]?.active == true)
+                Builder(
+                  key: ValueKey(state.timelineOrder[i]),
+                  builder: (context) {
+                    final int timelineKey = state.timelineOrder[i];
+                    final Timeline timeline = state.timelines[timelineKey]!;
+                    final bool isFocused = layout.isCompact && _focusedTimelineKey == timelineKey;
+
+                    return TimelineColumn(
+                      timeline: timeline,
+                      timelineKey: timelineKey,
+                      position: i,
+                      width: columnWidth,
+                      isFocused: isFocused,
+                      enableHorizontalScroll: !layout.isCompact || isFocused,
+                      earliest: earliest,
+                      minHeight: minHeight,
+                      scrollController: _timelineScrollControllers[timelineKey],
+                      onTap: layout.isCompact
+                          ? () => setState(() {
+                              _focusedTimelineKey = isFocused
+                                  ? null
+                                  : timelineKey;
+                            })
+                          : null,
+                      onMinimize: () => context
+                          .read<TimeLinesWrapperBloc>()
+                          .add(SetTimelineInActive(timelineKey)),
                     );
                   },
                 ),
-              ),
-              // Inline previews rail (only when there's room to sit beside the
-              // timelines).
-              if (showSidebar && !overlaySidebar) ...[
-                const VerticalDivider(width: 1),
-                const TimelineSideBar(),
-              ],
-            ],
-          );
+          ],
+        );
+      },
+    );
+  }
 
-          if (!overlaySidebar) {
-            return content;
-          }
-
-          // Too narrow: timelines take the full width and the previews rail
-          // floats on top, anchored to the right edge. When the rail is
-          // minimized the overlay hugs the thin toggle (40px) so it doesn't
-          // cover the timelines; expanded it widens to the full rail.
-          const double minimizedOverlayWidth = 40;
-          return Stack(
-            children: [
-              Positioned.fill(child: content),
-              Positioned(
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: _overlaySidebarMinimized
-                    ? minimizedOverlayWidth
-                    : sidebarOverlayWidth,
-                child: Material(
-                  elevation: 8,
-                  color: Theme.of(context).canvasColor,
-                  // The Row gives the (Expanded) sidebar a Flex parent while
-                  // the fixed-width Positioned bounds it.
-                  child: Row(
-                    children: [
-                      TimelineSideBar(
-                        minimized: _overlaySidebarMinimized,
-                        onMinimizedChanged: (value) =>
-                            setState(() => _overlaySidebarMinimized = value),
-                      ),
-                    ],
-                  ),
+  /// Floats the previews rail on top of [content] on the right side this only gets used when we dont have a lot of space
+  Widget _buildSidebarOverlay(BuildContext context, Widget content) {
+    const double sidebarOverlayWidth = 220;
+    const double minimizedOverlayWidth = 40;
+    return Stack(
+      children: [
+        Positioned.fill(child: content),
+        Positioned(
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: _overlaySidebarMinimized
+              ? minimizedOverlayWidth
+              : sidebarOverlayWidth,
+          child: Material(
+            elevation: 8,
+            color: Theme.of(context).canvasColor,
+            // The Row gives the (Expanded) sidebar a Flex parent while
+            // the fixed-width Positioned bounds it.
+            child: Row(
+              children: [
+                TimelineSideBar(
+                  minimized: _overlaySidebarMinimized,
+                  onMinimizedChanged: (value) =>
+                      setState(() => _overlaySidebarMinimized = value),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

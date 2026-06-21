@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:software_for_nature/data/models/timeline.dart';
+import 'package:software_for_nature/presentation/models/timeline.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_content.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_header.dart';
 
-/// A single timeline "lane": the header on top and the scrollable
-/// [TimelineContent] body below, wrapped in a focus border + tap gesture.
-///
-/// The body (events laid out against time) lives in [TimelineContent]; this
-/// widget only composes the lane chrome around it so it can be reordered inside
-/// the [TimelineView]'s horizontal list.
 class TimelineColumn extends StatelessWidget {
   final Timeline timeline;
   final int timelineKey;
