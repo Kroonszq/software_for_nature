@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/time_window.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 
 class MapMarker extends StatelessWidget {
   final EventPost event;
@@ -17,19 +19,24 @@ class MapMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _DurationBar(
-          event: event,
-          timeWindow: timeWindow,
-        ),
-        const Icon(
-          Icons.location_pin,
-          size: 32,
-          color: Colors.blue,
-        ),
-      ],
+    return GestureDetector(
+      onTap: () {
+        context.read<EventInteractionCubit>().select(event);
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _DurationBar(
+            event: event,
+            timeWindow: timeWindow,
+          ),
+          const Icon(
+            Icons.location_pin,
+            size: 32,
+            color: Colors.blue,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -59,14 +66,14 @@ class _DurationBar extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      width: 36, // <-- fixed width
+      width: 36,
       height: 4,
       decoration: BoxDecoration(
         color: Colors.grey.shade400,
         borderRadius: BorderRadius.circular(2),
       ),
       child: FractionallySizedBox(
-        widthFactor: fraction, // <-- variable width
+        widthFactor: fraction,
         alignment: Alignment.centerLeft,
         child: Container(
           decoration: BoxDecoration(

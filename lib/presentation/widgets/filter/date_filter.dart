@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
 class DateFilter extends StatelessWidget {
-  const DateFilter({super.key});
+  /// When true the title is rendered smaller to leave more room for the control
+  /// (used in the cramped mobile filter menu).
+  final bool compact;
+
+  const DateFilter({super.key, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +19,17 @@ class DateFilter extends StatelessWidget {
         final hasRange = startDate != null && endDate != null;
 
         final label = hasRange
-            ? '${_format(startDate)} - ${_format(endDate)}'
+            ? '${TimeUtils.formatDateTime(startDate)} - ${TimeUtils.formatDateTime(endDate)}'
             : 'Select a date & time range';
 
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Filter by date'),
-            const SizedBox(width: 20),
+            Text(
+              'Filter by date',
+              style: compact ? const TextStyle(fontSize: 11) : null,
+            ),
+            SizedBox(width: compact ? 8 : 20),
             Flexible(
               child: ElevatedButton.icon(
               icon: const Icon(Icons.calendar_today),
@@ -98,9 +106,4 @@ class DateFilter extends StatelessWidget {
       },
     );
   }
-
-  String _format(DateTime date) =>
-      '${date.day}/${date.month}/${date.year} ${_two(date.hour)}:${_two(date.minute)}';
-
-  String _two(int value) => value.toString().padLeft(2, '0');
 }

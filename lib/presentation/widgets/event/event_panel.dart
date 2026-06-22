@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 import 'package:software_for_nature/presentation/widgets/event/drawer/event_comments.dart';
 import 'package:software_for_nature/presentation/widgets/event/drawer/event_content.dart';
 
@@ -29,13 +29,15 @@ class _EventPanelState extends State<EventPanel> {
     // This should be shown always under the title
     var coreMetaData = {
       'Group': event.title,
-      'Created at': TimeUtils.formatDateTime(event.timestamp),
+      'Created at': TimeUtils.formatDateTime(event.createdAt),
       'Author': event.user?.name ?? '',
       'Event id': event.id,
       'Start': TimeUtils.formatDateTime(event.startDuration),
       'End': TimeUtils.formatDateTime(event.endDuration),
       'Duration': TimeUtils.formatDuration(event.endDuration.difference(event.startDuration)),
-      'Location': '${event.coordinates!.lat.toStringAsFixed(4)}, ''${event.coordinates!.lng.toStringAsFixed(4)}',
+      if (event.coordinates != null)
+        'Location':
+            '${event.coordinates!.lat.toStringAsFixed(4)}, ${event.coordinates!.lng.toStringAsFixed(4)}',
     };
 
     return Container(
@@ -110,7 +112,7 @@ class _EventPanelState extends State<EventPanel> {
                   icon: const Icon(Icons.minimize),
                   label: const Text('Minimize'),
                   onPressed: () {
-                    context.read<MinimizedEventsBloc>().add(MinimizeEvent(event));
+                    context.read<EventInteractionCubit>().minimize(event);
                   },
                 ),
               ),
@@ -120,7 +122,7 @@ class _EventPanelState extends State<EventPanel> {
                   icon: const Icon(Icons.close),
                   label: const Text('Close'),
                   onPressed: () {
-                    context.read<MinimizedEventsBloc>().add(CloseEvent(event));
+                    context.read<EventInteractionCubit>().dismiss(event);
                   },
                 ),
               ),

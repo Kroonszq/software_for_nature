@@ -3,7 +3,7 @@
     "id": "1",
     "title": "River Cleanup",
     "description": "Volunteers cleaning the river.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:00:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g1",
@@ -11,13 +11,23 @@
       "lat": 52.0907,
       "lng": 5.1214
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
   },
   {
     "id": "2",
     "title": "Forest Walk",
     "description": "Nature observation walk.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:00:00",
     "endDuration": "2026-06-15T10:00:00",
     "groupId": "g1",
@@ -25,13 +35,27 @@
       "lat": 52.1,
       "lng": 5.11
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "3",
     "title": "Bird Watching",
     "description": "Observe migratory birds.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:00:00",
     "endDuration": "2026-06-15T10:00:00",
     "groupId": "g1",
@@ -39,13 +63,23 @@
       "lat": 52.08,
       "lng": 5.13
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
   },
   {
     "id": "4",
     "title": "Soil Sample",
     "description": "Collect soil samples.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:00:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g1",
@@ -53,13 +87,27 @@
       "lat": 52.095,
       "lng": 5.125
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "5",
     "title": "Water Test",
     "description": "Test water quality.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:30:00",
     "endDuration": "2026-06-15T09:30:00",
     "groupId": "g1",
@@ -67,13 +115,23 @@
       "lat": 52.092,
       "lng": 5.122
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "6",
     "title": "Tree Planting",
     "description": "Plant native trees.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T10:00:00",
     "endDuration": "2026-06-15T11:00:00",
     "groupId": "g1",
@@ -81,13 +139,19 @@
       "lat": 52.087,
       "lng": 5.118
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "7",
     "title": "Insect Count",
     "description": "Count insect species.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T10:00:00",
     "endDuration": "2026-06-15T11:30:00",
     "groupId": "g1",
@@ -95,13 +159,27 @@
       "lat": 52.091,
       "lng": 5.12
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "8",
     "title": "Trail Mapping",
     "description": "Map new hiking trails.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T10:30:00",
     "endDuration": "2026-06-15T11:45:00",
     "groupId": "g1",
@@ -109,13 +187,19 @@
       "lat": 52.089,
       "lng": 5.123
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "9",
     "title": "Litter Pick",
     "description": "Clean up litter on trails.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T11:00:00",
     "endDuration": "2026-06-15T12:00:00",
     "groupId": "g1",
@@ -123,13 +207,19 @@
       "lat": 52.093,
       "lng": 5.121
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "10",
     "title": "Photo Survey",
     "description": "Document wildlife with photos.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T11:15:00",
     "endDuration": "2026-06-15T12:00:00",
     "groupId": "g1",
@@ -137,13 +227,27 @@
       "lat": 52.09,
       "lng": 5.119
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
   },
   {
     "id": "11",
     "title": "Canoe Trip",
     "description": "Canoe along the river.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T06:00:00",
     "endDuration": "2026-06-15T08:00:00",
     "groupId": "g2",
@@ -151,13 +255,19 @@
       "lat": 52.11,
       "lng": 5.14
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "12",
     "title": "Fungi Survey",
     "description": "Survey mushroom species.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T06:00:00",
     "endDuration": "2026-06-15T07:00:00",
     "groupId": "g2",
@@ -165,13 +275,19 @@
       "lat": 52.115,
       "lng": 5.145
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
   },
   {
     "id": "13",
     "title": "Air Quality",
     "description": "Measure air quality levels.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T06:30:00",
     "endDuration": "2026-06-15T07:30:00",
     "groupId": "g2",
@@ -179,13 +295,23 @@
       "lat": 52.112,
       "lng": 5.142
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "14",
     "title": "Nest Check",
     "description": "Check bird nesting boxes.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:00:00",
     "endDuration": "2026-06-15T08:00:00",
     "groupId": "g2",
@@ -193,13 +319,19 @@
       "lat": 52.113,
       "lng": 5.143
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "15",
     "title": "Seed Collection",
     "description": "Collect native plant seeds.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:30:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g2",
@@ -207,13 +339,23 @@
       "lat": 52.111,
       "lng": 5.141
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
   },
   {
     "id": "16",
     "title": "Pond Dip",
     "description": "Sample pond life.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:00:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g2",
@@ -221,13 +363,19 @@
       "lat": 52.114,
       "lng": 5.144
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "17",
     "title": "Weather Log",
     "description": "Log weather conditions.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:30:00",
     "endDuration": "2026-06-15T10:00:00",
     "groupId": "g2",
@@ -235,13 +383,27 @@
       "lat": 52.116,
       "lng": 5.146
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "18",
     "title": "Invasive Species",
     "description": "Remove invasive plants.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T09:00:00",
     "endDuration": "2026-06-15T10:00:00",
     "groupId": "g2",
@@ -249,13 +411,27 @@
       "lat": 52.1125,
       "lng": 5.1425
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
   },
   {
     "id": "19",
     "title": "Bat Survey",
     "description": "Survey bat activity.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T09:30:00",
     "endDuration": "2026-06-15T11:00:00",
     "groupId": "g2",
@@ -263,13 +439,23 @@
       "lat": 52.1135,
       "lng": 5.1435
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
   },
   {
     "id": "20",
     "title": "Hedgerow Check",
     "description": "Inspect hedgerow health.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T10:00:00",
     "endDuration": "2026-06-15T11:30:00",
     "groupId": "g2",
@@ -277,13 +463,23 @@
       "lat": 52.1145,
       "lng": 5.1445
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "21",
     "title": "Campfire Talk",
     "description": "Evening nature discussion.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T05:00:00",
     "endDuration": "2026-06-15T07:00:00",
     "groupId": "g3",
@@ -291,13 +487,23 @@
       "lat": 52.08,
       "lng": 5.1
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
   },
   {
     "id": "22",
     "title": "Star Gazing",
     "description": "Observe the night sky.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T05:00:00",
     "endDuration": "2026-06-15T06:00:00",
     "groupId": "g3",
@@ -305,13 +511,19 @@
       "lat": 52.081,
       "lng": 5.101
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
   },
   {
     "id": "23",
     "title": "Owl Walk",
     "description": "Listen for owls at dusk.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T05:30:00",
     "endDuration": "2026-06-15T07:00:00",
     "groupId": "g3",
@@ -319,13 +531,19 @@
       "lat": 52.082,
       "lng": 5.102
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
   },
   {
     "id": "24",
     "title": "Moth Trap",
     "description": "Set up moth traps.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T06:00:00",
     "endDuration": "2026-06-15T07:00:00",
     "groupId": "g3",
@@ -333,13 +551,23 @@
       "lat": 52.083,
       "lng": 5.103
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
   },
   {
     "id": "25",
     "title": "Night Hike",
     "description": "Guided night hike.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T06:30:00",
     "endDuration": "2026-06-15T08:00:00",
     "groupId": "g3",
@@ -347,13 +575,23 @@
       "lat": 52.084,
       "lng": 5.104
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
   },
   {
     "id": "26",
     "title": "Fox Watch",
     "description": "Watch for foxes at dusk.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:00:00",
     "endDuration": "2026-06-15T08:00:00",
     "groupId": "g3",
@@ -361,13 +599,27 @@
       "lat": 52.085,
       "lng": 5.105
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
   },
   {
     "id": "27",
     "title": "Stream Survey",
     "description": "Survey stream invertebrates.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T07:30:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g3",
@@ -375,13 +627,19 @@
       "lat": 52.086,
       "lng": 5.106
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
   },
   {
     "id": "28",
     "title": "Dew Pond",
     "description": "Monitor dew pond levels.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:00:00",
     "endDuration": "2026-06-15T09:00:00",
     "groupId": "g3",
@@ -389,13 +647,19 @@
       "lat": 52.087,
       "lng": 5.107
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
   },
   {
     "id": "29",
     "title": "Frog Count",
     "description": "Count frog populations.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T08:30:00",
     "endDuration": "2026-06-15T10:00:00",
     "groupId": "g3",
@@ -403,13 +667,23 @@
       "lat": 52.088,
       "lng": 5.108
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "30",
     "title": "Sunrise Watch",
     "description": "Watch the sunrise together.",
-    "timestamp": "2026-06-15T12:00:00",
+    "created_at": "2026-06-15T12:00:00",
     "startDuration": "2026-06-15T09:00:00",
     "endDuration": "2026-06-15T11:00:00",
     "groupId": "g3",
@@ -417,13 +691,27 @@
       "lat": 52.089,
       "lng": 5.109
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "31",
     "title": "Meadow Survey",
     "description": "Survey wildflower meadow.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T07:00:00",
     "endDuration": "2026-06-16T08:30:00",
     "groupId": "g1",
@@ -431,13 +719,27 @@
       "lat": 52.0908,
       "lng": 5.1215
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "32",
     "title": "Hedge Laying",
     "description": "Traditional hedge laying workshop.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T08:00:00",
     "endDuration": "2026-06-16T10:00:00",
     "groupId": "g1",
@@ -445,13 +747,19 @@
       "lat": 52.0912,
       "lng": 5.122
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "33",
     "title": "Butterfly Count",
     "description": "Record butterfly species.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T09:00:00",
     "endDuration": "2026-06-16T10:30:00",
     "groupId": "g1",
@@ -459,13 +767,23 @@
       "lat": 52.0918,
       "lng": 5.1225
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
   },
   {
     "id": "34",
     "title": "Riverbank Repair",
     "description": "Stabilise eroding riverbank.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T07:30:00",
     "endDuration": "2026-06-16T09:30:00",
     "groupId": "g2",
@@ -473,13 +791,19 @@
       "lat": 52.112,
       "lng": 5.1422
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
   },
   {
     "id": "35",
     "title": "Reptile Check",
     "description": "Check reptile refugia.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T09:00:00",
     "endDuration": "2026-06-16T10:00:00",
     "groupId": "g2",
@@ -487,13 +811,27 @@
       "lat": 52.1128,
       "lng": 5.1428
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
   },
   {
     "id": "36",
     "title": "Dawn Chorus",
     "description": "Record the dawn chorus.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T05:00:00",
     "endDuration": "2026-06-16T06:30:00",
     "groupId": "g3",
@@ -501,13 +839,27 @@
       "lat": 52.082,
       "lng": 5.102
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
   },
   {
     "id": "37",
     "title": "Glow Worm Hunt",
     "description": "Search for glow worms.",
-    "timestamp": "2026-06-16T12:00:00",
+    "created_at": "2026-06-16T12:00:00",
     "startDuration": "2026-06-16T06:30:00",
     "endDuration": "2026-06-16T08:00:00",
     "groupId": "g3",
@@ -515,13 +867,23 @@
       "lat": 52.0835,
       "lng": 5.1035
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
   },
   {
     "id": "38",
     "title": "Wetland Walk",
     "description": "Explore the wetland reserve.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T07:00:00",
     "endDuration": "2026-06-17T09:00:00",
     "groupId": "g1",
@@ -529,13 +891,27 @@
       "lat": 52.0905,
       "lng": 5.121
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
   },
   {
     "id": "39",
     "title": "Wildlife Pond Build",
     "description": "Dig a new wildlife pond.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T08:30:00",
     "endDuration": "2026-06-17T11:00:00",
     "groupId": "g1",
@@ -543,13 +919,19 @@
       "lat": 52.0915,
       "lng": 5.1218
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
   },
   {
     "id": "40",
     "title": "Beaver Watch",
     "description": "Look for beaver activity.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T06:00:00",
     "endDuration": "2026-06-17T08:00:00",
     "groupId": "g2",
@@ -557,13 +939,19 @@
       "lat": 52.1118,
       "lng": 5.1418
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
   },
   {
     "id": "41",
     "title": "Orchid Mapping",
     "description": "Map wild orchid locations.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T09:00:00",
     "endDuration": "2026-06-17T10:30:00",
     "groupId": "g2",
@@ -571,13 +959,23 @@
       "lat": 52.1132,
       "lng": 5.1432
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
   },
   {
     "id": "42",
     "title": "Badger Sett Survey",
     "description": "Survey active badger setts.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T05:30:00",
     "endDuration": "2026-06-17T07:00:00",
     "groupId": "g3",
@@ -585,13 +983,19 @@
       "lat": 52.0825,
       "lng": 5.1025
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
   },
   {
     "id": "43",
     "title": "Nightjar Listen",
     "description": "Listen for churring nightjars.",
-    "timestamp": "2026-06-17T12:00:00",
+    "created_at": "2026-06-17T12:00:00",
     "startDuration": "2026-06-17T06:30:00",
     "endDuration": "2026-06-17T08:30:00",
     "groupId": "g3",
@@ -599,13 +1003,23 @@
       "lat": 52.0845,
       "lng": 5.1045
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
   },
   {
     "id": "44",
     "title": "Coppice Work",
     "description": "Coppice hazel for habitat.",
-    "timestamp": "2026-06-18T12:00:00",
+    "created_at": "2026-06-18T12:00:00",
     "startDuration": "2026-06-18T08:00:00",
     "endDuration": "2026-06-18T10:30:00",
     "groupId": "g1",
@@ -613,13 +1027,23 @@
       "lat": 52.091,
       "lng": 5.1212
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
   },
   {
     "id": "45",
     "title": "Dragonfly Count",
     "description": "Count dragonflies at the lake.",
-    "timestamp": "2026-06-18T12:00:00",
+    "created_at": "2026-06-18T12:00:00",
     "startDuration": "2026-06-18T10:00:00",
     "endDuration": "2026-06-18T11:30:00",
     "groupId": "g2",
@@ -627,13 +1051,27 @@
       "lat": 52.1122,
       "lng": 5.1424
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
   },
   {
     "id": "46",
     "title": "Heathland Restoration",
     "description": "Restore lowland heath.",
-    "timestamp": "2026-06-18T12:00:00",
+    "created_at": "2026-06-18T12:00:00",
     "startDuration": "2026-06-18T07:30:00",
     "endDuration": "2026-06-18T09:30:00",
     "groupId": "g2",
@@ -641,19 +1079,1403 @@
       "lat": 52.1138,
       "lng": 5.1438
     },
-    "userId": "1"
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
   },
   {
     "id": "47",
     "title": "Twilight Bat Walk",
     "description": "Detect bats with detectors.",
-    "timestamp": "2026-06-18T12:00:00",
+    "created_at": "2026-06-18T12:00:00",
     "startDuration": "2026-06-18T06:00:00",
     "endDuration": "2026-06-18T07:30:00",
     "groupId": "g3",
     "coordinates": {
       "lat": 52.0838,
       "lng": 5.1038
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
+  },
+  {
+    "id": "48",
+    "title": "Bat Survey",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-30T12:00:00",
+    "startDuration": "2026-06-30T08:00:00",
+    "endDuration": "2026-07-04T08:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0095,
+      "lng": 5.0543
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
+  },
+  {
+    "id": "49",
+    "title": "Bat Survey",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-28T12:00:00",
+    "startDuration": "2026-06-28T13:00:00",
+    "endDuration": "2026-06-30T13:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0607,
+      "lng": 5.0437
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "50",
+    "title": "Moth Trapping",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-30T12:00:00",
+    "startDuration": "2026-06-30T15:00:00",
+    "endDuration": "2026-06-30T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0289,
+      "lng": 5.1617
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "51",
+    "title": "Wildflower Planting",
+    "description": "Data collection in the field.",
+    "created_at": "2026-06-23T12:00:00",
+    "startDuration": "2026-06-23T12:00:00",
+    "endDuration": "2026-06-26T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.003,
+      "lng": 5.0535
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
+  },
+  {
+    "id": "52",
+    "title": "Seed Collection",
+    "description": "Educational nature outing.",
+    "created_at": "2026-06-29T12:00:00",
+    "startDuration": "2026-06-29T11:00:00",
+    "endDuration": "2026-06-29T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0651,
+      "lng": 5.1762
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
+  },
+  {
+    "id": "53",
+    "title": "Pond Monitoring",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-12T12:00:00",
+    "startDuration": "2026-06-12T15:00:00",
+    "endDuration": "2026-06-16T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0886,
+      "lng": 5.0464
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      }
+    ]
+  },
+  {
+    "id": "54",
+    "title": "Butterfly Transect",
+    "description": "Data collection in the field.",
+    "created_at": "2026-06-19T12:00:00",
+    "startDuration": "2026-06-19T08:00:00",
+    "endDuration": "2026-06-19T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0289,
+      "lng": 5.129
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "55",
+    "title": "Frog Spawn Count",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-15T12:00:00",
+    "startDuration": "2026-06-15T12:00:00",
+    "endDuration": "2026-06-15T18:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0883,
+      "lng": 5.1357
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "56",
+    "title": "Hedgerow Planting",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-29T12:00:00",
+    "startDuration": "2026-06-29T09:00:00",
+    "endDuration": "2026-06-29T11:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0547,
+      "lng": 5.0778
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "57",
+    "title": "Butterfly Transect",
+    "description": "Data collection in the field.",
+    "created_at": "2026-06-20T12:00:00",
+    "startDuration": "2026-06-20T07:00:00",
+    "endDuration": "2026-06-22T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0275,
+      "lng": 5.0695
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
+  },
+  {
+    "id": "58",
+    "title": "Seed Collection",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-16T12:00:00",
+    "startDuration": "2026-06-16T14:00:00",
+    "endDuration": "2026-06-16T20:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.01,
+      "lng": 5.0595
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "59",
+    "title": "Owl Nesting Check",
+    "description": "Seasonal maintenance task.",
+    "created_at": "2026-06-28T12:00:00",
+    "startDuration": "2026-06-28T13:00:00",
+    "endDuration": "2026-06-28T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0207,
+      "lng": 5.1797
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "60",
+    "title": "Otter Watch",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-12T12:00:00",
+    "startDuration": "2026-06-12T07:00:00",
+    "endDuration": "2026-06-12T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0124,
+      "lng": 5.1353
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "61",
+    "title": "Litter Pick",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-22T12:00:00",
+    "startDuration": "2026-06-22T13:00:00",
+    "endDuration": "2026-06-22T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0252,
+      "lng": 5.1175
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
+  },
+  {
+    "id": "62",
+    "title": "Reed Bed Management",
+    "description": "Seasonal maintenance task.",
+    "created_at": "2026-06-13T12:00:00",
+    "startDuration": "2026-06-13T15:00:00",
+    "endDuration": "2026-06-13T21:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0056,
+      "lng": 5.1009
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
+  },
+  {
+    "id": "63",
+    "title": "Litter Pick",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-10T12:00:00",
+    "startDuration": "2026-06-10T11:00:00",
+    "endDuration": "2026-06-10T13:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1178,
+      "lng": 5.1619
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "64",
+    "title": "Owl Nesting Check",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-30T12:00:00",
+    "startDuration": "2026-06-30T15:00:00",
+    "endDuration": "2026-06-30T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0968,
+      "lng": 5.1155
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
+  },
+  {
+    "id": "65",
+    "title": "Nest Box Building",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-29T12:00:00",
+    "startDuration": "2026-06-29T12:00:00",
+    "endDuration": "2026-06-29T13:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0408,
+      "lng": 5.1779
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
+  },
+  {
+    "id": "66",
+    "title": "Compost Workshop",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-17T12:00:00",
+    "startDuration": "2026-06-17T07:00:00",
+    "endDuration": "2026-06-19T07:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.058,
+      "lng": 5.0497
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
+  },
+  {
+    "id": "67",
+    "title": "Frog Spawn Count",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-14T12:00:00",
+    "startDuration": "2026-06-14T14:00:00",
+    "endDuration": "2026-06-14T16:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0639,
+      "lng": 5.1249
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
+  },
+  {
+    "id": "68",
+    "title": "Stream Restoration",
+    "description": "Seasonal maintenance task.",
+    "created_at": "2026-06-27T12:00:00",
+    "startDuration": "2026-06-27T10:00:00",
+    "endDuration": "2026-06-27T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.081,
+      "lng": 5.1013
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "69",
+    "title": "Moth Trapping",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-13T12:00:00",
+    "startDuration": "2026-06-13T10:00:00",
+    "endDuration": "2026-06-17T10:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0675,
+      "lng": 5.1224
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "70",
+    "title": "Insect Count",
+    "description": "Seasonal maintenance task.",
+    "created_at": "2026-06-12T12:00:00",
+    "startDuration": "2026-06-12T07:00:00",
+    "endDuration": "2026-06-14T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.062,
+      "lng": 5.079
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "71",
+    "title": "Mammal Tracking",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-16T12:00:00",
+    "startDuration": "2026-06-16T15:00:00",
+    "endDuration": "2026-06-21T15:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0562,
+      "lng": 5.097
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "72",
+    "title": "Seed Collection",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-13T12:00:00",
+    "startDuration": "2026-06-13T13:00:00",
+    "endDuration": "2026-06-13T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1109,
+      "lng": 5.0476
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "73",
+    "title": "Bat Survey",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-11T12:00:00",
+    "startDuration": "2026-06-11T13:00:00",
+    "endDuration": "2026-06-11T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0168,
+      "lng": 5.1151
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      }
+    ]
+  },
+  {
+    "id": "74",
+    "title": "Seed Collection",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-23T12:00:00",
+    "startDuration": "2026-06-23T09:00:00",
+    "endDuration": "2026-06-26T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1031,
+      "lng": 5.1598
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "75",
+    "title": "Nest Box Building",
+    "description": "Educational nature outing.",
+    "created_at": "2026-06-11T12:00:00",
+    "startDuration": "2026-06-11T15:00:00",
+    "endDuration": "2026-06-11T16:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0955,
+      "lng": 5.0731
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "76",
+    "title": "Hedgerow Planting",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-25T12:00:00",
+    "startDuration": "2026-06-25T14:00:00",
+    "endDuration": "2026-06-30T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0431,
+      "lng": 5.1779
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "77",
+    "title": "Mammal Tracking",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-24T12:00:00",
+    "startDuration": "2026-06-24T11:00:00",
+    "endDuration": "2026-06-24T17:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0678,
+      "lng": 5.1406
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
+  },
+  {
+    "id": "78",
+    "title": "Compost Workshop",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-16T12:00:00",
+    "startDuration": "2026-06-16T11:00:00",
+    "endDuration": "2026-06-18T15:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0659,
+      "lng": 5.1447
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "79",
+    "title": "Hedgerow Planting",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-11T12:00:00",
+    "startDuration": "2026-06-11T14:00:00",
+    "endDuration": "2026-06-11T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 51.998,
+      "lng": 5.1111
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "80",
+    "title": "Butterfly Transect",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-12T12:00:00",
+    "startDuration": "2026-06-12T08:00:00",
+    "endDuration": "2026-06-12T10:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0068,
+      "lng": 5.1646
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
+  },
+  {
+    "id": "81",
+    "title": "Stream Restoration",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-28T12:00:00",
+    "startDuration": "2026-06-28T07:00:00",
+    "endDuration": "2026-06-28T11:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0717,
+      "lng": 5.1132
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
+  },
+  {
+    "id": "82",
+    "title": "Stream Restoration",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-16T12:00:00",
+    "startDuration": "2026-06-16T12:00:00",
+    "endDuration": "2026-06-21T12:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0804,
+      "lng": 5.104
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "83",
+    "title": "Wildflower Planting",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-10T12:00:00",
+    "startDuration": "2026-06-10T14:00:00",
+    "endDuration": "2026-06-10T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0003,
+      "lng": 5.0698
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "84",
+    "title": "Owl Nesting Check",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-14T12:00:00",
+    "startDuration": "2026-06-14T12:00:00",
+    "endDuration": "2026-06-14T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0299,
+      "lng": 5.1013
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Water",
+        "color": "#FF00BCD4"
+      }
+    ]
+  },
+  {
+    "id": "85",
+    "title": "Wildflower Planting",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-29T12:00:00",
+    "startDuration": "2026-06-29T15:00:00",
+    "endDuration": "2026-07-03T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1215,
+      "lng": 5.0588
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      }
+    ]
+  },
+  {
+    "id": "86",
+    "title": "Pond Monitoring",
+    "description": "Habitat improvement work.",
+    "created_at": "2026-06-13T12:00:00",
+    "startDuration": "2026-06-13T15:00:00",
+    "endDuration": "2026-06-17T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0905,
+      "lng": 5.0685
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
+  },
+  {
+    "id": "87",
+    "title": "Otter Watch",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-26T12:00:00",
+    "startDuration": "2026-06-26T14:00:00",
+    "endDuration": "2026-06-28T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0493,
+      "lng": 5.0787
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
+  },
+  {
+    "id": "88",
+    "title": "Hedgerow Planting",
+    "description": "Educational nature outing.",
+    "created_at": "2026-06-20T12:00:00",
+    "startDuration": "2026-06-20T09:00:00",
+    "endDuration": "2026-06-20T12:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0938,
+      "lng": 5.1172
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      }
+    ]
+  },
+  {
+    "id": "89",
+    "title": "Meadow Restoration",
+    "description": "Monitoring local biodiversity.",
+    "created_at": "2026-06-27T12:00:00",
+    "startDuration": "2026-06-27T07:00:00",
+    "endDuration": "2026-06-30T11:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1068,
+      "lng": 5.1216
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      }
+    ]
+  },
+  {
+    "id": "90",
+    "title": "Invasive Species Removal",
+    "description": "Hands-on conservation activity.",
+    "created_at": "2026-06-23T12:00:00",
+    "startDuration": "2026-06-23T09:00:00",
+    "endDuration": "2026-06-27T09:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0401,
+      "lng": 5.1355
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "91",
+    "title": "Hedge Laying",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-21T12:00:00",
+    "startDuration": "2026-06-21T15:00:00",
+    "endDuration": "2026-06-21T19:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0949,
+      "lng": 5.1696
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Cleanup",
+        "color": "#FF4CAF50"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "92",
+    "title": "Hedgerow Planting",
+    "description": "Educational nature outing.",
+    "created_at": "2026-06-15T12:00:00",
+    "startDuration": "2026-06-15T09:00:00",
+    "endDuration": "2026-06-15T10:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0931,
+      "lng": 5.0865
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "93",
+    "title": "Tree Health Check",
+    "description": "Community outdoor event.",
+    "created_at": "2026-06-17T12:00:00",
+    "startDuration": "2026-06-17T11:00:00",
+    "endDuration": "2026-06-19T13:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 51.9954,
+      "lng": 5.1059
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Wildlife",
+        "color": "#FF8BC34A"
+      },
+      {
+        "label": "Monitoring",
+        "color": "#FF3F51B5"
+      }
+    ]
+  },
+  {
+    "id": "94",
+    "title": "Bat Survey",
+    "description": "Data collection in the field.",
+    "created_at": "2026-06-24T12:00:00",
+    "startDuration": "2026-06-24T12:00:00",
+    "endDuration": "2026-06-24T14:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 51.9933,
+      "lng": 5.067
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
+  },
+  {
+    "id": "95",
+    "title": "Owl Nesting Check",
+    "description": "Data collection in the field.",
+    "created_at": "2026-06-18T12:00:00",
+    "startDuration": "2026-06-18T08:00:00",
+    "endDuration": "2026-06-18T11:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0798,
+      "lng": 5.096
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Planting",
+        "color": "#FF795548"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      },
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      }
+    ]
+  },
+  {
+    "id": "96",
+    "title": "Hedgerow Planting",
+    "description": "Field work session with volunteers.",
+    "created_at": "2026-06-10T12:00:00",
+    "startDuration": "2026-06-10T08:00:00",
+    "endDuration": "2026-06-10T11:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0713,
+      "lng": 5.1777
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Education",
+        "color": "#FF9C27B0"
+      },
+      {
+        "label": "Survey",
+        "color": "#FF2196F3"
+      }
+    ]
+  },
+  {
+    "id": "97",
+    "title": "Heathland Burn",
+    "description": "Educational nature outing.",
+    "created_at": "2026-06-13T12:00:00",
+    "startDuration": "2026-06-13T13:00:00",
+    "endDuration": "2026-06-13T16:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0749,
+      "lng": 5.1116
+    },
+    "userId": "1",
+    "tags": [
+      {
+        "label": "Volunteer",
+        "color": "#FFFF9800"
+      },
+      {
+        "label": "Community",
+        "color": "#FFE91E63"
+      },
+      {
+        "label": "Urgent",
+        "color": "#FFF44336"
+      }
+    ]
+  },
+  {
+    "id": "98",
+    "title": "Rare Bird Sighting",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-24T16:45:00",
+    "timestamp": "2026-06-24T16:45:00",
+    "groupId": "g1",
+    "coordinates": {
+      "lat": 52.0542,
+      "lng": 5.1526
+    },
+    "userId": "1"
+  },
+  {
+    "id": "99",
+    "title": "Fox Spotted",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-16T10:45:00",
+    "timestamp": "2026-06-16T10:45:00",
+    "groupId": "g2",
+    "coordinates": {
+      "lat": 52.0756,
+      "lng": 5.1452
+    },
+    "userId": "1"
+  },
+  {
+    "id": "100",
+    "title": "First Bloom",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-13T15:30:00",
+    "timestamp": "2026-06-13T15:30:00",
+    "groupId": "g3",
+    "coordinates": {
+      "lat": 52.017,
+      "lng": 5.1146
+    },
+    "userId": "1"
+  },
+  {
+    "id": "101",
+    "title": "Tagged Seal Resurfaced",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-30T08:45:00",
+    "timestamp": "2026-06-30T08:45:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1158,
+      "lng": 5.1285
+    },
+    "userId": "1"
+  },
+  {
+    "id": "102",
+    "title": "Lightning Strike Logged",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-29T10:00:00",
+    "timestamp": "2026-06-29T10:00:00",
+    "groupId": "g1",
+    "coordinates": {
+      "lat": 52.0998,
+      "lng": 5.0576
+    },
+    "userId": "1"
+  },
+  {
+    "id": "103",
+    "title": "Beaver Dam Found",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-11T11:15:00",
+    "timestamp": "2026-06-11T11:15:00",
+    "groupId": "g2",
+    "coordinates": {
+      "lat": 52.072,
+      "lng": 5.1434
+    },
+    "userId": "1"
+  },
+  {
+    "id": "104",
+    "title": "Eagle Flyover",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-20T15:15:00",
+    "timestamp": "2026-06-20T15:15:00",
+    "groupId": "g3",
+    "coordinates": {
+      "lat": 52.0623,
+      "lng": 5.1268
+    },
+    "userId": "1"
+  },
+  {
+    "id": "105",
+    "title": "Spawning Observed",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-25T08:00:00",
+    "timestamp": "2026-06-25T08:00:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.0549,
+      "lng": 5.0834
+    },
+    "userId": "1"
+  },
+  {
+    "id": "106",
+    "title": "Frost Recorded",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-27T09:30:00",
+    "timestamp": "2026-06-27T09:30:00",
+    "groupId": "g1",
+    "coordinates": {
+      "lat": 52.0378,
+      "lng": 5.0776
+    },
+    "userId": "1"
+  },
+  {
+    "id": "107",
+    "title": "Seed Drop",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-19T08:00:00",
+    "timestamp": "2026-06-19T08:00:00",
+    "groupId": "g2",
+    "coordinates": {
+      "lat": 52.0676,
+      "lng": 5.063
+    },
+    "userId": "1"
+  },
+  {
+    "id": "108",
+    "title": "Heron Landing",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-13T12:45:00",
+    "timestamp": "2026-06-13T12:45:00",
+    "groupId": "g3",
+    "coordinates": {
+      "lat": 52.008,
+      "lng": 5.052
+    },
+    "userId": "1"
+  },
+  {
+    "id": "109",
+    "title": "Deer Crossing",
+    "description": "A single-moment observation.",
+    "created_at": "2026-06-10T11:15:00",
+    "timestamp": "2026-06-10T11:15:00",
+    "groupId": "g4",
+    "coordinates": {
+      "lat": 52.1112,
+      "lng": 5.0563
     },
     "userId": "1"
   }

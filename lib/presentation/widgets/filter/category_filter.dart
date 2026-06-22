@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:software_for_nature/core/utils/color_utils.dart';
 import 'package:software_for_nature/data/models/group.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
 class CategoryFilter extends StatefulWidget {
-  const CategoryFilter({super.key});
+  final bool compact;
+
+  const CategoryFilter({super.key, this.compact = false});
 
   @override
   State<CategoryFilter> createState() => _CategoryFilterState();
@@ -26,12 +27,11 @@ class _CategoryFilterState extends State<CategoryFilter> {
       builder: (context, state) {
         final groups =  state is FilterLoaded ? (state.groups ?? const <Group>[]) : const <Group>[];
         final activeGroups = state is FilterLoaded ? (state.activeGroups ?? const <Group>[]) : const <Group>[];
-        final selectableGroups = groups.where((group) => !activeGroups.any((activeGroup) => activeGroup.id == group.id)) ?? const <Group>[];
+        final selectableGroups = groups.where((group) => !activeGroups.any((activeGroup) => activeGroup.id == group.id));
 
         return Row(
           children: [
-            Text("Select a category"),
-            SizedBox(width: 20),
+            SizedBox(width: widget.compact ? 8 : 20),
             DropdownButton<String>(
               value: null,
               hint: const Text('Category'),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:software_for_nature/presentation/pages/hybrid_page.dart';
 import 'package:software_for_nature/presentation/pages/map_page.dart';
 import 'package:software_for_nature/presentation/pages/timeline_page.dart';
+import 'package:software_for_nature/presentation/pages/user_page.dart';
 
 class AppRoutes {
 
   static const String timeline = '/timeline';
   static const String map = '/map';
   static const String hybrid = '/hybrid';
+  static const String user = '/user';
 
   static const Map<String, String> navRoutes = {
     'Timeline': timeline,
@@ -32,6 +34,8 @@ class AppRoutes {
         return buildRoute(const MapPage());
       case hybrid:
         return buildRoute(const HybridPage());
+      case user:
+        return buildRoute(const UserPage());
       default:
         return buildRoute(const TimelinePage());
     }

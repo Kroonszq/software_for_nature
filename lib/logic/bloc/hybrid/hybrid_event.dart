@@ -8,26 +8,33 @@ class HybridBoundsChanged extends HybridEvent {
   HybridBoundsChanged(this.bounds);
 }
 
-/// Timeline range changed (optional future feature)
+/// Timeline range changed 
 class HybridTimeRangeChanged extends HybridEvent {
   final DateTimeRange range;
   HybridTimeRangeChanged(this.range);
 }
 
-/// The category / date / search filter changed. Keeps the map in sync with the
-/// timeline so both react to the same filter criteria.
+/// The category / date / search filter changed
 class HybridFilterChanged extends HybridEvent {
   final Set<String>? groupIds;
+  final Set<String>? tagLabels;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? search;
 
   HybridFilterChanged({
     this.groupIds,
+    this.tagLabels,
     this.startDate,
     this.endDate,
     this.search,
   });
+}
+
+/// The set of groups currently shown by the timeline changed
+class HybridVisibleGroupsChanged extends HybridEvent {
+  final Set<String> groupIds;
+  HybridVisibleGroupsChanged(this.groupIds);
 }
 
 /// User selects an event (from map OR timeline)
@@ -36,7 +43,7 @@ class HybridEventSelected extends HybridEvent {
   HybridEventSelected(this.event);
 }
 
-/// Reload current query (manual refresh if needed)
+/// Reload current query
 class HybridReloadRequested extends HybridEvent {}
 
 class HybridTimeWindowChanged extends HybridEvent {

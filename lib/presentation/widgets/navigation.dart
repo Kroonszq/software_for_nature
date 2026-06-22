@@ -24,16 +24,11 @@ class Navigation extends StatelessWidget implements PreferredSizeWidget {
       },
       child: Container(
         decoration: const BoxDecoration(color: Colors.black),
-        // Keep the black bar filling behind the status bar, but push its
-        // content below the system status bar so it isn't overlapped.
         child: SafeArea(
           bottom: false,
           child: LayoutBuilder(
           builder: (context, constraints) {
-            // On narrow screens lay everything out in a single inline row
-            // (scrollable nav buttons + compact create button + profile) so
-            // nothing overlaps; on wider screens keep the centered create
-            // button overlay design.
+         
             final bool isCompact = constraints.maxWidth < 600;
 
             final navButtons = ListView(
@@ -56,9 +51,13 @@ class Navigation extends StatelessWidget implements PreferredSizeWidget {
               ],
             );
 
-            final profile = Padding(
+            final profile = IconButton(
               padding: const EdgeInsets.all(16),
-              child: Icon(Icons.person, color: Colors.white, size: 18),
+              icon: const Icon(Icons.person, color: Colors.white, size: 18),
+              tooltip: 'Profile',
+              onPressed: () => context
+                  .read<NavigationBloc>()
+                  .add(NavigateToRoute(AppRoutes.user)),
             );
 
             if (isCompact) {

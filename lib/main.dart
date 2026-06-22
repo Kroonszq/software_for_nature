@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:software_for_nature/app_routes.dart';
 import 'package:software_for_nature/data/data_sources/attachment_storage.dart';
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
+import 'package:software_for_nature/core/constants/seed_config.dart';
 import 'package:software_for_nature/data/data_sources/json_client.dart';
 import 'package:software_for_nature/data/models/comment.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
@@ -19,7 +20,6 @@ import 'package:software_for_nature/data/repositories/interfaces/user_repository
 import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
 import 'package:software_for_nature/logic/bloc/navigation/bloc/navigation_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/observer.dart';
@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
               assetPath: 'assets/data/group.json',
               fromJson: Group.fromJson,
               logger: Logger(printer: PrettyPrinter()),
+              seedVersion: kSeedDataVersion,
             ),
           ),
         ),
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
               assetPath: 'assets/data/event.json',
               fromJson: EventPost.fromJson,
               logger: Logger(printer: PrettyPrinter()),
+              seedVersion: kSeedDataVersion,
             ),
           ),
         ),
@@ -68,6 +70,7 @@ class MyApp extends StatelessWidget {
               assetPath: 'assets/data/user.json',
               fromJson: User.fromJson,
               logger: Logger(printer: PrettyPrinter()),
+              seedVersion: kSeedDataVersion,
             ),
           ),
         ),
@@ -80,6 +83,7 @@ class MyApp extends StatelessWidget {
               assetPath: 'assets/data/comment.json',
               fromJson: Comment.fromJson,
               logger: Logger(printer: PrettyPrinter()),
+              seedVersion: kSeedDataVersion,
             ),
           ),
         ),
@@ -91,7 +95,6 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(create: (context) => TimelineBloc()),
           BlocProvider(create: (_) => NavigationBloc()),
-          BlocProvider(create: (_) => MinimizedEventsBloc()),
           BlocProvider(
             create: (context) =>
             MapBloc(context.read<EventPostRepository>())

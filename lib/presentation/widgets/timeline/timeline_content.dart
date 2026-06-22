@@ -94,7 +94,7 @@ class _TimelineContentState extends State<TimelineContent> {
       );
     }
 
-    var timelineGeometry = TimelineGeometry.fromEvents(widget.listOfEvents);
+    var timelineGeometry = TimelineGeometry.fromEvents(widget.listOfEvents, earliest: widget.earliest);
 
     final groupColor =
         widget.listOfEvents.first.group?.color ??
@@ -202,19 +202,6 @@ class _TimelineContentState extends State<TimelineContent> {
           cards.add(card);
         }
       }
-    }
-
-    // When an event is hovered/selected darken the background
-    if (selectedId != null) {
-      cards.add(
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.5),
-            ),
-          ),
-        ),
-      );
     }
 
     if (selectedCard != null) {

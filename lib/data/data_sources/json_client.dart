@@ -12,9 +12,16 @@ class JsonClient<T extends JsonModel> implements JsonClientInterface<T> {
   final Logger _logger;
   final T Function(Map<String, dynamic>) _fromJson;
 
+  final int _seedVersion;
+
   File? _cachedFile;
 
-  JsonClient({required this._assetPath, required this._logger, required this._fromJson});
+  JsonClient({
+    required this._assetPath,
+    required this._logger,
+    required this._fromJson,
+    this._seedVersion = 0,
+  });
 
   Future<File> _localFile() async {
     if (_cachedFile != null) return _cachedFile!;
@@ -23,10 +30,16 @@ class JsonClient<T extends JsonModel> implements JsonClientInterface<T> {
     final fileName = _assetPath.split('/').last;
     final file = File('${dir.path}/$fileName');
 
-    if (!await file.exists()) {
-      // Seed the writable copy from the read-only bundled asset.
+    final marker = File('${dir.path}/$fileName.seedversion');
+
+    final bool needsSeed = !await file.exists() ||
+        !await marker.exists() ||
+        (await marker.readAsString()).trim() != '$_seedVersion';
+
+    if (needsSeed) {
       final seed = await rootBundle.loadString(_assetPath);
       await file.writeAsString(seed);
+      await marker.writeAsString('$_seedVersion');
     }
 
     return _cachedFile = file;

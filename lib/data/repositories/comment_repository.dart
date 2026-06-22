@@ -13,4 +13,17 @@ class CommentRepository  extends BaseRepository<Comment> implements CommentRepos
     return all.where((c) => c.eventId == eventId).toList()
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
   }
+
+  /// Creates  a new comment on [eventId] the created [Comment] is returned
+  @override
+  Future<Comment> addComment({required String eventId, required String author, required String text}) {
+    final comment = Comment(
+      id: 'c${DateTime.now().microsecondsSinceEpoch}',
+      eventId: eventId,
+      author: author,
+      text: text.trim(),
+      timestamp: DateTime.now(),
+    );
+    return create(comment);
+  }
 }

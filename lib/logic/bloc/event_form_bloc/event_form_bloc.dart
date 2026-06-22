@@ -47,7 +47,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
 
     DateTime start;
     DateTime end;
-    DateTime timestamp;
+    DateTime? timestamp;
 
     if (state.mode == EventTimeMode.range) {
       if (state.start == null || state.end == null) {
@@ -60,12 +60,13 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
       }
       start = state.start!;
       end = state.end!;
-      timestamp = state.start!;
+      timestamp = null;
     } else {
       if (state.timestamp == null) {
         emit(state.copyWith(status: EventFormStatus.failure, error: 'Pick a date and time'));
         return;
       }
+
       start = state.timestamp!;
       end = state.timestamp!;
       timestamp = state.timestamp!;
@@ -73,8 +74,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
 
     emit(state.copyWith(status: EventFormStatus.submitting));
     try {
-      // Resolve the owning user. Until real auth exists, the first user
-      // (the seeded test user, id "1") is treated as the current user.
+
       final users = await _userRepository.getAll() ?? const [];
       if (users.isEmpty) {
         emit(state.copyWith(status: EventFormStatus.failure, error: 'No user available'));
@@ -90,6 +90,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
         id: id,
         title: state.title,
         description: state.description,
+        createdAt: DateTime.now(),
         timestamp: timestamp,
         startDuration: start,
         endDuration: end,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:software_for_nature/core/constants/timeline_constants.dart';
 
 class TimelineHeader extends StatelessWidget{
   final String title;
@@ -19,19 +20,23 @@ class TimelineHeader extends StatelessWidget{
 
  @override
   Widget build(BuildContext context) {
+
+    // Use a more compact header on mobile
+    final bool isCompact = MediaQuery.sizeOf(context).width < TimelineConstants.compactBreakpoint;
+
     return ReorderableDragStartListener(
       index: position,
       child: GestureDetector(
         onTap: onMinimize,
         child: Container(
           color: color,
-          height: 50,
+          height: isCompact ? 32 : 50,
           child: Row(
             children: [
               // Drag icon for the user
-              const Padding(
-                padding: EdgeInsets.only(left: 4),
-                child: Icon(Icons.drag_indicator, size: 18),
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.drag_indicator, size: isCompact ? 14 : 18),
               ),
               Expanded(
                 child: Center(
@@ -41,21 +46,21 @@ class TimelineHeader extends StatelessWidget{
                       Text(
                         groupName,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: isCompact ? 10 : 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'minimize',
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11),
+                        style: TextStyle(fontSize: isCompact ? 9 : 11),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 22),
+              SizedBox(width: isCompact ? 14 : 22),
             ],
           ),
         ),

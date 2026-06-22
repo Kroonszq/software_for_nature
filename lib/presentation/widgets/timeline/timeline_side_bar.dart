@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/presentation/models/timeline.dart';
+import 'package:software_for_nature/presentation/widgets/timeline/timeline_content.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 
 class TimelineSideBar extends StatefulWidget {
@@ -9,11 +11,23 @@ class TimelineSideBar extends StatefulWidget {
   final bool? minimized;
   final ValueChanged<bool>? onMinimizedChanged;
 
+  /// The shared vertical scroll offset of the main timelines
+  final ValueListenable<double>? scrollOffset;
+
+  /// The full  height of the timeline content in timeline pixels
+  final double? contentHeight;
+
+  /// The earliest timestamp shared by every timeline
+  final DateTime? earliest;
+
   const TimelineSideBar({
     super.key,
     this.axis = Axis.vertical,
     this.minimized,
     this.onMinimizedChanged,
+    this.scrollOffset,
+    this.contentHeight,
+    this.earliest,
   });
 
   @override
@@ -200,8 +214,11 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
   Widget _previewCard(BuildContext context, MapEntry<int, Timeline> entry) {
     return GestureDetector(
       onTap: () {
+        // Toggle: clicking an already-active timeline deactivates it.
         context.read<TimeLinesWrapperBloc>().add(
-              SetTimelineActive(entry.key),
+              entry.value.active
+                  ? SetTimelineInActive(entry.key)
+                  : SetTimelineActive(entry.key),
             );
       },
       child: Column(
@@ -242,15 +259,31 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
                   builder: (context, constraints) {
                     const double scale = 0.18;
 
+
+                    final double layoutHeight = (widget.contentHeight != null && widget.contentHeight! > 0)
+                            ? widget.contentHeight!
+                            : constraints.maxHeight / scale;
+
                     return OverflowBox(
                       alignment: Alignment.topLeft,
                       maxWidth: constraints.maxWidth / scale,
-                      maxHeight: constraints.maxHeight / scale,
+                      minHeight: layoutHeight,
+                      maxHeight: layoutHeight,
                       child: Transform.scale(
                         scale: scale,
                         alignment: Alignment.topLeft,
-                        child: IgnorePointer(
-                          child: entry.value.timelineWidget,
+
+                        child: _ScrollingPreview(
+                          scrollOffset: widget.scrollOffset,
+                          child: IgnorePointer(
+                            child: TimelineContent(
+                              listOfEvents: entry.value.events,
+                              earliest: widget.earliest,
+                              minHeight: widget.contentHeight ?? 0,
+                              groupColor: entry.value.color,
+                              enableHorizontalScroll: false,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -261,6 +294,33 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+class _ScrollingPreview extends StatelessWidget {
+  final ValueListenable<double>? scrollOffset;
+  final Widget child;
+
+  const _ScrollingPreview({required this.scrollOffset, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final offset = scrollOffset;
+    if (offset == null) {
+      return child;
+    }
+
+    return ValueListenableBuilder<double>(
+      valueListenable: offset,
+      child: child,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, -value),
+          child: child,
+        );
+      },
     );
   }
 }

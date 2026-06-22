@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/presentation/widgets/filter/category_filter.dart';
 import 'package:software_for_nature/presentation/widgets/filter/date_filter.dart';
+import 'package:software_for_nature/presentation/widgets/filter/export_button.dart';
 import 'package:software_for_nature/presentation/widgets/filter/search_filter.dart';
+import 'package:software_for_nature/presentation/widgets/filter/tag_filter.dart';
 
 class Filter extends StatefulWidget {
   const Filter({super.key});
@@ -19,9 +21,8 @@ class _FilterState extends State<Filter> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // On narrow/mobile screens the three filters don't fit side by side,
-        // so collapse them behind a hamburger menu; on wider screens keep them
-        // in a row.
+
+
         final bool isCompact = constraints.maxWidth < 700;
 
         if (isCompact) {
@@ -32,7 +33,6 @@ class _FilterState extends State<Filter> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Hamburger header that toggles the filter panel.
                 Row(
                   children: [
                     IconButton(
@@ -41,6 +41,8 @@ class _FilterState extends State<Filter> {
                       onPressed: () => setState(() => _expanded = !_expanded),
                     ),
                     const Text('Filters'),
+                    const Spacer(),
+                    const ExportButton(),
                   ],
                 ),
                 // Collapsible filter panel.
@@ -56,9 +58,11 @@ class _FilterState extends State<Filter> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CategoryFilter(),
+                        CategoryFilter(compact: true),
                         SizedBox(height: 12),
-                        DateFilter(),
+                        TagFilter(compact: true),
+                        SizedBox(height: 12),
+                        DateFilter(compact: true),
                         SizedBox(height: 12),
                         SearchFilter(),
                       ],
@@ -78,9 +82,13 @@ class _FilterState extends State<Filter> {
             children: [
               Expanded(flex: 1, child: CategoryFilter()),
               SizedBox(width: 20),
+              Expanded(flex: 1, child: TagFilter()),
+              SizedBox(width: 20),
               Expanded(flex: 1, child: DateFilter()),
               SizedBox(width: 20),
               Expanded(flex: 1, child: SearchFilter()),
+              SizedBox(width: 20),
+              ExportButton(),
             ],
           ),
         );

@@ -14,6 +14,14 @@ final class CategoryChanged extends FilterEvent{
 }
 
 
+/// Toggles a tag in/out of the active tag selection
+final class TagChanged extends FilterEvent {
+  final Tag tag;
+
+  TagChanged(this.tag);
+}
+
+
 final class DateRangeChanged extends FilterEvent {
   final DateTime? startDate;
   final DateTime? endDate;

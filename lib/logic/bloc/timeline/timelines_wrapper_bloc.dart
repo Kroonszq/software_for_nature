@@ -20,8 +20,9 @@ class TimeLinesWrapperBloc
   final GroupRepositoryInterface _groupRepository;
   final UserRepositoryInterface _userRepository;
 
-  // Current filter criteria. Updated whenever a [FilterChanged] event arrives.
+  // Current filter criteria. Updated whenever a [FilterChanged] event arrives
   List<Group> _activeGroups = const [];
+  Set<String> _tagLabels = const {};
   DateTime? _startDate;
   DateTime? _endDate;
   String _searchQuery = '';
@@ -37,6 +38,7 @@ class TimeLinesWrapperBloc
 
     on<FilterChanged>((event, emit) async {
       _activeGroups = event.activeGroups;
+      _tagLabels = event.tagLabels;
       _startDate = event.startDate;
       _endDate = event.endDate;
       _searchQuery = event.searchQuery;
@@ -127,18 +129,17 @@ class TimeLinesWrapperBloc
       return;
     }
 
-    // Index users by id once so each event can be hydrated without a per-event
-    // repository round-trip.
+    // Index users by id once
     final users = await _userRepository.getAll() ?? const <User>[];
     final usersById = {for (final u in users) u.id: u};
 
     final activeIds = _activeGroups.map((g) => g.id).toSet();
-    // Category selection scopes which timelines are shown.
+    // Category selection scopes which timelines are shown
     final bool hasCategoryFilter = activeIds.isNotEmpty;
 
     Map<int, Timeline> grouppedEvents = {};
     for (Group group in groups) {
-      // When categories are selected, ignore every group that isn't selected.
+      // When categories are selected, ignore every group that isn't selected
       if (hasCategoryFilter && !activeIds.contains(group.id)) {
         continue;
       }
@@ -146,7 +147,7 @@ class TimeLinesWrapperBloc
       final String groupName = group.title;
       final int key = groupName.hashCode;
 
-      // Fetch the events matching the current query and bind the group to them.
+      // Fetch the events matching the current query and bind the group to them
       final groupEvents =
           (await _eventPostRepository.queryEvents(
             EventQuery(
@@ -154,6 +155,7 @@ class TimeLinesWrapperBloc
               startDate: _startDate,
               endDate: _endDate,
               search: _searchQuery,
+              tagLabels: _tagLabels,
             ),
           )).map((event) {
             event.group = group;
@@ -161,9 +163,6 @@ class TimeLinesWrapperBloc
             return event;
           }).toList();
 
-      // The timeline always stays in scope. Search / date only narrow the
-      // events inside it; an empty result is shown as "no events" rather than
-      // removing the timeline.
       if (!grouppedEvents.containsKey(key)) {
         var timeline = Timeline(
           title: groupName,
@@ -178,6 +177,7 @@ class TimeLinesWrapperBloc
     }
 
     Map<int, ScrollController> timelineScrollers = {};
+
     // Foreach group create a timeline
     for (final groupEntry in grouppedEvents.entries) {
       final timeline = TimelineContent(

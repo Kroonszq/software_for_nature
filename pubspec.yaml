@@ -40,7 +40,8 @@ dependencies:
   csv: ^8.0.0
   logger: ^2.7.0
   collection: ^1.19.1
-  file_picker: ^11.0.2
+  
+  file_picker: ^10.3.10
   path_provider: ^2.1.6
   flutter_map: ^8.2.2
   latlong2: ^0.9.1

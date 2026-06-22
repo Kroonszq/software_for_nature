@@ -10,6 +10,9 @@ class EventQuery {
   final GeoBounds? bounds;
   final DateTimeRange? timeRange;
 
+
+  final Set<String>? tagLabels;
+
   const EventQuery({
     this.groupIds,
     this.startDate,
@@ -17,5 +20,6 @@ class EventQuery {
     this.search,
     this.bounds,
     this.timeRange,
+    this.tagLabels,
   });
 }

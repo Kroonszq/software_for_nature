@@ -34,11 +34,12 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
         return false;
       }
 
-      // Timestamp window
-      if (query.startDate != null && event.timestamp.isBefore(query.startDate!)) {
+      // Date window — filter by when the event occurs (the moment timestamp for
+      // moment events, otherwise the start of the range).
+      if (query.startDate != null && event.occurredAt.isBefore(query.startDate!)) {
         return false;
       }
-      if (query.endDate != null && event.timestamp.isAfter(query.endDate!)) {
+      if (query.endDate != null && event.occurredAt.isAfter(query.endDate!)) {
         return false;
       }
 
@@ -62,6 +63,12 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
           !(event.endDuration.isAfter(query.timeRange!.start) &&
               event.startDuration.isBefore(query.timeRange!.end))) {
         return false;
+      }
+      if (query.tagLabels != null && query.tagLabels!.isNotEmpty) {
+        if (event.tags.isNotEmpty &&
+            !event.tags.any((t) => query.tagLabels!.contains(t.label))) {
+          return false;
+        }
       }
 
       return true;

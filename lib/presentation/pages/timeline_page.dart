@@ -6,6 +6,7 @@ import 'package:software_for_nature/data/repositories/interfaces/user_repository
 import 'package:software_for_nature/data/models/group.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/minimized_events_stack.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_side_bar.dart';
@@ -21,6 +22,7 @@ class TimelinePage extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => EventInteractionCubit()),
         BlocProvider(
           create: (context) => TimeLinesWrapperBloc(
             eventPostRepository: context.read<EventPostRepository>(),
@@ -31,6 +33,7 @@ class TimelinePage extends StatelessWidget {
         BlocProvider(
           create: (context) => FilterBloc(
             groupRepositoryInterface: context.read<GroupRepositoryInterface>(),
+            eventPostRepositoryInterface: context.read<EventPostRepository>(),
           )..add(FilterStarted()),
         ),
       ],
@@ -40,6 +43,8 @@ class TimelinePage extends StatelessWidget {
             context.read<TimeLinesWrapperBloc>().add(
                   FilterChanged(
                     activeGroups: state.activeGroups ?? const <Group>[],
+                    tagLabels:
+                        (state.activeTags ?? const []).map((t) => t.label).toSet(),
                     startDate: state.startDate,
                     endDate: state.endDate,
                     searchQuery: state.searchQuery ?? '',

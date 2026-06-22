@@ -5,20 +5,20 @@ import 'package:latlong2/latlong.dart';
 
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
+import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 
 import 'package:software_for_nature/data/models/group.dart';
-import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
 
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
-import 'package:software_for_nature/logic/bloc/minimized_events/minimized_events_bloc.dart';
-import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 
 import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
+import 'package:software_for_nature/presentation/widgets/map/hybrid_map_marker.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
 
 class HybridPage extends StatefulWidget {
@@ -37,10 +37,25 @@ class _HybridPageState extends State<HybridPage> {
     context.read<HybridBloc>().add(HybridBoundsChanged(bounds));
   }
 
+  /// Zoom in/out
+  void _zoom(double delta) {
+    final camera = mapController.camera;
+    final newZoom = (camera.zoom + delta).clamp(1.0, 18.0);
+
+    mapController.move(camera.center, newZoom);
+
+    context.read<HybridBloc>().add(
+          HybridBoundsChanged(
+            mapController.camera.visibleBounds.toDomain(),
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => EventInteractionCubit()),
         BlocProvider(
           create: (context) => TimeLinesWrapperBloc(
             eventPostRepository: context.read<EventPostRepository>(),
@@ -51,6 +66,7 @@ class _HybridPageState extends State<HybridPage> {
         BlocProvider(
           create: (context) => FilterBloc(
             groupRepositoryInterface: context.read<GroupRepositoryInterface>(),
+            eventPostRepositoryInterface: context.read<EventPostRepository>(),
           )..add(FilterStarted()),
         ),
       ],
@@ -60,10 +76,13 @@ class _HybridPageState extends State<HybridPage> {
         listener: (context, state) {
           if (state is FilterLoaded) {
             final activeGroups = state.activeGroups ?? const <Group>[];
+            final tagLabels =
+                (state.activeTags ?? const []).map((t) => t.label).toSet();
 
             context.read<TimeLinesWrapperBloc>().add(
               FilterChanged(
                 activeGroups: activeGroups,
+                tagLabels: tagLabels,
                 startDate: state.startDate,
                 endDate: state.endDate,
                 searchQuery: state.searchQuery ?? '',
@@ -73,6 +92,7 @@ class _HybridPageState extends State<HybridPage> {
             context.read<HybridBloc>().add(
               HybridFilterChanged(
                 groupIds: activeGroups.map((g) => g.id).toSet(),
+                tagLabels: tagLabels,
                 startDate: state.startDate,
                 endDate: state.endDate,
                 search: state.searchQuery,
@@ -85,112 +105,158 @@ class _HybridPageState extends State<HybridPage> {
             children: [
               const Filter(),
               Expanded(
-                child: Row(
-                  children: [
-                    // ================= TIMELINE =================
-                    Expanded(
-                      flex: 1,
-                      child:
-                          BlocListener<
-                            TimeLinesWrapperBloc,
-                            TimeLinesWrapperState
-                          >(
-                            listener: (context, state) {
-                              if (state is TimeLinesWrapperLoaded &&
-                                  state.timelines.isNotEmpty) {
-                                final selected = state.allEvents.firstOrNull;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final bool isCompact = constraints.maxWidth < 700;
 
-                                if (selected != null) {
-                                  context.read<HybridBloc>().add(
-                                    HybridEventSelected(selected),
-                                  );
-                                }
-                              }
-                            },
-                            child: const TimelineView(overlaySidebar: true),
-                          ),
-                    ),
+                    // On mobile stack the map above the timeline; on wider
+                    // screens show them side by side.
+                    if (isCompact) {
+                      return Column(
+                        children: [
+                          Expanded(flex: 1, child: _buildMap(context)),
+                          Expanded(flex: 1, child: _buildTimeline(context)),
+                        ],
+                      );
+                    }
 
-                    // ================= MAP =================
-                    Expanded(
-                      flex: 1,
-                      child: BlocBuilder<HybridBloc, HybridState>(
-                        builder: (context, state) {
-                          return FlutterMap(
-                            mapController: mapController,
-                            options: MapOptions(
-                              initialCenter: LatLng(52.0907, 5.1214),
-                              initialZoom: 10,
-                              onPositionChanged: (position, hasGesture) {
-                                if (hasGesture) _onMapMove(position);
-                              },
-                            ),
-                            children: [
-                              TileLayer(
-                                urlTemplate:
-                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                userAgentPackageName: 'com.example.myapp',
-                              ),
-
-                              MarkerLayer(
-                                markers: state.events
-                                    .where((e) => e.coordinates != null)
-                                    .map((event) {
-                                      final isSelected =
-                                          state.selectedEvent == event;
-
-                                      return Marker(
-                                        point: event.coordinates!.latLng,
-                                        width: 40,
-                                        height: 40,
-                                        child: MouseRegion(
-                                          cursor: SystemMouseCursors.click,
-                                          // Hovering a pin highlights the
-                                          // matching card in the timeline and
-                                          // scrolls it into view.
-                                          onEnter: (_) => context
-                                              .read<TimelineBloc>()
-                                              .add(FocusTimelineEvent(event)),
-                                          onExit: (_) => context
-                                              .read<TimelineBloc>()
-                                              .add(UnSelectTimelineEvent()),
-                                          child: GestureDetector(
-                                            // Clicking a pin opens the event in
-                                            // the drawer and selects it on the
-                                            // map.
-                                            onTap: () {
-                                              context.read<HybridBloc>().add(
-                                                HybridEventSelected(event),
-                                              );
-                                              context
-                                                  .read<MinimizedEventsBloc>()
-                                                  .add(OpenEvent(event));
-                                              Scaffold.of(context).openDrawer();
-                                            },
-                                            child: Icon(
-                                              Icons.location_pin,
-                                              color: isSelected
-                                                  ? Colors.red
-                                                  : Colors.blue,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    })
-                                    .toList(),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                    return Row(
+                      children: [
+                        Expanded(flex: 1, child: _buildTimeline(context)),
+                        Expanded(flex: 1, child: _buildMap(context)),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ================= TIMELINE =================
+  Widget _buildTimeline(BuildContext context) {
+    return BlocListener<TimeLinesWrapperBloc, TimeLinesWrapperState>(
+      listener: (context, state) {
+        if (state is! TimeLinesWrapperLoaded) return;
+
+        // Scope the map to the groups currently shown by the timeline. Active
+        // timelines already reflect the selected categories, so minimizing a
+        // timeline (or deselecting its category) also removes its markers.
+        final visibleGroupIds = state.timelines.values
+            .where((t) => t.active)
+            .expand((t) => t.events.map((e) => e.groupId))
+            .toSet();
+        context
+            .read<HybridBloc>()
+            .add(HybridVisibleGroupsChanged(visibleGroupIds));
+
+        final selected = state.allEvents.firstOrNull;
+        if (selected != null) {
+          context.read<HybridBloc>().add(HybridEventSelected(selected));
+        }
+      },
+      child: const TimelineView(overlaySidebar: true),
+    );
+  }
+
+  // ================= MAP =================
+  Widget _buildMap(BuildContext context) {
+    return BlocBuilder<HybridBloc, HybridState>(
+      builder: (context, state) {
+        return Stack(
+          children: [
+            FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                initialCenter: LatLng(52.0907, 5.1214),
+                initialZoom: 10,
+                onPositionChanged: (position, hasGesture) {
+                  if (hasGesture) _onMapMove(position);
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.myapp',
+                ),
+
+                MarkerLayer(
+                  markers: state.events
+                      .where((e) => e.coordinates != null)
+                      .map((event) {
+                        final isSelected = state.selectedEvent == event;
+
+                        return Marker(
+                          point: event.coordinates!.latLng,
+                          width: HybridMapMarker.width,
+                          height: HybridMapMarker.height,
+                          // Anchor the geographic point at the pin tip so the
+                          // details box floats above it.
+                          alignment: Alignment.topCenter,
+                          child: HybridMapMarker(
+                            event: event,
+                            isSelected: isSelected,
+                          ),
+                        );
+                      })
+                      .toList(),
+                ),
+              ],
+            ),
+
+            // Zoom controls in the bottom-right corner.
+            Positioned(
+              right: 12,
+              bottom: 12,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ZoomButton(
+                    icon: Icons.add,
+                    heroTag: 'hybrid_zoom_in',
+                    onPressed: () => _zoom(1),
+                  ),
+                  const SizedBox(height: 8),
+                  _ZoomButton(
+                    icon: Icons.remove,
+                    heroTag: 'hybrid_zoom_out',
+                    onPressed: () => _zoom(-1),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// A small circular map control button used for the zoom in/out actions.
+class _ZoomButton extends StatelessWidget {
+  final IconData icon;
+  final String heroTag;
+  final VoidCallback onPressed;
+
+  const _ZoomButton({
+    required this.icon,
+    required this.heroTag,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.small(
+      heroTag: heroTag,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black87,
+      elevation: 2,
+      onPressed: onPressed,
+      child: Icon(icon),
     );
   }
 }

@@ -25,6 +25,9 @@ class _TimelineViewState extends State<TimelineView> {
   final ScrollController _axisScrollController = ScrollController();
   Map<int, ScrollController> _timelineScrollControllers = {};
 
+  /// The shared vertical scroll offset of the timelines mirrored to the previews in the sidebar
+  final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0);
+
   // On mobile when an event is tapped it is focused
   int? _focusedTimelineKey;
 
@@ -43,6 +46,9 @@ class _TimelineViewState extends State<TimelineView> {
           ..addListener(() {
             final controller = _timelineScrollControllers[entry.key]!;
             final offset = controller.offset;
+
+            // Mirror to the preview rail
+            _scrollOffset.value = offset;
 
             // Sync axis bar
             if (_axisScrollController.hasClients &&
@@ -65,6 +71,7 @@ class _TimelineViewState extends State<TimelineView> {
   @override
   void dispose() {
     _axisScrollController.dispose();
+    _scrollOffset.dispose();
     for (final c in _timelineScrollControllers.values) {
       c.dispose();
     }
@@ -123,8 +130,8 @@ class _TimelineViewState extends State<TimelineView> {
     if (!layout.overlaySidebar) {
       return content;
     }
-    
-    return _buildSidebarOverlay(context, content);
+
+    return _buildSidebarOverlay(context, content, minHeight: minHeight, earliest: earliest);
   }
 
   /// The main horizontal layout with the minimized stack, time axis, timelines and previews
@@ -160,7 +167,11 @@ class _TimelineViewState extends State<TimelineView> {
         // Inline previews rail only when we have room for it
         if (layout.showSidebar && !layout.overlaySidebar) ...[
           const VerticalDivider(width: 1),
-          const TimelineSideBar(),
+          TimelineSideBar(
+            scrollOffset: _scrollOffset,
+            contentHeight: minHeight,
+            earliest: earliest,
+          ),
         ],
       ],
     );
@@ -170,15 +181,26 @@ class _TimelineViewState extends State<TimelineView> {
   Widget _buildTimelinesList(BuildContext context, TimeLinesWrapperLoaded state, TimelineViewLayout layout, { required DateTime earliest, required double minHeight}) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final activeCount = state.timelineOrder
-            .where((key) => state.timelines[key]?.active == true)
-            .length;
+        final List<int> activeOrderIndices = [
+          for (int i = 0; i < state.timelineOrder.length; i++)
+            if (state.timelines[state.timelineOrder[i]]?.active == true) i,
+        ];
+        final int activeCount = activeOrderIndices.length;
 
         // On mobile show 1 1/3 columns in the viewport
         final double columnWidth;
         if (layout.isCompact) {
           columnWidth = activeCount > 1
               ? constraints.maxWidth * 0.90
+              : constraints.maxWidth;
+        } else if (layout.overlaySidebar) {
+
+          // On hybrid view keep 2 1/3 timelines visible in the viewport
+          const double visibleColumns = 2 + 1 / 3;
+          final double divisor = activeCount < visibleColumns ? activeCount.toDouble() : visibleColumns;
+          
+          columnWidth = activeCount > 0
+              ? constraints.maxWidth / divisor
               : constraints.maxWidth;
         } else {
           columnWidth = activeCount > 0
@@ -190,24 +212,28 @@ class _TimelineViewState extends State<TimelineView> {
           scrollDirection: Axis.horizontal,
           buildDefaultDragHandles: false,
           onReorderItem: (oldIndex, newIndex) {
+            // oldIndex/newIndex are positions within the active childre
+            final int fullOld = activeOrderIndices[oldIndex];
+            final int fullNew = newIndex < activeOrderIndices.length
+                ? activeOrderIndices[newIndex]
+                : activeOrderIndices.last + 1;
             context.read<TimeLinesWrapperBloc>().add(
-              ReorderTimeline(oldIndex, newIndex),
+              ReorderTimeline(fullOld, fullNew),
             );
           },
           children: [
-            for (int i = 0; i < state.timelineOrder.length; i++)
-              if (state.timelines[state.timelineOrder[i]]?.active == true)
-                Builder(
-                  key: ValueKey(state.timelineOrder[i]),
+            for (int pos = 0; pos < activeCount; pos++)
+              Builder(
+                  key: ValueKey(state.timelineOrder[activeOrderIndices[pos]]),
                   builder: (context) {
-                    final int timelineKey = state.timelineOrder[i];
+                    final int timelineKey = state.timelineOrder[activeOrderIndices[pos]];
                     final Timeline timeline = state.timelines[timelineKey]!;
                     final bool isFocused = layout.isCompact && _focusedTimelineKey == timelineKey;
 
                     return TimelineColumn(
                       timeline: timeline,
                       timelineKey: timelineKey,
-                      position: i,
+                      position: pos,
                       width: columnWidth,
                       isFocused: isFocused,
                       enableHorizontalScroll: !layout.isCompact || isFocused,
@@ -234,7 +260,7 @@ class _TimelineViewState extends State<TimelineView> {
   }
 
   /// Floats the previews rail on top of [content] on the right side this only gets used when we dont have a lot of space
-  Widget _buildSidebarOverlay(BuildContext context, Widget content) {
+  Widget _buildSidebarOverlay(BuildContext context, Widget content, {required double minHeight, required DateTime earliest}) {
     const double sidebarOverlayWidth = 220;
     const double minimizedOverlayWidth = 40;
     return Stack(
@@ -255,6 +281,9 @@ class _TimelineViewState extends State<TimelineView> {
             child: Row(
               children: [
                 TimelineSideBar(
+                  scrollOffset: _scrollOffset,
+                  contentHeight: minHeight,
+                  earliest: earliest,
                   minimized: _overlaySidebarMinimized,
                   onMinimizedChanged: (value) =>
                       setState(() => _overlaySidebarMinimized = value),
