@@ -115,7 +115,7 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
                 // 3. EVENT DRAWER (MUST BE ABOVE EVERYTHING UI-RELATED)
-                const EventViewDrawer(),
+                //const EventViewDrawer(),
               ],
             );
           },
