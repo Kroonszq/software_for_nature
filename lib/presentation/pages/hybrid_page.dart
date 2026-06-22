@@ -21,6 +21,10 @@ import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
 
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:software_for_nature/presentation/widgets/map/cluster_marker.dart';
+import 'package:software_for_nature/presentation/widgets/map/event_marker.dart';
+
 class HybridPage extends StatefulWidget {
   const HybridPage({super.key});
 
@@ -110,19 +114,73 @@ class _HybridPageState extends State<HybridPage> {
                             child: const TimelineView(overlaySidebar: true),
                           ),
                     ),
-
                     // ================= MAP =================
                     Expanded(
                       flex: 1,
                       child: BlocBuilder<HybridBloc, HybridState>(
                         builder: (context, state) {
+                          final timeWindow = state.timeWindow;
+
+                          final markers = state.events
+                              .where((e) => e.coordinates != null)
+                              .map((event) {
+                                final isSelected = state.selectedEvent == event;
+
+                                return EventMarker(
+                                  event: event,
+                                  point: event.coordinates!.latLng,
+                                  width: 40,
+                                  height: 40,
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+
+                                    // Existing hover behaviour
+                                    onEnter: (_) {
+                                      context.read<TimelineBloc>().add(
+                                        FocusTimelineEvent(event),
+                                      );
+                                    },
+
+                                    onExit: (_) {
+                                      context.read<TimelineBloc>().add(
+                                        UnSelectTimelineEvent(),
+                                      );
+                                    },
+
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        context.read<HybridBloc>().add(
+                                          HybridEventSelected(event),
+                                        );
+
+                                        context.read<MinimizedEventsBloc>().add(
+                                          OpenEvent(event),
+                                        );
+
+                                        Scaffold.of(context).openDrawer();
+                                      },
+
+                                      child: Icon(
+                                        Icons.location_pin,
+                                        color: isSelected
+                                            ? Colors.red
+                                            : Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList();
+
                           return FlutterMap(
                             mapController: mapController,
                             options: MapOptions(
-                              initialCenter: LatLng(52.0907, 5.1214),
+                              initialCenter: const LatLng(52.0907, 5.1214),
                               initialZoom: 10,
                               onPositionChanged: (position, hasGesture) {
-                                if (hasGesture) _onMapMove(position);
+                                if (hasGesture) {
+                                  _onMapMove(position);
+                                }
                               },
                             ),
                             children: [
@@ -132,52 +190,56 @@ class _HybridPageState extends State<HybridPage> {
                                 userAgentPackageName: 'com.example.myapp',
                               ),
 
-                              MarkerLayer(
-                                markers: state.events
-                                    .where((e) => e.coordinates != null)
-                                    .map((event) {
-                                      final isSelected =
-                                          state.selectedEvent == event;
+                              MarkerClusterLayerWidget(
+                                options: MarkerClusterLayerOptions(
+                                  markers: markers,
 
-                                      return Marker(
-                                        point: event.coordinates!.latLng,
-                                        width: 40,
-                                        height: 40,
-                                        child: MouseRegion(
-                                          cursor: SystemMouseCursors.click,
-                                          // Hovering a pin highlights the
-                                          // matching card in the timeline and
-                                          // scrolls it into view.
-                                          onEnter: (_) => context
-                                              .read<TimelineBloc>()
-                                              .add(FocusTimelineEvent(event)),
-                                          onExit: (_) => context
-                                              .read<TimelineBloc>()
-                                              .add(UnSelectTimelineEvent()),
-                                          child: GestureDetector(
-                                            // Clicking a pin opens the event in
-                                            // the drawer and selects it on the
-                                            // map.
-                                            onTap: () {
-                                              context.read<HybridBloc>().add(
-                                                HybridEventSelected(event),
-                                              );
-                                              context
-                                                  .read<MinimizedEventsBloc>()
-                                                  .add(OpenEvent(event));
-                                              Scaffold.of(context).openDrawer();
-                                            },
-                                            child: Icon(
-                                              Icons.location_pin,
-                                              color: isSelected
-                                                  ? Colors.red
-                                                  : Colors.blue,
-                                            ),
+                                  maxClusterRadius: 70,
+
+                                  size: const Size(60, 60),
+
+                                  spiderfyCluster: true,
+
+                                  zoomToBoundsOnClick: false,
+
+                                  builder: (context, clusterMarkers) {
+                                    final eventMarkers =
+                                        clusterMarkers.cast<EventMarker>();
+
+                                    // Fallback if HybridBloc hasn't
+                                    // initialized the time window yet.
+                                    if (timeWindow == null) {
+                                      return Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 3,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '${eventMarkers.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       );
-                                    })
-                                    .toList(),
+                                    }
+
+                                    return ClusterMarker(
+                                      count: eventMarkers.length,
+                                      events: eventMarkers
+                                          .map((m) => m.event)
+                                          .toList(),
+                                      timeWindow: timeWindow,
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           );
