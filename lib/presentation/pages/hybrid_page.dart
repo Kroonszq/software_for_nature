@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
@@ -18,6 +19,8 @@ import 'package:software_for_nature/logic/cubit/event_interaction/event_interact
 
 import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
+import 'package:software_for_nature/presentation/widgets/map/cluster_marker.dart';
+import 'package:software_for_nature/presentation/widgets/map/event_marker.dart';
 import 'package:software_for_nature/presentation/widgets/map/hybrid_map_marker.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
 
@@ -142,9 +145,6 @@ class _HybridPageState extends State<HybridPage> {
       listener: (context, state) {
         if (state is! TimeLinesWrapperLoaded) return;
 
-        // Scope the map to the groups currently shown by the timeline. Active
-        // timelines already reflect the selected categories, so minimizing a
-        // timeline (or deselecting its category) also removes its markers.
         final visibleGroupIds = state.timelines.values
             .where((t) => t.active)
             .expand((t) => t.events.map((e) => e.groupId))
@@ -166,6 +166,27 @@ class _HybridPageState extends State<HybridPage> {
   Widget _buildMap(BuildContext context) {
     return BlocBuilder<HybridBloc, HybridState>(
       builder: (context, state) {
+        final timeWindow = state.timeWindow;
+
+        final markers = state.events
+            .where((e) => e.coordinates != null)
+            .map((event) {
+              final isSelected = state.selectedEvent == event;
+
+              return EventMarker(
+                event: event,
+                point: event.coordinates!.latLng,
+                width: HybridMapMarker.width,
+                height: HybridMapMarker.height,
+                alignment: Alignment.topCenter,
+                child: HybridMapMarker(
+                  event: event,
+                  isSelected: isSelected,
+                ),
+              );
+            })
+            .toList();
+
         return Stack(
           children: [
             FlutterMap(
@@ -184,26 +205,31 @@ class _HybridPageState extends State<HybridPage> {
                   userAgentPackageName: 'com.example.myapp',
                 ),
 
-                MarkerLayer(
-                  markers: state.events
-                      .where((e) => e.coordinates != null)
-                      .map((event) {
-                        final isSelected = state.selectedEvent == event;
+                MarkerClusterLayerWidget(
+                  options: MarkerClusterLayerOptions(
+                    markers: markers,
+                    maxClusterRadius: 70,
+                    size: const Size(60, 60),
+                    spiderfyCluster: true,
+                    zoomToBoundsOnClick: false,
+                    builder: (context, clusterMarkers) {
+                      final eventMarkers = clusterMarkers.cast<EventMarker>();
 
-                        return Marker(
-                          point: event.coordinates!.latLng,
-                          width: HybridMapMarker.width,
-                          height: HybridMapMarker.height,
-                          // Anchor the geographic point at the pin tip so the
-                          // details box floats above it.
-                          alignment: Alignment.topCenter,
-                          child: HybridMapMarker(
-                            event: event,
-                            isSelected: isSelected,
-                          ),
+                      // Fall back to a plain count bubble until the HybridBloc
+                      // has initialised its time window.
+                      if (timeWindow == null) {
+                        return _ClusterCountBubble(
+                          count: eventMarkers.length,
                         );
-                      })
-                      .toList(),
+                      }
+
+                      return ClusterMarker(
+                        count: eventMarkers.length,
+                        events: eventMarkers.map((m) => m.event).toList(),
+                        timeWindow: timeWindow,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -232,6 +258,36 @@ class _HybridPageState extends State<HybridPage> {
           ],
         );
       },
+    );
+  }
+}
+
+/// A plain circular bubble showing the number of events in a cluster, used as
+/// a fallback before the time window (and therefore the richer [ClusterMarker])
+/// is available.
+class _ClusterCountBubble extends StatelessWidget {
+  final int count;
+
+  const _ClusterCountBubble({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 3),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
