@@ -3,7 +3,9 @@ part of 'event_form_bloc.dart';
 @immutable
 sealed class EventFormBlocEvent {}
 
-final class GroupsRequested extends EventFormBlocEvent {}
+final class CategoriesRequested extends EventFormBlocEvent {}
+
+final class TagsRequested extends  EventFormBlocEvent {}
 
 final class TitleChanged extends EventFormBlocEvent {
   final String title;
@@ -15,9 +17,9 @@ final class DescriptionChanged extends EventFormBlocEvent {
   DescriptionChanged(this.description);
 }
 
-final class GroupChanged extends EventFormBlocEvent {
-  final String groupId;
-  GroupChanged(this.groupId);
+final class CategorySelected extends EventFormBlocEvent {
+  final String categoryId;
+  CategorySelected(this.categoryId);
 }
 
 final class TimeModeChanged extends EventFormBlocEvent {

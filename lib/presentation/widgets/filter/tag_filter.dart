@@ -3,81 +3,57 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
-class TagFilter extends StatefulWidget {
-  final bool compact;
-
-  const TagFilter({super.key, this.compact = false});
-
-  @override
-  State<TagFilter> createState() => _TagFilterState();
-}
-
-class _TagFilterState extends State<TagFilter> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class TagFilter extends StatelessWidget {
+  const TagFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FilterBloc, FilterState>(
       builder: (context, state) {
-        final tags = state is FilterLoaded ? (state.tags ?? const <Tag>[]) : const <Tag>[];
-        final activeTags = state is FilterLoaded ? (state.activeTags ?? const <Tag>[]) : const <Tag>[];
-        final selectableTags = tags.where((tag) => !activeTags.any((active) => active.label == tag.label));
+        final tags = state is FilterLoaded
+            ? (state.tags ?? const <Tag>[])
+            : const <Tag>[];
+        final activeTags = state is FilterLoaded
+            ? (state.activeTags ?? const <Tag>[])
+            : const <Tag>[];
+        final selectableTags = tags
+            .where((tag) => !activeTags.any((active) => active.label == tag.label))
+            .toList();
 
-        return Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(width: widget.compact ? 8 : 20),
+            // Select
             DropdownButton<String>(
+              isExpanded: true,
               value: null,
-              hint: const Text('Tag'),
-              icon: const Icon(Icons.arrow_downward),
-              elevation: 16,
-              style: const TextStyle(color: Colors.deepPurple),
-              underline: Container(height: 2, color: Colors.deepPurpleAccent),
-              onChanged: (String? label) {
-                if (label == null){
-                  return;
-                }
-                final tag = tags.firstWhere((t) => t.label == label);
-                context.read<FilterBloc>().add(TagChanged(tag));
-              },
+              hint: const Text('Select a tag'),
+              icon: const Icon(Icons.arrow_drop_down),
               items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('Select a tag'),
-                ),
                 for (final tag in selectableTags)
                   DropdownMenuItem<String>(
                     value: tag.label,
                     child: Text(tag.label),
                   ),
               ],
+              onChanged: (String? label) {
+                if (label == null) return;
+                final tag = tags.firstWhere((t) => t.label == label);
+                context.read<FilterBloc>().add(TagChanged(tag));
+              },
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (final activeTag in activeTags)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: _TagChip(tag: activeTag),
-                        ),
-                    ],
-                  ),
-                ),
+
+            // Values
+            if (activeTags.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final activeTag in activeTags) _TagChip(tag: activeTag),
+                ],
               ),
-            ),
+            ],
           ],
         );
       },

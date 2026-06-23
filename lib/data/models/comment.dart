@@ -1,6 +1,6 @@
 import 'package:software_for_nature/data/models/json_model.dart';
 
-/// A comment left by someone under an event.
+
 class Comment implements JsonModel {
   @override
   final String id;

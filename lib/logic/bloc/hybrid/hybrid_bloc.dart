@@ -16,7 +16,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     on<HybridBoundsChanged>(_onBoundsChanged);
     on<HybridTimeRangeChanged>(_onTimeRangeChanged);
     on<HybridFilterChanged>(_onFilterChanged);
-    on<HybridVisibleGroupsChanged>(_onVisibleGroupsChanged);
+    on<HybridVisibleCategoriesChanged>(_onVisibleCategoriesChanged);
     on<HybridEventSelected>(_onSelected);
     on<HybridReloadRequested>(_onReload);
     on<HybridTimeWindowChanged>(_onTimeWindowChanged);
@@ -28,13 +28,13 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   DateTimeRange? _timeRange;
 
 
-  Set<String>? _groupIds;
+  Set<String>? _categoryIds;
   Set<String>? _tagLabels;
   DateTime? _startDate;
   DateTime? _endDate;
   String? _search;
 
-  Set<String>? _visibleGroupIds;
+  Set<String>? _visibleCategoryIds;
 
   Future<void> _onReload(
     HybridReloadRequested event,
@@ -63,9 +63,9 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     HybridFilterChanged event,
     Emitter<HybridState> emit,
   ) async {
-    _groupIds = (event.groupIds == null || event.groupIds!.isEmpty)
+    _categoryIds = (event.categoryIds == null || event.categoryIds!.isEmpty)
         ? null
-        : event.groupIds;
+        : event.categoryIds;
     _tagLabels = (event.tagLabels == null || event.tagLabels!.isEmpty)
         ? null
         : event.tagLabels;
@@ -77,11 +77,11 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     await _fetch(emit);
   }
 
-  Future<void> _onVisibleGroupsChanged(
-    HybridVisibleGroupsChanged event,
+  Future<void> _onVisibleCategoriesChanged(
+    HybridVisibleCategoriesChanged event,
     Emitter<HybridState> emit,
   ) async {
-    _visibleGroupIds = event.groupIds;
+    _visibleCategoryIds = event.categoryIds;
     await _fetch(emit);
   }
 
@@ -92,12 +92,12 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   Future<void> _fetch(Emitter<HybridState> emit) async {
     emit(state.copyWith(loading: true));
 
-    // The timeline's visible groups (when known) are the authoritative scope
-    final Set<String>? groupScope =
-        _visibleGroupIds ?? _groupIds;
+    // The timeline's visible categories (when known) are the authoritative scope
+    final Set<String>? categoryScope =
+        _visibleCategoryIds ?? _categoryIds;
 
     // An explicit empty scope means nothing is visible: show no markers
-    if (groupScope != null && groupScope.isEmpty) {
+    if (categoryScope != null && categoryScope.isEmpty) {
       emit(state.copyWith(events: const [], loading: false));
       return;
     }
@@ -106,7 +106,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       EventQuery(
         bounds: _bounds,
         timeRange: _timeRange,
-        groupIds: groupScope,
+        categoryIds: categoryScope,
         startDate: _startDate,
         endDate: _endDate,
         search: _search,

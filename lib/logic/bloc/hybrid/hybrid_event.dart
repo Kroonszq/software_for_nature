@@ -16,14 +16,14 @@ class HybridTimeRangeChanged extends HybridEvent {
 
 /// The category / date / search filter changed
 class HybridFilterChanged extends HybridEvent {
-  final Set<String>? groupIds;
+  final Set<String>? categoryIds;
   final Set<String>? tagLabels;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? search;
 
   HybridFilterChanged({
-    this.groupIds,
+    this.categoryIds,
     this.tagLabels,
     this.startDate,
     this.endDate,
@@ -31,10 +31,10 @@ class HybridFilterChanged extends HybridEvent {
   });
 }
 
-/// The set of groups currently shown by the timeline changed
-class HybridVisibleGroupsChanged extends HybridEvent {
-  final Set<String> groupIds;
-  HybridVisibleGroupsChanged(this.groupIds);
+/// The set of categories currently shown by the timeline changed
+class HybridVisibleCategoriesChanged extends HybridEvent {
+  final Set<String> categoryIds;
+  HybridVisibleCategoriesChanged(this.categoryIds);
 }
 
 /// User selects an event (from map OR timeline)

@@ -1,27 +1,24 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:software_for_nature/data/models/group.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/tag.dart';
-import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 
 part 'filter_event.dart';
 part 'filter_state.dart';
 
 class FilterBloc extends Bloc<FilterEvent, FilterState> {
-  final GroupRepositoryInterface _groupRepositoryInterface;
-  final EventPostRepositoryInterface _eventPostRepositoryInterface;
+  final CategoryServiceInterface _categoryService;
+  final EventServiceInterface _eventService;
 
 
-  FilterBloc({
-    required this._groupRepositoryInterface,
-    required this._eventPostRepositoryInterface,
-  }) : super(FilterInitial()) {
+  FilterBloc({required this._categoryService, required this._eventService}): super(FilterInitial()) {
 
     on<FilterStarted>((event, emit) async {
-      final groups = await _groupRepositoryInterface.getAll();
+      final categories = await _categoryService.getAllCategories();
 
-      final events = await _eventPostRepositoryInterface.getAll() ?? const [];
+      final events = await _eventService.getAllEvents();
       final Map<String, Tag> distinctTags = {};
       for (final e in events) {
         for (final t in e.tags) {
@@ -34,10 +31,10 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       final startOfToday = DateTime(now.year, now.month, now.day);
       final endOfToday = DateTime(now.year, now.month, now.day, 23, 59);
 
-      // Start with every category/group and every tag selected by default
+      // Start with every category and every tag selected by default
       emit(FilterLoaded(
-        groups: groups,
-        activeGroups: groups == null ? null : List<Group>.of(groups),
+        categories: categories,
+        activeCategories: List<Category>.of(categories),
         tags: tags,
         activeTags: List<Tag>.of(tags),
         startDate: startOfToday,
@@ -48,15 +45,15 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
     on<CategoryChanged>((event, emit) {
       final current = state;
       if (current is FilterLoaded) {
-        final active = List<Group>.of(current.activeGroups ?? const []);
+        final active = List<Category>.of(current.activeCategories ?? const []);
 
-        if (active.any((g) => g.id == event.group.id)) {
-          active.removeWhere((g) => g.id == event.group.id);
+        if (active.any((c) => c.id == event.category.id)) {
+          active.removeWhere((c) => c.id == event.category.id);
         } else {
-          active.add(event.group);
+          active.add(event.category);
         }
 
-        emit(current.copyWith(activeGroups: active));
+        emit(current.copyWith(activeCategories: active));
       }
     });
 
@@ -79,8 +76,8 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       final current = state;
       if (current is FilterLoaded) {
         emit(FilterLoaded(
-          groups: current.groups,
-          activeGroups: current.activeGroups,
+          categories: current.categories,
+          activeCategories: current.activeCategories,
           tags: current.tags,
           activeTags: current.activeTags,
           startDate: event.startDate,
@@ -94,8 +91,8 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       final current = state;
       if (current is FilterLoaded) {
         emit(FilterLoaded(
-          groups: current.groups,
-          activeGroups: current.activeGroups,
+          categories: current.categories,
+          activeCategories: current.activeCategories,
           tags: current.tags,
           activeTags: current.activeTags,
           startDate: current.startDate,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
-import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
 import 'package:software_for_nature/logic/bloc/event_form_bloc/event_form_bloc.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 import 'package:software_for_nature/presentation/widgets/event/event_form.dart';
 
 class EventCreateDrawer extends StatelessWidget {
@@ -17,9 +17,9 @@ class EventCreateDrawer extends StatelessWidget {
       width: width < 600 ? width * 0.9 : 480,
       child: BlocProvider(
         create: (_) => EventFormBloc(
-          groupRepository: context.read<GroupRepositoryInterface>(),
-          eventRepository: context.read<EventPostRepositoryInterface>(),
-          userRepository: context.read<UserRepositoryInterface>(),
+          categoryService: context.read<CategoryServiceInterface>(),
+          eventService: context.read<EventServiceInterface>(),
+          userService: context.read<UserServiceInterface>(),
           attachmentStorage: context.read<AttachmentStorageInterface>(),
         ),
         child: const SafeArea(

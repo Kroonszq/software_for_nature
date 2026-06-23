@@ -1,5 +1,6 @@
 
 
+import 'package:logger/web.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
@@ -7,12 +8,24 @@ import 'package:software_for_nature/logic/services/interfaces/event_service_inte
 
 final class EventService implements EventServiceInterface {
   final EventPostRepositoryInterface _eventRepository;
+  final Logger _logger;
   
-  const EventService({required this._eventRepository});
+  const EventService({required this._eventRepository, required this._logger});
 
   @override
   Future<List<EventPost>> getAllEvents() async {
       return await _eventRepository.getAll() ?? const <EventPost>[];
+  }
+
+  @override
+  Future<EventPost?> createEvent(EventPost event) async {
+    var newEvent = await _eventRepository.create(event);
+    if(newEvent == null){
+      _logger.e("Something went wrong creating a new event");
+      return null;
+    }
+
+    return newEvent;
   }
   
   @override

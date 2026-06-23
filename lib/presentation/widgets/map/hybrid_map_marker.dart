@@ -147,7 +147,7 @@ class _EventDetailsBox extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Group: ${event.group?.title ?? 'Ungrouped'}',
+            'Category: ${event.category?.name ?? 'Uncategorized'}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 10, color: Colors.blue.shade900),

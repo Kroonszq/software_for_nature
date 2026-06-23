@@ -83,7 +83,7 @@ class MinimizedStackItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<EventInteractionCubit, EventInteractionState>(
       builder: (context, state) {
-        final Color groupColor = event.group?.color ?? Colors.blue.shade100;
+        final Color groupColor = event.category?.color ?? Colors.blue.shade100;
         final Color textColor = ThemeData.estimateBrightnessForColor(groupColor) == Brightness.dark
           ? Colors.white
           : Colors.black87;

@@ -8,9 +8,9 @@ final class FilterStarted extends FilterEvent {}
 
 
 final class CategoryChanged extends FilterEvent{
-  final Group group;
+  final Category category;
 
-  CategoryChanged(this.group);
+  CategoryChanged(this.category);
 }
 
 

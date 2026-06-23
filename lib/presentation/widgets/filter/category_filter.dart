@@ -1,92 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:software_for_nature/data/models/group.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
-class CategoryFilter extends StatefulWidget {
-  final bool compact;
-
-  const CategoryFilter({super.key, this.compact = false});
-
-  @override
-  State<CategoryFilter> createState() => _CategoryFilterState();
-}
-
-class _CategoryFilterState extends State<CategoryFilter> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class CategoryFilter extends StatelessWidget {
+  const CategoryFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FilterBloc, FilterState>(
       builder: (context, state) {
-        final groups =  state is FilterLoaded ? (state.groups ?? const <Group>[]) : const <Group>[];
-        final activeGroups = state is FilterLoaded ? (state.activeGroups ?? const <Group>[]) : const <Group>[];
-        final selectableGroups = groups.where((group) => !activeGroups.any((activeGroup) => activeGroup.id == group.id));
+        final categories = state is FilterLoaded
+            ? (state.categories ?? const <Category>[])
+            : const <Category>[];
+        final activeCategories = state is FilterLoaded
+            ? (state.activeCategories ?? const <Category>[])
+            : const <Category>[];
+        final selectableCategories = categories
+            .where((category) => !activeCategories
+                .any((activeCategory) => activeCategory.id == category.id))
+            .toList();
 
-        return Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(width: widget.compact ? 8 : 20),
+            // Select
             DropdownButton<String>(
+              isExpanded: true,
               value: null,
-              hint: const Text('Category'),
-              icon: const Icon(Icons.arrow_downward),
-              elevation: 16,
-              style: const TextStyle(color: Colors.deepPurple),
-              underline: Container(height: 2, color: Colors.deepPurpleAccent),
+              hint: const Text('Select a category'),
+              icon: const Icon(Icons.arrow_drop_down),
+              items: [
+                for (final category in selectableCategories)
+                  DropdownMenuItem<String>(
+                    value: category.id,
+                    child: Text(category.name),
+                  ),
+              ],
               onChanged: (String? id) {
                 if (id == null) return;
-                final group = groups.firstWhere((g) => g.id == id);
-                context.read<FilterBloc>().add(CategoryChanged(group));
+                final category = categories.firstWhere((c) => c.id == id);
+                context.read<FilterBloc>().add(CategoryChanged(category));
               },
-              items: [
-                DropdownMenuItem<String>(
-                    value: null,
-                    child: Text('Select a category'),
-                  ),
-                  for (final group in selectableGroups)
-                    DropdownMenuItem<String>(
-                      value: group.id,
-                      child: Text(group.title),
-                    ),
-              ],
             ),
-            SizedBox(width: 20),
-            Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for(final activeGroup in activeGroups)
-                        ElevatedButton.icon(
-                          onPressed: () {
-                              context.read<FilterBloc>().add(CategoryChanged(activeGroup));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: activeGroup.color,
-                          ),
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          label: Text(activeGroup.title, style: TextStyle(color: Colors.white)),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          ],
 
+            // Values
+            if (activeCategories.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final activeCategory in activeCategories)
+                    ElevatedButton.icon(
+                      onPressed: () => context
+                          .read<FilterBloc>()
+                          .add(CategoryChanged(activeCategory)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: activeCategory.color,
+                      ),
+                      icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                      label: Text(
+                        activeCategory.name,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
         );
-        
-        
       },
     );
   }

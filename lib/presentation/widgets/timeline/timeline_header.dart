@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/core/constants/timeline_constants.dart';
+import 'package:software_for_nature/presentation/models/timeline.dart';
 
 class TimelineHeader extends StatelessWidget{
   final String title;
-  final String groupName;
+  final String categoryName;
   final int position;
   final VoidCallback onMinimize;
+  final VoidCallback onFullScreen;
   final Color color;
+  final Timeline timeline;
 
     const TimelineHeader({
       super.key,
       required this.title,
-      required this.groupName,
+      required this.categoryName,
       required this.position,
       required this.onMinimize,
+      required this.onFullScreen,
       required this.color,
+      required this.timeline,
   });
 
 
@@ -44,7 +49,7 @@ class TimelineHeader extends StatelessWidget{
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        groupName,
+                        categoryName,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: isCompact ? 10 : 12,
@@ -60,6 +65,18 @@ class TimelineHeader extends StatelessWidget{
                   ),
                 ),
               ),
+              GestureDetector(
+                onTap: onFullScreen,
+                child:
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(
+                      timeline.fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                      size: isCompact ? 14 : 18,
+                    ),
+                ),
+              ),
+
               SizedBox(width: isCompact ? 14 : 22),
             ],
           ),

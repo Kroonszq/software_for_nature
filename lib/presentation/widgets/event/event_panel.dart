@@ -28,7 +28,7 @@ class _EventPanelState extends State<EventPanel> {
 
     // This should be shown always under the title
     var coreMetaData = {
-      'Group': event.title,
+      'Category': event.category?.name ?? 'Uncategorized',
       'Created at': TimeUtils.formatDateTime(event.createdAt),
       'Author': event.user?.name ?? '',
       'Event id': event.id,

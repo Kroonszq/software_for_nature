@@ -32,6 +32,8 @@ class TimelineEventCard extends StatelessWidget {
 
         final isExpanded = state.selectedPost?.id == event.id;
         final collapsedHeight = getHeight(event);
+        final rawHeight = getRawHeight(event);
+        final isClamped = !isExpanded && rawHeight < collapsedHeight;
 
         // When expanded expand big enough to fit the extra details
         final height = isExpanded && collapsedHeight < 220 ? 220.0 : collapsedHeight;
@@ -77,8 +79,24 @@ class TimelineEventCard extends StatelessWidget {
                 width: isExpanded ? 280 : 100,
                 height: height,
 
-                child: Column(
+                child: Stack(
                   children: [
+                    // Honest duration cue: only the top `rawHeight` slice
+                    // represents the event's real length; the rest of the card
+                    // is extra room added so the label stays readable.
+                    if (isClamped)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: rawHeight,
+                        child: Container(
+                          color: Colors.blue.withValues(alpha: 0.18),
+                        ),
+                      ),
+                    Positioned.fill(
+                      child: Column(
+                        children: [
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(4),
@@ -126,6 +144,9 @@ class TimelineEventCard extends StatelessWidget {
                     // Tags pinned to the bottom of the card, each drawn with a
                     // stroke in its own colour.
                     if (event.tags.isNotEmpty) _TagStrip(tags: event.tags),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -142,7 +163,7 @@ class TimelineEventCard extends StatelessWidget {
       Divider(height: 1, color: Colors.blue.shade200),
       const SizedBox(height: 6),
       Text(
-        'Group: ${event.group?.title ?? 'Ungrouped'}',
+        'Category: ${event.category?.name ?? 'Uncategorized'}',
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
@@ -168,13 +189,24 @@ class TimelineEventCard extends StatelessWidget {
     ];
   }
 
+  /// The event's true-to-scale height, straight from its duration.
+  double getRawHeight(EventPost event) {
+    final minutes = event.endDuration.difference(event.startDuration).inMinutes;
+    return minutes * TimelineConstants.pixelsPerMinute;
+  }
+
   double getHeight(EventPost event) {
     if (event.isMoment) {
       return TimelineConstants.timestampEventHeigt;
     }
 
-    final minutes = event.endDuration.difference(event.startDuration).inMinutes;
-    return minutes * TimelineConstants.pixelsPerMinute;
+    final rawHeight = getRawHeight(event);
+
+    // Clamp short events up so they stay readable instead of rendering as a
+    // tiny stroke.
+    return rawHeight < TimelineConstants.minEventHeight
+        ? TimelineConstants.minEventHeight
+        : rawHeight;
   }
 
   /// Builds a "moment/timestamp" event

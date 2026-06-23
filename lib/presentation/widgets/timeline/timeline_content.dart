@@ -97,7 +97,7 @@ class _TimelineContentState extends State<TimelineContent> {
     var timelineGeometry = TimelineGeometry.fromEvents(widget.listOfEvents, earliest: widget.earliest);
 
     final groupColor =
-        widget.listOfEvents.first.group?.color ??
+        widget.listOfEvents.first.category?.color ??
         widget.groupColor ??
         Colors.blue;
 

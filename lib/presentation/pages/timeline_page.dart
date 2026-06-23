@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:software_for_nature/data/repositories/event_post_repository.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
-import 'package:software_for_nature/data/models/group.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/minimized_events_stack.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_side_bar.dart';
@@ -25,15 +24,13 @@ class TimelinePage extends StatelessWidget {
         BlocProvider(create: (_) => EventInteractionCubit()),
         BlocProvider(
           create: (context) => TimeLinesWrapperBloc(
-            eventPostRepository: context.read<EventPostRepository>(),
-            groupRepository: context.read<GroupRepositoryInterface>(),
-            userRepository: context.read<UserRepositoryInterface>(),
+            categoryService: context.read<CategoryServiceInterface>(),
           ),
         ),
         BlocProvider(
           create: (context) => FilterBloc(
-            groupRepositoryInterface: context.read<GroupRepositoryInterface>(),
-            eventPostRepositoryInterface: context.read<EventPostRepository>(),
+            categoryService: context.read<CategoryServiceInterface>(),
+            eventService: context.read()<EventServiceInterface>(),
           )..add(FilterStarted()),
         ),
       ],
@@ -42,7 +39,7 @@ class TimelinePage extends StatelessWidget {
           if (state is FilterLoaded) {
             context.read<TimeLinesWrapperBloc>().add(
                   FilterChanged(
-                    activeGroups: state.activeGroups ?? const <Group>[],
+                    activeCategories: state.activeCategories ?? const <Category>[],
                     tagLabels:
                         (state.activeTags ?? const []).map((t) => t.label).toSet(),
                     startDate: state.startDate,

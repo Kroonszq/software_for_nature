@@ -7,14 +7,14 @@ final class LoadTimelineEvents extends TimeLinesWrapperEvent {}
 
 
 final class FilterChanged extends TimeLinesWrapperEvent {
-  final List<Group> activeGroups;
+  final List<Category> activeCategories;
   final Set<String> tagLabels;
   final DateTime? startDate;
   final DateTime? endDate;
   final String searchQuery;
 
   FilterChanged({
-    this.activeGroups = const [],
+    this.activeCategories = const [],
     this.tagLabels = const {},
     this.startDate,
     this.endDate,
@@ -36,10 +36,16 @@ final class SetTimelineInActive extends TimeLinesWrapperEvent {
   SetTimelineInActive(this.timelineHash);
 }
 
-final class TimelineScroll extends TimeLinesWrapperEvent {
-  final ScrollController scrollController;
+final class SetTimelineFullscreen extends TimeLinesWrapperEvent {
+  final int timelineHash;
 
-  TimelineScroll(this.scrollController);
+  SetTimelineFullscreen(this.timelineHash);
+}
+
+final class SetTimelineNormalScreen extends TimeLinesWrapperEvent {
+  final int timelineHash;
+
+  SetTimelineNormalScreen(this.timelineHash);
 }
 
 final class ReorderTimeline extends TimeLinesWrapperEvent {

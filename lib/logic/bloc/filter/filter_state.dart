@@ -10,8 +10,8 @@ final class FilterInitial extends FilterState {
 
 
 final class FilterLoaded extends FilterState  {
-  final List<Group>? groups;
-  final List<Group>? activeGroups;
+  final List<Category>? categories;
+  final List<Category>? activeCategories;
   final List<Tag>? tags;
   final List<Tag>? activeTags;
   final DateTime? startDate;
@@ -19,8 +19,8 @@ final class FilterLoaded extends FilterState  {
   final String? searchQuery;
 
   FilterLoaded({
-    required this.groups,
-    this.activeGroups,
+    required this.categories,
+    this.activeCategories,
     this.tags,
     this.activeTags,
     this.startDate,
@@ -29,8 +29,8 @@ final class FilterLoaded extends FilterState  {
   });
 
   FilterLoaded copyWith({
-    List<Group>? groups,
-    List<Group>? activeGroups,
+    List<Category>? categories,
+    List<Category>? activeCategories,
     List<Tag>? tags,
     List<Tag>? activeTags,
     DateTime? startDate,
@@ -38,8 +38,8 @@ final class FilterLoaded extends FilterState  {
     String? searchQuery,
   }) {
     return FilterLoaded(
-      groups: groups ?? this.groups,
-      activeGroups: activeGroups ?? this.activeGroups,
+      categories: categories ?? this.categories,
+      activeCategories: activeCategories ?? this.activeCategories,
       tags: tags ?? this.tags,
       activeTags: activeTags ?? this.activeTags,
       startDate: startDate ?? this.startDate,
@@ -48,4 +48,3 @@ final class FilterLoaded extends FilterState  {
     );
   }
 }
-

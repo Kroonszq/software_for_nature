@@ -6,6 +6,7 @@ class TimelineConstants {
 
   static const double timestampEventHeigt = 34.0;
   static const double pixelsPerMinute = 2.0;
+  static const double minEventHeight = 44.0;
   static const double expandedCardWidth = 288.0;
   static const double cardWithIncMargins = 108.0;
   static const double cardWidth = 100;

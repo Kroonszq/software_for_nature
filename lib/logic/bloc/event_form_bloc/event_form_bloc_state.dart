@@ -10,8 +10,9 @@ enum EventTimeMode { range, timestamp }
 final class EventFormBlocState {
   final String title;
   final String description;
-  final List<Group> groups;
-  final String? groupId;
+  final List<Category> categories;
+  final String? categoryId;
+  final List<Tag> tags;
   final EventTimeMode mode;
   final DateTime? start;
   final DateTime? end;
@@ -23,8 +24,9 @@ final class EventFormBlocState {
   const EventFormBlocState({
     this.title = '',
     this.description = '',
-    this.groups = const [],
-    this.groupId,
+    this.tags = const [],
+    this.categories = const [],
+    this.categoryId,
     this.mode = EventTimeMode.range,
     this.start,
     this.end,
@@ -37,21 +39,23 @@ final class EventFormBlocState {
   EventFormBlocState copyWith({
     String? title,
     String? description,
-    List<Group>? groups,
-    String? groupId,
+    List<Category>? categories,
+    List<Tag>? tags,
+    String? categoryId,
     EventTimeMode? mode,
     DateTime? start,
     DateTime? end,
     DateTime? timestamp,
     List<EventAttachment>? attachments,
     EventFormStatus? status,
-    String? error, // not provided => cleared (typing clears the last error)
+    String? error,
   }) {
     return EventFormBlocState(
       title: title ?? this.title,
       description: description ?? this.description,
-      groups: groups ?? this.groups,
-      groupId: groupId ?? this.groupId,
+      categories: categories ?? this.categories,
+      tags: tags ?? this.tags,
+      categoryId: categoryId ?? this.categoryId,
       mode: mode ?? this.mode,
       start: start ?? this.start,
       end: end ?? this.end,

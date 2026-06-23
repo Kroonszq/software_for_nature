@@ -15,6 +15,8 @@ class TimelineColumn extends StatelessWidget {
   final ScrollController? scrollController;
   final VoidCallback? onTap;
   final VoidCallback onMinimize;
+  final VoidCallback onFullScreen;
+
 
   const TimelineColumn({
     super.key,
@@ -29,12 +31,13 @@ class TimelineColumn extends StatelessWidget {
     required this.scrollController,
     required this.onTap,
     required this.onMinimize,
+    required this.onFullScreen
   });
 
   @override
   Widget build(BuildContext context) {
-    final String groupName = timeline.events.isNotEmpty
-        ? timeline.events.first.group?.title ?? timeline.title
+    final String categoryName = timeline.events.isNotEmpty
+        ? timeline.events.first.category?.name ?? timeline.title
         : timeline.title;
 
     return GestureDetector(
@@ -53,10 +56,12 @@ class TimelineColumn extends StatelessWidget {
             // Timeline header
             TimelineHeader(
               title: 'Timeline $timelineKey',
-              groupName: groupName,
+              categoryName: categoryName,
               position: position,
               color: timeline.color,
               onMinimize: onMinimize,
+              onFullScreen: onFullScreen,
+              timeline: timeline,
             ),
             // Timeline content
             Expanded(

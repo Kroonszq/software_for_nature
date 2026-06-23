@@ -6,16 +6,15 @@ import 'package:latlong2/latlong.dart';
 
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
-import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 
-import 'package:software_for_nature/data/models/group.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
+import 'package:software_for_nature/data/models/category.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
 
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 
 import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
@@ -61,15 +60,13 @@ class _HybridPageState extends State<HybridPage> {
         BlocProvider(create: (_) => EventInteractionCubit()),
         BlocProvider(
           create: (context) => TimeLinesWrapperBloc(
-            eventPostRepository: context.read<EventPostRepository>(),
-            groupRepository: context.read<GroupRepositoryInterface>(),
-            userRepository: context.read<UserRepositoryInterface>(),
+            categoryService: context.read<CategoryServiceInterface>(),
           ),
         ),
         BlocProvider(
           create: (context) => FilterBloc(
-            groupRepositoryInterface: context.read<GroupRepositoryInterface>(),
-            eventPostRepositoryInterface: context.read<EventPostRepository>(),
+            categoryService: context.read<CategoryServiceInterface>(),
+            eventService: context.read()<EventServiceInterface>(),
           )..add(FilterStarted()),
         ),
       ],
@@ -78,13 +75,12 @@ class _HybridPageState extends State<HybridPage> {
       child: BlocListener<FilterBloc, FilterState>(
         listener: (context, state) {
           if (state is FilterLoaded) {
-            final activeGroups = state.activeGroups ?? const <Group>[];
-            final tagLabels =
-                (state.activeTags ?? const []).map((t) => t.label).toSet();
+            final activeCategories = state.activeCategories ?? const <Category>[];
+            final tagLabels = (state.activeTags ?? const []).map((t) => t.label).toSet();
 
             context.read<TimeLinesWrapperBloc>().add(
               FilterChanged(
-                activeGroups: activeGroups,
+                activeCategories: activeCategories,
                 tagLabels: tagLabels,
                 startDate: state.startDate,
                 endDate: state.endDate,
@@ -94,7 +90,7 @@ class _HybridPageState extends State<HybridPage> {
 
             context.read<HybridBloc>().add(
               HybridFilterChanged(
-                groupIds: activeGroups.map((g) => g.id).toSet(),
+                categoryIds: activeCategories.map((c) => c.id).toSet(),
                 tagLabels: tagLabels,
                 startDate: state.startDate,
                 endDate: state.endDate,
@@ -145,13 +141,13 @@ class _HybridPageState extends State<HybridPage> {
       listener: (context, state) {
         if (state is! TimeLinesWrapperLoaded) return;
 
-        final visibleGroupIds = state.timelines.values
+        final visibleCategoryIds = state.timelines.values
             .where((t) => t.active)
-            .expand((t) => t.events.map((e) => e.groupId))
+            .expand((t) => t.events.map((e) => e.categoryId))
             .toSet();
         context
             .read<HybridBloc>()
-            .add(HybridVisibleGroupsChanged(visibleGroupIds));
+            .add(HybridVisibleCategoriesChanged(visibleCategoryIds));
 
         final selected = state.allEvents.firstOrNull;
         if (selected != null) {
@@ -212,6 +208,12 @@ class _HybridPageState extends State<HybridPage> {
                     size: const Size(60, 60),
                     spiderfyCluster: true,
                     zoomToBoundsOnClick: false,
+                    // Let each HybridMapMarker handle its own hover/tap. Without
+                    // this the layer wraps every marker in an opaque
+                    // GestureDetector spanning its full (mostly empty) box, so a
+                    // marker near a cluster covers its neighbours' pins and
+                    // swallows the hover effect.
+                    markerChildBehavior: true,
                     builder: (context, clusterMarkers) {
                       final eventMarkers = clusterMarkers.cast<EventMarker>();
 

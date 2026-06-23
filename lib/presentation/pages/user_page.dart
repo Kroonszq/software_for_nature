@@ -50,8 +50,6 @@ class _UserPageBodyState extends State<_UserPageBody> {
   }
 
   Future<_UserData> _load() async {
-    // Capture the repositories before awaiting so we don't touch the
-    // BuildContext across async gaps.
     final userRepository = context.read<UserRepositoryInterface>();
     final eventRepository = context.read<EventPostRepository>();
 
@@ -60,7 +58,7 @@ class _UserPageBodyState extends State<_UserPageBody> {
     final users = await userRepository.getAll() ?? const <User>[];
     final user = users.isNotEmpty
         ? users.first
-        : const User(id: '1', name: 'Unknown user');
+        : User(id: '1', name: 'Unknown user', groupIds: []);
 
     final allEvents = await eventRepository.getAll();
     final createdEvents =

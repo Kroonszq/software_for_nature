@@ -1,43 +1,29 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
-import 'package:software_for_nature/data/models/group.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
 import 'package:software_for_nature/presentation/models/timeline.dart';
-import 'package:software_for_nature/data/models/user.dart';
-import 'package:software_for_nature/data/repositories/event_post_repository.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_content.dart';
 
 part 'timelines_wrapper_event.dart';
 part 'timelines_wrapper_state.dart';
 
-class TimeLinesWrapperBloc
-    extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperState> {
-  final EventPostRepository _eventPostRepository;
-  final GroupRepositoryInterface _groupRepository;
-  final UserRepositoryInterface _userRepository;
+class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperState> {
+  final CategoryServiceInterface _categoryService;
 
-  // Current filter criteria. Updated whenever a [FilterChanged] event arrives
-  List<Group> _activeGroups = const [];
+  List<Category> _activeCategories = const [];
   Set<String> _tagLabels = const {};
   DateTime? _startDate;
   DateTime? _endDate;
   String _searchQuery = '';
 
-  TimeLinesWrapperBloc({
-    required this._eventPostRepository,
-    required this._groupRepository,
-    required this._userRepository,
-  }) : super(TimeLinesWrapperInitial()) {
-    on<LoadTimelineEvents>((event, emit) async {
-      await _loadTimelines(emit);
-    });
+  TimeLinesWrapperBloc({required this._categoryService}) : super(TimeLinesWrapperInitial()) {
 
     on<FilterChanged>((event, emit) async {
-      _activeGroups = event.activeGroups;
+      _activeCategories = event.activeCategories;
       _tagLabels = event.tagLabels;
       _startDate = event.startDate;
       _endDate = event.endDate;
@@ -46,147 +32,53 @@ class TimeLinesWrapperBloc
       await _loadTimelines(emit);
     });
 
-    on<SetTimelineActive>((event, emit) {
-      if (state is! TimeLinesWrapperLoaded) {
-        return;
-      }
-
-      final current = state as TimeLinesWrapperLoaded;
-
-      final timeline = current.timelines[event.timelineHash];
-
-      if (timeline == null) {
-        return;
-      }
-
-      if (timeline.active) {
-        return;
-      }
-
-      final updatedTimelines = Map<int, Timeline>.from(current.timelines);
-
-      timeline.active = true;
-      updatedTimelines[event.timelineHash] = timeline;
-
-      emit(current.copyWith(timelines: updatedTimelines));
-    });
-
-    on<SetTimelineInActive>((event, emit) {
-      if (state is! TimeLinesWrapperLoaded) {
-        return;
-      }
-      final current = state as TimeLinesWrapperLoaded;
-
-      final timeline = current.timelines[event.timelineHash];
-
-      if (timeline == null) {
-        return;
-      }
-
-      if (!timeline.active) {
-        return;
-      }
-
-      final updatedTimelines = Map<int, Timeline>.from(current.timelines);
-
-      timeline.active = false;
-      updatedTimelines[event.timelineHash] = timeline;
-
-      emit(current.copyWith(timelines: updatedTimelines));
-    });
-
-    on<TimelineScroll>((event, emit) {
-      if (state is! TimeLinesWrapperLoaded) return;
-
-      final current = state as TimeLinesWrapperLoaded;
-
-      if (!current.axisScrollController.hasClients) return;
-
-      final timelineOffset = event.scrollController.offset;
-      final axisOffset = current.axisScrollController.offset;
-
-      if (axisOffset != timelineOffset) {
-        current.axisScrollController.jumpTo(timelineOffset);
-      }
-    });
-
-    on<ReorderTimeline>((event, emit) {
-      if (state is! TimeLinesWrapperLoaded) return;
-      final current = state as TimeLinesWrapperLoaded;
-
-      final newOrder = List<int>.from(current.timelineOrder);
-      final item = newOrder.removeAt(event.oldIndex);
-      newOrder.insert(event.newIndex, item);
-
-      emit(current.copyWith(timelineOrder: newOrder));
-    });
+    on<LoadTimelineEvents>((event, emit) async => await _loadTimelines(emit));
+    on<SetTimelineFullscreen>((event, emit) => _toggleTimelineFullscreen(event.timelineHash, emit));
+    on<SetTimelineActive>((event, emit) => _toggleTimelineActive(event.timelineHash, true, emit));
+    on<SetTimelineInActive>((event, emit) => _toggleTimelineActive(event.timelineHash, false, emit));
+    on<ReorderTimeline>((event, emit) => _reOrderTimeline(event.oldIndex, event.newIndex, emit));
     add(LoadTimelineEvents());
   }
 
   Future<void> _loadTimelines(Emitter<TimeLinesWrapperState> emit) async {
-    var groups = await _groupRepository.getAll();
-    if (groups == null) {
-      return;
-    }
-
-    // Index users by id once
-    final users = await _userRepository.getAll() ?? const <User>[];
-    final usersById = {for (final u in users) u.id: u};
-
-    final activeIds = _activeGroups.map((g) => g.id).toSet();
-    // Category selection scopes which timelines are shown
-    final bool hasCategoryFilter = activeIds.isNotEmpty;
+    final activeIds = _activeCategories.map((c) => c.id).toSet();
+    final categories = await _categoryService.getCategories(
+      EventQuery(
+        categoryIds: activeIds,
+        startDate: _startDate,
+        endDate: _endDate,
+        search: _searchQuery,
+        tagLabels: _tagLabels,
+      ),
+    );
 
     Map<int, Timeline> grouppedEvents = {};
-    for (Group group in groups) {
-      // When categories are selected, ignore every group that isn't selected
-      if (hasCategoryFilter && !activeIds.contains(group.id)) {
-        continue;
-      }
-
-      final String groupName = group.title;
-      final int key = groupName.hashCode;
-
-      // Fetch the events matching the current query and bind the group to them
-      final groupEvents =
-          (await _eventPostRepository.queryEvents(
-            EventQuery(
-              groupIds: {group.id},
-              startDate: _startDate,
-              endDate: _endDate,
-              search: _searchQuery,
-              tagLabels: _tagLabels,
-            ),
-          )).map((event) {
-            event.group = group;
-            event.user = usersById[event.userId];
-            return event;
-          }).toList();
-
-      if (!grouppedEvents.containsKey(key)) {
+    for (final category in categories) {
+      if (!grouppedEvents.containsKey(category.name.hashCode)) {
         var timeline = Timeline(
-          title: groupName,
-          color: group.color,
-          events: groupEvents,
+          title: category.name,
+          color: category.color,
+          events: category.events,
           active: true,
+          fullscreen: false,
           timelineWidget: null,
         );
 
-        grouppedEvents[key] = timeline;
+        grouppedEvents[category.name.hashCode] = timeline;
       }
     }
 
     Map<int, ScrollController> timelineScrollers = {};
 
-    // Foreach group create a timeline
-    for (final groupEntry in grouppedEvents.entries) {
+    // Foreach category create a timeline
+    for (final categoryEntry in grouppedEvents.entries) {
       final timeline = TimelineContent(
-        listOfEvents: groupEntry.value.events,
-        groupColor: groupEntry.value.color,
+        listOfEvents: categoryEntry.value.events,
+        groupColor: categoryEntry.value.color,
       );
 
-      grouppedEvents[groupEntry.key]!.timelineWidget = timeline;
-      timelineScrollers[groupEntry.key] = ScrollController();
+      grouppedEvents[categoryEntry.key]!.timelineWidget = timeline;
+      timelineScrollers[categoryEntry.key] = ScrollController();
     }
 
     emit(
@@ -197,5 +89,64 @@ class TimeLinesWrapperBloc
         timelineOrder: grouppedEvents.keys.toList(),
       ),
     );
+  }
+
+  void _reOrderTimeline(int oldIndex, int newIndex, Emitter<TimeLinesWrapperState> emit){
+    if (state is! TimeLinesWrapperLoaded) {
+      return;
+    }
+    final current = state as TimeLinesWrapperLoaded;
+
+    final newOrder = List<int>.from(current.timelineOrder);
+    final item = newOrder.removeAt(oldIndex);
+    newOrder.insert(newIndex, item);
+
+    emit(current.copyWith(timelineOrder: newOrder));
+  }
+
+  void _toggleTimelineActive(int timelineHash, bool value, Emitter<TimeLinesWrapperState> emit){
+     if (state is! TimeLinesWrapperLoaded) {
+        return;
+      }
+
+      final current = state as TimeLinesWrapperLoaded;
+      final timeline = current.timelines[timelineHash];
+
+      if (timeline == null) {
+        return;
+      }
+
+      if(value && timeline.active || !value && !timeline.active){
+        return;
+      }
+
+      final updatedTimelines = Map<int, Timeline>.from(current.timelines);
+
+      timeline.active = value;
+      updatedTimelines[timelineHash] = timeline;
+
+      emit(current.copyWith(timelines: updatedTimelines));
+  }
+
+  void _toggleTimelineFullscreen(int timelineHash, Emitter<TimeLinesWrapperState> emit){
+      if (state is! TimeLinesWrapperLoaded) {
+        return;
+      }
+
+      final current = state as TimeLinesWrapperLoaded;
+
+      final timeline = current.timelines[timelineHash];
+      if (timeline == null) {
+        return;
+      }
+
+      final updatedTimelines = Map<int, Timeline>.from(current.timelines);
+
+      // Flip so pressing the icon expands, and pressing again reverts.
+      timeline.fullscreen = !timeline.fullscreen;
+      updatedTimelines[timelineHash] = timeline;
+
+      emit(current.copyWith(timelines: updatedTimelines));
+
   }
 }

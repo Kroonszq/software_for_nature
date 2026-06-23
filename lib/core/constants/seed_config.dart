@@ -1,2 +1,2 @@
 
-const int kSeedDataVersion = 4;
+const int kSeedDataVersion = 8;

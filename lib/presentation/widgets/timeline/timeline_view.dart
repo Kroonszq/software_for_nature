@@ -203,8 +203,14 @@ class _TimelineViewState extends State<TimelineView> {
               ? constraints.maxWidth / divisor
               : constraints.maxWidth;
         } else {
+
+          // On the full timeline view keep 3 1/3 timelines visible in the
+          // viewport; any beyond that scroll horizontally.
+          const double visibleColumns = 3 + 1 / 3;
+          final double divisor = activeCount < visibleColumns ? activeCount.toDouble() : visibleColumns;
+
           columnWidth = activeCount > 0
-              ? constraints.maxWidth / activeCount
+              ? constraints.maxWidth / divisor
               : constraints.maxWidth;
         }
 
@@ -234,7 +240,7 @@ class _TimelineViewState extends State<TimelineView> {
                       timeline: timeline,
                       timelineKey: timelineKey,
                       position: pos,
-                      width: columnWidth,
+                      width: timeline.fullscreen ? constraints.maxWidth : columnWidth,
                       isFocused: isFocused,
                       enableHorizontalScroll: !layout.isCompact || isFocused,
                       earliest: earliest,
@@ -250,6 +256,9 @@ class _TimelineViewState extends State<TimelineView> {
                       onMinimize: () => context
                           .read<TimeLinesWrapperBloc>()
                           .add(SetTimelineInActive(timelineKey)),
+                      onFullScreen: () => context
+                          .read<TimeLinesWrapperBloc>()
+                          .add(SetTimelineFullscreen(timelineKey)),
                     );
                   },
                 ),

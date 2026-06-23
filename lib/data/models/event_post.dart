@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/coordinates.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
 import 'package:software_for_nature/data/models/event_chart.dart';
-import 'package:software_for_nature/data/models/group.dart';
 import 'package:software_for_nature/data/models/json_model.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/data/models/user.dart';
@@ -17,18 +16,16 @@ class EventPost implements JsonModel<EventPost> {
   final DateTime? timestamp;
   final DateTime startDuration;
   final DateTime endDuration;
-  final String groupId;
+
+  final String categoryId;
   final String userId;
   final Coordinates? coordinates;
   final List<EventAttachment> attachments;
   final List<EventChart> charts;
   final List<Tag> tags;
-  final int categoryid;
 
   Category? category;
-  Group? group;
   User? user;
-
 
   EventPost({
     required this.id,
@@ -38,8 +35,7 @@ class EventPost implements JsonModel<EventPost> {
     this.timestamp,
     required this.startDuration,
     required this.endDuration,
-    required this.groupId,
-    required this.categoryid,
+    required this.categoryId,
     required this.userId,
     this.coordinates,
     this.attachments = const [],
@@ -59,9 +55,9 @@ class EventPost implements JsonModel<EventPost> {
     DateTime? timestamp,
     DateTime? startDuration,
     DateTime? endDuration,
-    String? groupId,
+    String? categoryId,
     String? userId,
-    Group? group,
+    Category? category,
     User? user,
     Coordinates? coordinates,
     List<EventAttachment>? attachments,
@@ -76,14 +72,15 @@ class EventPost implements JsonModel<EventPost> {
       timestamp: timestamp ?? this.timestamp,
       startDuration: startDuration ?? this.startDuration,
       endDuration: endDuration ?? this.endDuration,
-      categoryid: categoryid ?? this.categoryid,
-      groupId: groupId ?? this.groupId,
+      categoryId: categoryId ?? this.categoryId,
       userId: userId ?? this.userId,
       coordinates: coordinates ?? this.coordinates,
       attachments: attachments ?? this.attachments,
       charts: charts ?? this.charts,
       tags: tags ?? this.tags,
-    );
+    )
+      ..category = category ?? this.category
+      ..user = user ?? this.user;
   }
 
   @override
@@ -99,7 +96,7 @@ class EventPost implements JsonModel<EventPost> {
         'startDuration': startDuration.toIso8601String(),
         'endDuration': endDuration.toIso8601String(),
       },
-      'groupId': groupId,
+      'categoryId': categoryId,
       'userId': userId,
       if (coordinates != null)
         'coordinates': {
@@ -113,74 +110,77 @@ class EventPost implements JsonModel<EventPost> {
   }
 
   factory EventPost.fromJson(Map<String, dynamic> json) {
-
     String id = '';
-    if(json['id'] != null){
-      id = json['id'] as String;
+    if (json['id'] != null) {
+      id = json['id'].toString();
     }
 
     String title = '';
-    if(json['title'] != null){
+    if (json['title'] != null) {
       title = json['title'] as String;
     }
 
-    int categoryId = 0;
-    if(json['categoryId'] != null){
-      categoryId = json['categoryId'] as int;
+    String categoryId = '';
+    if (json['categoryId'] != null) {
+      categoryId = json['categoryId'].toString();
     }
 
     String description = '';
-    if(json['description'] != null){
+    if (json['description'] != null) {
       description = json['description'] as String;
     }
 
-    String groupId = '';
-    if(json['groupId'] != null){
-      groupId = json['groupId'] as String;
-    }
-
     String userId = '1';
-    if(json['userId'] != null){
-      userId = json['userId'] as String;
+    if (json['userId'] != null) {
+      userId = json['userId'].toString();
     }
 
     Coordinates? coordinates;
     if (json['coordinates'] is Map<String, dynamic>) {
-      coordinates = Coordinates(lat: (json['coordinates']['lat'] as num).toDouble(), lng: (json['coordinates']['lng'] as num).toDouble());
+      coordinates = Coordinates(
+        lat: (json['coordinates']['lat'] as num).toDouble(),
+        lng: (json['coordinates']['lng'] as num).toDouble(),
+      );
     }
 
     List<EventAttachment> attachments;
-    if(json['attachments'] is List){
-      attachments = json['attachments'].map((a) => EventAttachment.fromJson(a as Map<String, dynamic>)).toList();
+    if (json['attachments'] is List) {
+      attachments = json['attachments']
+          .map((a) => EventAttachment.fromJson(a as Map<String, dynamic>))
+          .toList()
+          .cast<EventAttachment>();
     } else {
       attachments = const <EventAttachment>[];
     }
 
     List<Tag> tags;
-    if(json['tags'] is List) {
-      tags = json['tags'].map((t) => Tag.fromJson(t as Map<String, dynamic>)).toList();
-    } else{
-      tags = const<Tag>[];
+    if (json['tags'] is List) {
+      tags = json['tags']
+          .map((t) => Tag.fromJson(t as Map<String, dynamic>))
+          .toList()
+          .cast<Tag>();
+    } else {
+      tags = const <Tag>[];
     }
 
     DateTime startDuration = DateTime.now();
-    if(json['startDuration'] != null){
+    if (json['startDuration'] != null) {
       startDuration = DateTime.parse(json['startDuration'] as String);
     }
 
     DateTime endDuration = DateTime.now();
-    if(json['endDuration'] != null){
+    if (json['endDuration'] != null) {
       endDuration = DateTime.parse(json['endDuration'] as String);
     }
 
     DateTime? timestamp;
-    if(json['timestamp'] != null){
-        timestamp = DateTime.parse(json['timestamp'] as String);
+    if (json['timestamp'] != null) {
+      timestamp = DateTime.parse(json['timestamp'] as String);
     }
 
     DateTime createdAt = DateTime.now();
-    if(json['created_at'] != null) {
-      createdAt = DateTime.parse(json['createdAt'] as String);
+    if (json['created_at'] != null) {
+      createdAt = DateTime.parse(json['created_at'] as String);
     }
 
     return EventPost(
@@ -191,8 +191,7 @@ class EventPost implements JsonModel<EventPost> {
       timestamp: timestamp,
       startDuration: startDuration,
       endDuration: endDuration,
-      groupId: groupId,
-      categoryid: categoryId,
+      categoryId: categoryId,
       userId: userId,
       coordinates: coordinates,
       attachments: attachments,

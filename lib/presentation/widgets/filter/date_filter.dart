@@ -4,11 +4,7 @@ import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
 class DateFilter extends StatelessWidget {
-  /// When true the title is rendered smaller to leave more room for the control
-  /// (used in the cramped mobile filter menu).
-  final bool compact;
-
-  const DateFilter({super.key, this.compact = false});
+  const DateFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +18,11 @@ class DateFilter extends StatelessWidget {
             ? '${TimeUtils.formatDateTime(startDate)} - ${TimeUtils.formatDateTime(endDate)}'
             : 'Select a date & time range';
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Filter by date',
-              style: compact ? const TextStyle(fontSize: 11) : null,
-            ),
-            SizedBox(width: compact ? 8 : 20),
-            Flexible(
-              child: ElevatedButton.icon(
+            // Select
+            ElevatedButton.icon(
               icon: const Icon(Icons.calendar_today),
               label: Text(label, overflow: TextOverflow.ellipsis),
               onPressed: () async {
@@ -90,15 +81,19 @@ class DateFilter extends StatelessWidget {
                 context.read<FilterBloc>().add(DateRangeChanged(start, end));
               },
             ),
-            ),
+
+            // Values
             if (hasRange) ...[
-              const SizedBox(width: 10),
-              IconButton(
-                icon: const Icon(Icons.close),
-                tooltip: 'Clear date filter',
-                onPressed: () => context
-                    .read<FilterBloc>()
-                    .add(DateRangeChanged(null, null)),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.close),
+                  label: const Text('Clear date filter'),
+                  onPressed: () => context
+                      .read<FilterBloc>()
+                      .add(DateRangeChanged(null, null)),
+                ),
               ),
             ],
           ],

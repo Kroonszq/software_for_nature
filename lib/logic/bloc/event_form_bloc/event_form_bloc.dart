@@ -1,27 +1,28 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
-import 'package:software_for_nature/data/models/group.dart';
-import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
-import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
+import 'package:software_for_nature/data/models/tag.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 
 part 'event_form_bloc_event.dart';
 part 'event_form_bloc_state.dart';
 
 class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
-  final GroupRepositoryInterface _groupRepository;
-  final EventPostRepositoryInterface _eventRepository;
-  final UserRepositoryInterface _userRepository;
   final AttachmentStorageInterface _attachmentStorage;
+  final CategoryServiceInterface _categoryService;
+  final EventServiceInterface _eventService;
+  final UserServiceInterface _userService;
 
-  EventFormBloc({required this._groupRepository, required this._eventRepository, required this._userRepository, required this._attachmentStorage,}) :super(const EventFormBlocState()) {
-    on<GroupsRequested>(_onGroupsRequested);
+  EventFormBloc({required this._attachmentStorage, required this._categoryService, required this._eventService, required this._userService,}): super(const EventFormBlocState()) {
+    on<CategoriesRequested>(_onCategoriesRequested);
     on<TitleChanged>((e, emit) => emit(state.copyWith(title: e.title)));
     on<DescriptionChanged>((e, emit) => emit(state.copyWith(description: e.description)));
-    on<GroupChanged>((e, emit) => emit(state.copyWith(groupId: e.groupId)));
+    on<CategorySelected>((e, emit) => emit(state.copyWith(categoryId: e.categoryId)));
     on<TimeModeChanged>((e, emit) => emit(state.copyWith(mode: e.mode)));
     on<StartChanged>((e, emit) => emit(state.copyWith(start: e.start)));
     on<EndChanged>((e, emit) => emit(state.copyWith(end: e.end)));
@@ -30,18 +31,17 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     on<AttachmentRemoved>((e, emit) => emit(state.copyWith(attachments: state.attachments.where((a) => a != e.attachment).toList())));
     on<FormSubmitted>(_onSubmitted);
 
-    add(GroupsRequested());
+    add(CategoriesRequested());
   }
 
-  Future<void> _onGroupsRequested(
-      GroupsRequested event, Emitter<EventFormBlocState> emit) async {
-    final groups = await _groupRepository.getAll() ?? const [];
-    emit(state.copyWith(groups: groups));
+  Future<void> _onCategoriesRequested(CategoriesRequested event, Emitter<EventFormBlocState> emit) async {
+    final categories = await _categoryService.getAllCategories();
+    emit(state.copyWith(categories: categories));
   }
 
   Future<void> _onSubmitted(FormSubmitted event, Emitter<EventFormBlocState> emit) async {
-    if (state.groupId == null) {
-      emit(state.copyWith(status: EventFormStatus.failure, error: 'Pick a group'));
+    if (state.categoryId == null) {
+      emit(state.copyWith(status: EventFormStatus.failure, error: 'Pick a category'));
       return;
     }
 
@@ -75,7 +75,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     emit(state.copyWith(status: EventFormStatus.submitting));
     try {
 
-      final users = await _userRepository.getAll() ?? const [];
+      final users = await _userService.getAllUsers();
       if (users.isEmpty) {
         emit(state.copyWith(status: EventFormStatus.failure, error: 'No user available'));
         return;
@@ -83,7 +83,6 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
       final userId = users.first.id;
 
       final id = DateTime.now().millisecondsSinceEpoch.toString();
-
       final attachments = await _attachmentStorage.persistAll(state.attachments, id);
 
       final eventPost = EventPost(
@@ -94,12 +93,12 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
         timestamp: timestamp,
         startDuration: start,
         endDuration: end,
-        groupId: state.groupId!,
+        categoryId: state.categoryId!,
         userId: userId,
         attachments: attachments,
       );
 
-      await _eventRepository.create(eventPost);
+      await _eventService.createEvent(eventPost);
       emit(state.copyWith(status: EventFormStatus.success));
     } catch (e) {
       emit(state.copyWith(status: EventFormStatus.failure, error: e.toString()));

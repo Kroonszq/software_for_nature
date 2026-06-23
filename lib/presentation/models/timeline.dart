@@ -8,12 +8,14 @@ class Timeline {
   final List<EventPost> events;
 
   bool active;
+  bool fullscreen;
   TimelineContent? timelineWidget;
 
   Timeline({
     required this.title,
     required this.color,
     required this.active,
+    required this.fullscreen,
     required this.events,
     required this.timelineWidget,
   });

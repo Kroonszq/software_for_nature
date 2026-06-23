@@ -3,7 +3,7 @@ import 'package:software_for_nature/data/models/geobounds.dart';
 
 
 class EventQuery {
-  final Set<String>? groupIds;
+  final Set<String>? categoryIds;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? search;
@@ -14,7 +14,7 @@ class EventQuery {
   final Set<String>? tagLabels;
 
   const EventQuery({
-    this.groupIds,
+    this.categoryIds,
     this.startDate,
     this.endDate,
     this.search,
