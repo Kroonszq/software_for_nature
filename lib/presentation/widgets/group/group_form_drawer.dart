@@ -53,7 +53,6 @@ class _GroupFormDrawerState extends State<GroupFormDrawer> {
 
     // Members are the users that already reference this group
     final groupId = widget.existing?.id;
-    Set<String>_selectedUserIds;
     if(groupId != null){
       _selectedUserIds = widget.users.where((u) => u.groupIds.contains(groupId)).map((u) => u.id).toSet();
     } else{

@@ -8,6 +8,7 @@ class EventTitleField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      initialValue: context.read<EventFormBloc>().state.title,
       decoration: const InputDecoration(labelText: 'Title'),
       validator: (v) {
         if (v == null || v.isEmpty) {

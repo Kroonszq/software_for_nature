@@ -18,7 +18,13 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
   final EventServiceInterface _eventService;
   final UserServiceInterface _userService;
 
-  EventFormBloc({required this._attachmentStorage, required this._categoryService, required this._eventService, required this._userService,}): super(const EventFormBlocState()) {
+  /// When set, the form edits this existing event instead of creating a new one.
+  final EventPost? _initialEvent;
+
+  /// Whether the form is editing an existing event rather than creating one.
+  bool get isEditing => _initialEvent != null;
+
+  EventFormBloc({required this._attachmentStorage, required this._categoryService, required this._eventService, required this._userService, EventPost? initialEvent,}): _initialEvent = initialEvent, super(_initialStateFor(initialEvent)) {
     on<CategoriesRequested>(_onCategoriesRequested);
     on<TitleChanged>((e, emit) => emit(state.copyWith(title: e.title)));
     on<DescriptionChanged>((e, emit) => emit(state.copyWith(description: e.description)));
@@ -32,6 +38,24 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     on<FormSubmitted>(_onSubmitted);
 
     add(CategoriesRequested());
+  }
+
+  /// Builds the form's starting state, pre-filled from [event] when editing.
+  static EventFormBlocState _initialStateFor(EventPost? event) {
+    if (event == null) {
+      return const EventFormBlocState();
+    }
+
+    return EventFormBlocState(
+      title: event.title,
+      description: event.description,
+      categoryId: event.categoryId,
+      mode: event.isMoment ? EventTimeMode.timestamp : EventTimeMode.range,
+      start: event.startDuration,
+      end: event.endDuration,
+      timestamp: event.timestamp,
+      attachments: event.attachments,
+    );
   }
 
   Future<void> _onCategoriesRequested(CategoriesRequested event, Emitter<EventFormBlocState> emit) async {
@@ -75,6 +99,34 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     emit(state.copyWith(status: EventFormStatus.submitting));
     try {
 
+      // Editing an existing event: keep its identity (id, author, created date)
+      // and only update the edited fields.
+      if (_initialEvent != null) {
+        final attachments = await _persistEditedAttachments(_initialEvent);
+
+        final updated = EventPost(
+          id: _initialEvent.id,
+          title: state.title,
+          description: state.description,
+          createdAt: _initialEvent.createdAt,
+          timestamp: timestamp,
+          startDuration: start,
+          endDuration: end,
+          categoryId: state.categoryId!,
+          userId: _initialEvent.userId,
+          coordinates: _initialEvent.coordinates,
+          attachments: attachments,
+          charts: _initialEvent.charts,
+          tags: _initialEvent.tags,
+        )
+          ..category = _initialEvent.category
+          ..user = _initialEvent.user;
+
+        await _eventService.updateEvent(updated);
+        emit(state.copyWith(status: EventFormStatus.success));
+        return;
+      }
+
       final users = await _userService.getAllUsers();
       if (users.isEmpty) {
         emit(state.copyWith(status: EventFormStatus.failure, error: 'No user available'));
@@ -103,5 +155,23 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     } catch (e) {
       emit(state.copyWith(status: EventFormStatus.failure, error: e.toString()));
     }
+  }
+
+  /// Persists only the attachments newly added during an edit; existing ones are
+  /// already on disk and must not be re-copied (their path is relative, not a
+  /// real source file).
+  Future<List<EventAttachment>> _persistEditedAttachments(EventPost original) async {
+    final kept = <EventAttachment>[];
+    final added = <EventAttachment>[];
+    for (final attachment in state.attachments) {
+      if (original.attachments.contains(attachment)) {
+        kept.add(attachment);
+      } else {
+        added.add(attachment);
+      }
+    }
+
+    final persisted = await _attachmentStorage.persistAll(added, original.id);
+    return [...kept, ...persisted];
   }
 }

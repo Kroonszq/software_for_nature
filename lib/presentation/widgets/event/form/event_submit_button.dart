@@ -11,6 +11,7 @@ class EventSubmitButton extends StatelessWidget {
       buildWhen: (prev, curr) => prev.status != curr.status,
       builder: (context, state) {
         final submitting = state.status == EventFormStatus.submitting;
+        final isEditing = context.read<EventFormBloc>().isEditing;
 
         VoidCallback? onPressed;
         if (!submitting) {
@@ -27,7 +28,7 @@ class EventSubmitButton extends StatelessWidget {
             onPressed: onPressed,
             child: submitting
                 ? const SizedBox( height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Submit'),
+                : Text(isEditing ? 'Save changes' : 'Submit'),
           ),
         );
       },

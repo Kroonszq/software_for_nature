@@ -27,18 +27,13 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       }
       final tags = distinctTags.values.toList();
 
-      final now = DateTime.now();
-      final startOfToday = DateTime(now.year, now.month, now.day);
-      final endOfToday = DateTime(now.year, now.month, now.day, 23, 59);
-
-      // Start with every category and every tag selected by default
+      // Start with every category and every tag selected, and no date range so
+      // the timeline shows everything until the user picks one.
       emit(FilterLoaded(
         categories: categories,
         activeCategories: List<Category>.of(categories),
         tags: tags,
         activeTags: List<Tag>.of(tags),
-        startDate: startOfToday,
-        endDate: endOfToday,
       ));
     });
 

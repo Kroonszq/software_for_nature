@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
+import 'package:software_for_nature/presentation/widgets/filter/active_filter_chips.dart';
 import 'package:software_for_nature/presentation/widgets/filter/category_filter.dart';
 import 'package:software_for_nature/presentation/widgets/filter/date_filter.dart';
 import 'package:software_for_nature/presentation/widgets/filter/export_button.dart';
@@ -50,16 +51,32 @@ class Filter extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          OutlinedButton.icon(
-            icon: const Icon(Icons.filter_list),
-            label: const Text('Filters'),
-            onPressed: () => _openFilters(context),
-          ),
-          const Spacer(),
-          const ExportButton(),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Keep the search field compact; the chip strip takes the remaining
+          // space but stays capped at 460 and scrolls horizontally inside it.
+          final double searchWidth = constraints.maxWidth < 600 ? 140 : 200;
+          return Row(
+            children: [
+              OutlinedButton.icon(
+                icon: const Icon(Icons.filter_list),
+                label: const Text('Filters'),
+                onPressed: () => _openFilters(context),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: const ActiveFilterChips(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(width: searchWidth, child: const SearchFilter()),
+              const SizedBox(width: 8),
+              const ExportButton(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -75,7 +92,7 @@ class _FilterDrawerPanel extends StatelessWidget {
     final double panelWidth = screenWidth < 520 ? screenWidth * 0.9 : 420;
 
     return SizedBox(
-      width: panelWidth,
+      width: panelWidth, 
       height: double.infinity,
       child: Material(
         elevation: 16,
@@ -114,8 +131,6 @@ class _FilterDrawerPanel extends StatelessWidget {
                     _FilterSection(title: 'Tags', child: TagFilter()),
                     Divider(height: 32),
                     _FilterSection(title: 'Date & time', child: DateFilter()),
-                    Divider(height: 32),
-                    _FilterSection(title: 'Search', child: SearchFilter()),
                   ],
                 ),
               ),

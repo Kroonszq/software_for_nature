@@ -117,59 +117,73 @@ class _TimelineContentState extends State<TimelineContent> {
           _scrollToEventHorizontally(selected);
         }
       },
-      child: Listener(
-        onPointerSignal: (event) {
-          if (event is PointerScrollEvent) {
-            final scrollHorizontally = HardwareKeyboard.instance.isControlPressed || _hasExpandedCard;
-            if (scrollHorizontally) {
-              final newOffset =(_horizontalScrollController.offset + event.scrollDelta.dy).clamp(0.0, _horizontalScrollController.position.maxScrollExtent,);
-              _horizontalScrollController.jumpTo(newOffset);
-            }
-          }
-        },
-        child: Container(
-          color: groupColor.withValues(alpha: 0.75),
-          child: Scrollbar(
-            controller: _horizontalScrollController,
-            thumbVisibility: true,
-            trackVisibility: true,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  controller: _horizontalScrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: widget.enableHorizontalScroll ? null : const NeverScrollableScrollPhysics(),
-                  
-                  child: SingleChildScrollView(
-                    controller: widget.scrollController,
-                    scrollDirection: Axis.vertical,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: widget.minHeight,
-                        minWidth: constraints.maxWidth,
-                      ),
-                      child: BlocBuilder<TimelineBloc, TimelineState>(
-                        builder: (context, state) {
-                          final selectedId = state is TimelineInitial ? state.selectedPost?.id : null;
-                          final result = _buildCards(selectedId, timelineGeometry.earliest);
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Listener(
+            onPointerSignal: (event) {
+              if (event is PointerScrollEvent) {
+                final scrollHorizontally = HardwareKeyboard.instance.isControlPressed || _hasExpandedCard;
+                if (scrollHorizontally) {
+                  final newOffset =(_horizontalScrollController.offset + event.scrollDelta.dy).clamp(0.0, _horizontalScrollController.position.maxScrollExtent,);
+                  _horizontalScrollController.jumpTo(newOffset);
+                }
+              }
+            },
+            child: Container(
+              color: groupColor.withValues(alpha: 0.75),
+              child: Scrollbar(
+                controller: _horizontalScrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      controller: _horizontalScrollController,
+                      scrollDirection: Axis.horizontal,
+                      physics: widget.enableHorizontalScroll ? null : const NeverScrollableScrollPhysics(),
 
-                          return SizedBox(
-                            height: timelineGeometry.totalHeight + 16,
-                            width: result.contentWidth,
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: result.cards,
-                            ),
-                          );
-                        },
+                      child: SingleChildScrollView(
+                        controller: widget.scrollController,
+                        scrollDirection: Axis.vertical,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: widget.minHeight,
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: BlocBuilder<TimelineBloc, TimelineState>(
+                            builder: (context, state) {
+                              final selectedId = state is TimelineInitial ? state.selectedPost?.id : null;
+                              final result = _buildCards(selectedId, timelineGeometry.earliest);
+
+                              return SizedBox(
+                                height: timelineGeometry.totalHeight + 16,
+                                width: result.contentWidth,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: result.cards,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
             ),
           ),
-        ),
+          // Floating counters showing how many events sit above/below the
+          // current vertical viewport.
+          Positioned.fill(
+            child: OffscreenEventIndicators(
+              controller: widget.scrollController,
+              events: widget.listOfEvents,
+              earliest: timelineGeometry.earliest,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -260,7 +274,7 @@ class _TimelineContentState extends State<TimelineContent> {
       }
 
       final position = _horizontalScrollController.position;
-  
+
       // Add a little bit off offset
       final double offset = (targetLeft - position.viewportDimension * 0.25).clamp(0.0, position.maxScrollExtent);
 
@@ -271,5 +285,223 @@ class _TimelineContentState extends State<TimelineContent> {
         curve: Curves.easeInOut,
       );
     });
+  }
+}
+
+/// Floating counters that sit on top of a timeline column and report how many
+/// events are scrolled out of view above and below the current vertical
+/// viewport. Tapping a counter scrolls the column toward the nearest
+/// off-screen event in that direction.
+class OffscreenEventIndicators extends StatefulWidget {
+  final ScrollController? controller;
+  final List<EventPost> events;
+  final DateTime earliest;
+
+  const OffscreenEventIndicators({
+    super.key,
+    required this.controller,
+    required this.events,
+    required this.earliest,
+  });
+
+  @override
+  State<OffscreenEventIndicators> createState() =>
+      _OffscreenEventIndicatorsState();
+}
+
+class _OffscreenEventIndicatorsState extends State<OffscreenEventIndicators> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.addListener(_onScroll);
+    // The controller has no clients on the first frame, so refresh once the
+    // viewport is laid out to surface any initially off-screen events.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant OffscreenEventIndicators oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.removeListener(_onScroll);
+      widget.controller?.addListener(_onScroll);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?.removeListener(_onScroll);
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Vertical pixel offset of an event's top edge within the column content.
+  double _eventTop(EventPost event) =>
+      event.startDuration.difference(widget.earliest).inMinutes *
+      TimelineConstants.pixelsPerMinute;
+
+  /// Vertical pixel offset of an event's bottom edge within the column content.
+  double _eventBottom(EventPost event) =>
+      event.endDuration.difference(widget.earliest).inMinutes *
+      TimelineConstants.pixelsPerMinute;
+
+  /// Scrolls the column so the nearest off-screen event in [downwards]
+  /// direction comes into view.
+  void _scrollTowards(bool downwards) {
+    final controller = widget.controller;
+    if (controller == null || !controller.hasClients) {
+      return;
+    }
+
+    final position = controller.position;
+    final double top = position.pixels;
+    final double bottom = top + position.viewportDimension;
+
+    double? target;
+    if (downwards) {
+      // Closest event whose top sits below the current viewport.
+      for (final event in widget.events) {
+        final double eTop = _eventTop(event);
+        if (eTop > bottom) {
+          if (target == null || eTop < target) {
+            target = eTop;
+          }
+        }
+      }
+      // Land the event a little below the top edge for context.
+      target = (target ?? position.maxScrollExtent) - 24;
+    } else {
+      // Closest event whose bottom sits above the current viewport.
+      for (final event in widget.events) {
+        final double eBottom = _eventBottom(event);
+        if (eBottom < top) {
+          if (target == null || eBottom > target) {
+            target = eBottom;
+          }
+        }
+      }
+      target = (target ?? 0) - position.viewportDimension + 24;
+    }
+
+    controller.animateTo(
+      target.clamp(0.0, position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    if (controller == null ||
+        !controller.hasClients ||
+        !controller.position.hasViewportDimension ||
+        !controller.position.hasContentDimensions) {
+      return const SizedBox.shrink();
+    }
+
+    final position = controller.position;
+    final double top = position.pixels;
+    final double bottom = top + position.viewportDimension;
+
+    int above = 0;
+    int below = 0;
+    for (final event in widget.events) {
+      if (_eventBottom(event) < top) {
+        above++;
+      } else if (_eventTop(event) > bottom) {
+        below++;
+      }
+    }
+
+    return IgnorePointer(
+      ignoring: above == 0 && below == 0,
+      child: Stack(
+        children: [
+          if (above > 0)
+            Positioned(
+              top: 6,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _OffscreenBadge(
+                  count: above,
+                  downwards: false,
+                  onTap: () => _scrollTowards(false),
+                ),
+              ),
+            ),
+          if (below > 0)
+            Positioned(
+              bottom: 6,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _OffscreenBadge(
+                  count: below,
+                  downwards: true,
+                  onTap: () => _scrollTowards(true),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A small translucent pill showing a direction arrow and an event count.
+class _OffscreenBadge extends StatelessWidget {
+  final int count;
+  final bool downwards;
+  final VoidCallback onTap;
+
+  const _OffscreenBadge({
+    required this.count,
+    required this.downwards,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.7),
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                downwards ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                size: 16,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '$count event${count == 1 ? '' : 's'}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

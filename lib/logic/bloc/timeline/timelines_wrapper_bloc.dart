@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:software_for_nature/data/models/category.dart';
@@ -30,7 +31,7 @@ class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperS
       _searchQuery = event.searchQuery;
 
       await _loadTimelines(emit);
-    });
+    }, transformer: restartable());
 
     on<LoadTimelineEvents>((event, emit) async => await _loadTimelines(emit));
     on<SetTimelineFullscreen>((event, emit) => _toggleTimelineFullscreen(event.timelineHash, emit));

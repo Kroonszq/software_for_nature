@@ -1,6 +1,6 @@
 
 
-import 'package:logger/web.dart';
+import 'package:logger/logger.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
@@ -27,7 +27,18 @@ final class EventService implements EventServiceInterface {
 
     return newEvent;
   }
-  
+
+  @override
+  Future<EventPost?> updateEvent(EventPost event) async {
+    var updated = await _eventRepository.update(event);
+    if (updated == null) {
+      _logger.e("Something went wrong updating event ${event.id}");
+      return null;
+    }
+
+    return updated;
+  }
+
   @override
   Future<List<EventPost>> queryEvent(EventQuery query) async {
     final allEvents = await _eventRepository.getAll();

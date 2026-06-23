@@ -8,6 +8,7 @@ class EventDescriptionField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      initialValue: context.read<EventFormBloc>().state.description,
       decoration: const InputDecoration(
         labelText: 'Description',
         alignLabelWithHint: true,

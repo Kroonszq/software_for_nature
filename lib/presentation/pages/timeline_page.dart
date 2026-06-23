@@ -30,7 +30,7 @@ class TimelinePage extends StatelessWidget {
         BlocProvider(
           create: (context) => FilterBloc(
             categoryService: context.read<CategoryServiceInterface>(),
-            eventService: context.read()<EventServiceInterface>(),
+            eventService: context.read<EventServiceInterface>(),
           )..add(FilterStarted()),
         ),
       ],

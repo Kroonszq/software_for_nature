@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/geobounds.dart';
@@ -15,7 +16,9 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   HybridBloc(this.repository) : super(const HybridState(events: [])) {
     on<HybridBoundsChanged>(_onBoundsChanged);
     on<HybridTimeRangeChanged>(_onTimeRangeChanged);
-    on<HybridFilterChanged>(_onFilterChanged);
+    // Restart so a newer filter (e.g. clearing the search) cancels any
+    // in-flight stale fetch and always wins.
+    on<HybridFilterChanged>(_onFilterChanged, transformer: restartable());
     on<HybridVisibleCategoriesChanged>(_onVisibleCategoriesChanged);
     on<HybridEventSelected>(_onSelected);
     on<HybridReloadRequested>(_onReload);

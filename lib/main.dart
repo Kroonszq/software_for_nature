@@ -21,9 +21,11 @@ import 'package:software_for_nature/data/repositories/interfaces/event_post_repo
 import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
 import 'package:software_for_nature/logic/services/category_service.dart';
+import 'package:software_for_nature/logic/services/event_service.dart';
 import 'package:software_for_nature/logic/services/group_service.dart';
 import 'package:software_for_nature/logic/services/user_service.dart';
 import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 import 'package:software_for_nature/logic/services/interfaces/group_service_interface.dart';
 import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
@@ -115,6 +117,12 @@ class MyApp extends StatelessWidget {
             userRepository: context.read<UserRepositoryInterface>(),
             groupRepository: context.read<GroupRepositoryInterface>(),
             categoryRepository: context.read<CategoryRepositoryInterface>(),
+          ),
+        ),
+        RepositoryProvider<EventServiceInterface>(
+          create: (context) => EventService(
+            logger: Logger(printer: PrettyPrinter()),
+            eventRepository: context.read<EventPostRepositoryInterface>(),
           ),
         ),
         RepositoryProvider<AttachmentStorageInterface>(

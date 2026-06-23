@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
+import 'package:software_for_nature/data/models/user.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 import 'package:software_for_nature/presentation/widgets/event/drawer/event_comments.dart';
 import 'package:software_for_nature/presentation/widgets/event/drawer/event_content.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_edit_drawer.dart';
 
 /// Which section of the panel is currently visible.
 enum _PanelTab { content, comments }
@@ -21,6 +24,24 @@ class EventPanel extends StatefulWidget {
 
 class _EventPanelState extends State<EventPanel> {
   _PanelTab _tab = _PanelTab.content;
+  User? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final user = await context.read<UserServiceInterface>().getCurrentUser();
+    if (mounted) {
+      setState(() => _currentUser = user);
+    }
+  }
+
+  /// True when the signed-in user authored this event and may edit it.
+  bool get _isAuthor =>
+      _currentUser != null && _currentUser!.id == widget.event.userId;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +128,16 @@ class _EventPanelState extends State<EventPanel> {
 
           Row(
             children: [
+              if (_isAuthor) ...[
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit'),
+                    onPressed: () => openEventEditor(context, event),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.minimize),
