@@ -6,6 +6,7 @@ import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/presentation/widgets/event/attachment_preview_dialog.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_chart_view.dart';
 
 class EventContent extends StatelessWidget {
 
@@ -45,21 +46,28 @@ class EventContent extends StatelessWidget {
             const SizedBox(height: 16),
             Text('Charts (${event.charts.length})', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             ...event.charts.map(
               (c) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.show_chart, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${c.fileName} · ${c.xLabel}/${c.yLabel} '
-                        '(${c.points.length} points)',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.show_chart, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${c.fileName} · ${c.points.length} points',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 8),
+                    EventChartView(chart: c),
                   ],
                 ),
               ),

@@ -1,16 +1,20 @@
-/// A single (x, y) data point for an [EventChart]. The x value is kept as a
-/// label so categorical CSV columns (names, dates, …) render correctly; the y
-/// value is numeric.
+
 class ChartPoint {
   final String x;
   final double y;
 
   const ChartPoint({required this.x, required this.y});
+
+  Map<String, dynamic> toJson() => {'x': x, 'y': y};
+
+  factory ChartPoint.fromJson(Map<String, dynamic> json) {
+    return ChartPoint(
+      x: json['x'].toString(),
+      y: (json['y'] as num).toDouble(),
+    );
+  }
 }
 
-/// A chart derived from an uploaded CSV file: the user picks which column maps
-/// to the x axis and which maps to the y axis at event-creation time, and the
-/// resulting series is stored here so the event view can render it.
 class EventChart {
   final String fileName;
   final String xLabel;
@@ -23,4 +27,25 @@ class EventChart {
     required this.yLabel,
     required this.points,
   });
+
+  Map<String, dynamic> toJson() => {
+        'fileName': fileName,
+        'xLabel': xLabel,
+        'yLabel': yLabel,
+        'points': points.map((p) => p.toJson()).toList(),
+      };
+
+  factory EventChart.fromJson(Map<String, dynamic> json) {
+    final rawPoints = json['points'];
+    return EventChart(
+      fileName: json['fileName']?.toString() ?? 'chart',
+      xLabel: json['xLabel']?.toString() ?? 'x',
+      yLabel: json['yLabel']?.toString() ?? 'y',
+      points: rawPoints is List
+          ? rawPoints
+              .map((p) => ChartPoint.fromJson(p as Map<String, dynamic>))
+              .toList()
+          : const <ChartPoint>[],
+    );
+  }
 }

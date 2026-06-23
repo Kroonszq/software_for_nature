@@ -5,6 +5,7 @@ import 'package:software_for_nature/presentation/widgets/event/form/event_attach
 import 'package:software_for_nature/presentation/widgets/event/form/event_category_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_date_time_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_description_field.dart';
+import 'package:software_for_nature/presentation/widgets/event/form/event_graph_generator_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_submit_button.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_tags_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_time_mode_field.dart';
@@ -41,6 +42,8 @@ class EventForm extends StatelessWidget {
             EventDateTimeField(),
             SizedBox(height: 16),
             EventAttachmentsField(),
+            SizedBox(height: 16),
+            EventGraphGeneratorField(),
             EventSubmitButton(),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show immutable;
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
 import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
+import 'package:software_for_nature/data/models/event_chart.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
@@ -44,6 +45,8 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     on<TimestampChanged>((e, emit) => emit(state.copyWith(timestamp: e.timestamp)));
     on<AttachmentsAdded>((e, emit) => emit(state.copyWith(attachments: [...state.attachments, ...e.attachments])));
     on<AttachmentRemoved>((e, emit) => emit(state.copyWith(attachments: state.attachments.where((a) => a != e.attachment).toList())));
+    on<ChartAdded>((e, emit) => emit(state.copyWith(charts: [...state.charts, e.chart])));
+    on<ChartRemoved>((e, emit) => emit(state.copyWith(charts: state.charts.where((c) => c != e.chart).toList())));
     on<FormSubmitted>(_onSubmitted);
 
     add(CategoriesRequested());
@@ -67,6 +70,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
       end: event.endDuration,
       timestamp: event.timestamp,
       attachments: event.attachments,
+      charts: event.charts,
     );
   }
 
@@ -139,7 +143,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
           userId: _initialEvent.userId,
           coordinates: _initialEvent.coordinates,
           attachments: attachments,
-          charts: _initialEvent.charts,
+          charts: state.charts,
           tags: state.selectedTags,
         )
           ..category = _initialEvent.category
@@ -171,6 +175,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
         categoryId: state.categoryId!,
         userId: userId,
         attachments: attachments,
+        charts: state.charts,
         tags: state.selectedTags,
       );
 

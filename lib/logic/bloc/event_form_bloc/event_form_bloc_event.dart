@@ -62,4 +62,14 @@ final class AttachmentRemoved extends EventFormBlocEvent {
   AttachmentRemoved(this.attachment);
 }
 
+final class ChartAdded extends EventFormBlocEvent {
+  final EventChart chart;
+  ChartAdded(this.chart);
+}
+
+final class ChartRemoved extends EventFormBlocEvent {
+  final EventChart chart;
+  ChartRemoved(this.chart);
+}
+
 final class FormSubmitted extends EventFormBlocEvent {}

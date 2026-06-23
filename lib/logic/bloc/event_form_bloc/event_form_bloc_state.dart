@@ -19,6 +19,7 @@ final class EventFormBlocState {
   final DateTime? end;
   final DateTime? timestamp;
   final List<EventAttachment> attachments;
+  final List<EventChart> charts;
   final EventFormStatus status;
   final String? error;
 
@@ -34,6 +35,7 @@ final class EventFormBlocState {
     this.end,
     this.timestamp,
     this.attachments = const [],
+    this.charts = const [],
     this.status = EventFormStatus.editing,
     this.error,
   });
@@ -50,6 +52,7 @@ final class EventFormBlocState {
     DateTime? end,
     DateTime? timestamp,
     List<EventAttachment>? attachments,
+    List<EventChart>? charts,
     EventFormStatus? status,
     String? error,
   }) {
@@ -65,6 +68,7 @@ final class EventFormBlocState {
       end: end ?? this.end,
       timestamp: timestamp ?? this.timestamp,
       attachments: attachments ?? this.attachments,
+      charts: charts ?? this.charts,
       status: status ?? this.status,
       error: error,
     );

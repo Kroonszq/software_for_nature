@@ -105,6 +105,8 @@ class EventPost implements JsonModel<EventPost> {
         },
       if (attachments.isNotEmpty)
         'attachments': attachments.map((a) => a.toJson()).toList(),
+      if (charts.isNotEmpty)
+        'charts': charts.map((c) => c.toJson()).toList(),
       if (tags.isNotEmpty) 'tags': tags.map((t) => t.toJson()).toList(),
     };
   }
@@ -153,6 +155,16 @@ class EventPost implements JsonModel<EventPost> {
       attachments = const <EventAttachment>[];
     }
 
+    List<EventChart> charts;
+    if (json['charts'] is List) {
+      charts = json['charts']
+          .map((c) => EventChart.fromJson(c as Map<String, dynamic>))
+          .toList()
+          .cast<EventChart>();
+    } else {
+      charts = const <EventChart>[];
+    }
+
     List<Tag> tags;
     if (json['tags'] is List) {
       tags = json['tags']
@@ -195,6 +207,7 @@ class EventPost implements JsonModel<EventPost> {
       userId: userId,
       coordinates: coordinates,
       attachments: attachments,
+      charts: charts,
       tags: tags,
     );
   }
