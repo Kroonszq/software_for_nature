@@ -19,7 +19,8 @@ class EventForm extends StatelessWidget {
       listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
         if (state.status == EventFormStatus.success) {
-          Navigator.of(context).pop(); // close the drawer
+          // Return true so the opener knows a save happened and can refresh.
+          Navigator.of(context).pop(true);
         } else if (state.status == EventFormStatus.failure && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error!)));
         }

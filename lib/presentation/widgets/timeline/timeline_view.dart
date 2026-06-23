@@ -39,10 +39,13 @@ class _TimelineViewState extends State<TimelineView> {
       c.dispose();
     }
 
-    // For each timeline create a controller with a listener so we can react and modify based upon event that are happening
+    // For each timeline create a controller with a listener so we can react and modify based upon event that are happening.
+    // Seed each new controller with the current shared offset so a timeline
+    // that gets re-activated mounts aligned with the others (all columns share
+    // the same content height) instead of snapping back to the top.
     _timelineScrollControllers = {
       for (final entry in state.timelines.entries)
-        entry.key: ScrollController()
+        entry.key: ScrollController(initialScrollOffset: _scrollOffset.value)
           ..addListener(() {
             final controller = _timelineScrollControllers[entry.key]!;
             final offset = controller.offset;

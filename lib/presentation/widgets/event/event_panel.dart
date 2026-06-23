@@ -89,7 +89,12 @@ class _EventPanelState extends State<EventPanel> {
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.edit),
                     label: const Text('Edit'),
-                    onPressed: () => openEventEditor(context, event),
+                    onPressed: () {
+                      // Launch the editor (its synchronous part shows the dialog
+                      // and captures the refresh), then close this event panel.
+                      openEventEditor(context, event);
+                      context.read<EventInteractionCubit>().dismiss(event);
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),

@@ -52,10 +52,15 @@ class _TimelineContentState extends State<TimelineContent> {
   void didUpdateWidget(covariant TimelineContent oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldIds = oldWidget.listOfEvents.map((e) => e.id).join(',');
-    final newIds = widget.listOfEvents.map((e) => e.id).join(',');
+    // Recalculate the row layout when the events change. This must detect more
+    // than added/removed ids: editing an event keeps its id but changes its
+    // time/title/description, and the rows hold the actual event objects used
+    // for both positioning and card content, so a stale signature would leave
+    // the column showing the old data.
+    final oldSignature = _eventsSignature(oldWidget.listOfEvents);
+    final newSignature = _eventsSignature(widget.listOfEvents);
 
-    if (oldIds != newIds) {
+    if (oldSignature != newSignature) {
       listOfRows = {};
       calculateRows();
     }
@@ -223,6 +228,15 @@ class _TimelineContentState extends State<TimelineContent> {
     }
 
     return (cards: cards, contentWidth: contentWidth);
+  }
+
+  /// A fingerprint of the events that changes whenever any field affecting the
+  /// layout or card content changes, so edits (same id, new values) are caught.
+  String _eventsSignature(List<EventPost> events) {
+    return events
+        .map((e) =>
+            '${e.id}:${e.startDuration.millisecondsSinceEpoch}:${e.endDuration.millisecondsSinceEpoch}:${e.timestamp?.millisecondsSinceEpoch ?? ''}:${e.title}:${e.description}:${e.categoryId}')
+        .join('|');
   }
 
   void calculateRows() {
