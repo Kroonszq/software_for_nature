@@ -33,31 +33,47 @@ class _TimelineViewState extends State<TimelineView> {
 
   bool _overlaySidebarMinimized = false;
 
-  /// Ensures exactly one scroll controller exists per active timeline, adding
-  /// controllers for new timelines and disposing those whose timeline is gone.
+  /// Ensures exactly one scroll controller exists per *active* timeline, adding
+  /// controllers for newly active timelines and disposing those whose column is
+  /// no longer shown (removed or deactivated).
   ///
   /// This is idempotent so it can run on every build. That matters because the
   /// wrapper bloc may already be in its loaded state when this view mounts, so
   /// the BlocConsumer.listener would never fire and the columns would get null
   /// controllers — leaving them without the listener that syncs the other
-  /// columns and the time axis bar. Recreating controllers on every emit (the
-  /// old behaviour) would instead reset the scroll offset and churn the
-  /// offscreen counters, so we only create/dispose what actually changed.
+  /// columns and the time axis bar.
+  ///
+  /// Keying on the active set (rather than every timeline) is what lets a
+  /// re-activated column rejoin its siblings: a deactivated timeline stays in
+  /// state.timelines with active == false, so keeping its old controller would
+  /// re-mount it at the stale offset it had when first created (usually the
+  /// top). Dropping it on deactivation means re-activation creates a fresh
+  /// controller seeded with the current shared offset, so the column lands
+  /// aligned with the others (they all share the same content height).
   void _syncControllers(TimeLinesWrapperLoaded state) {
-    final keys = state.timelines.keys.toSet();
+    final activeKeys = {
+      for (final entry in state.timelines.entries)
+        if (entry.value.active) entry.key,
+    };
 
-    // Drop controllers for timelines that no longer exist.
+    // Drop controllers for timelines that are gone or no longer active. Dispose
+    // after this frame so the column element can detach from the controller
+    // during its own unmount first.
     final stale = _timelineScrollControllers.keys
-        .where((k) => !keys.contains(k))
+        .where((k) => !activeKeys.contains(k))
         .toList();
     for (final k in stale) {
-      _timelineScrollControllers.remove(k)?.dispose();
+      final controller = _timelineScrollControllers.remove(k);
+      if (controller != null) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => controller.dispose());
+      }
     }
 
-    // Create controllers for newly added timelines, seeded with the shared
-    // offset so a re-activated column mounts aligned with the others (all
-    // columns share the same content height) instead of snapping to the top.
-    for (final key in keys) {
+    // Create controllers for newly active timelines, seeded with the shared
+    // offset so a re-activated column mounts aligned with the others instead of
+    // snapping to the top.
+    for (final key in activeKeys) {
       if (_timelineScrollControllers.containsKey(key)) continue;
       _timelineScrollControllers[key] =
           ScrollController(initialScrollOffset: _scrollOffset.value)
@@ -142,7 +158,7 @@ class _TimelineViewState extends State<TimelineView> {
   Widget _buildLoaded(BuildContext context, TimeLinesWrapperLoaded state) {
     final earliest = state.earliest ?? DateTime.now();
     final latest = state.latest ?? earliest;
-    final minHeight = _calculateMinHeight(state.timelines.entries.toList(), earliest);
+    final minHeight = _calculateMinHeight(state.timelines.entries.toList(), earliest, latest);
     final layout = TimelineViewLayout.resolve(context, overlayRequested: widget.overlaySidebar);
 
     final content = _buildContent(
@@ -378,9 +394,13 @@ class _TimelineViewState extends State<TimelineView> {
     });
   }
 
-  // Calculate the minheigt for the view so each column has the same height
-  double _calculateMinHeight(List<MapEntry<int, Timeline>> activeTimelines, DateTime earliest) {
-    double maxHeight = 0.0;
+  // Calculate the minheigt for the view so each column has the same height.
+  // Seed it with the full axis span (earliest..latest) so the columns are at
+  // least as tall as the time axis — important when a date filter widens the
+  // axis beyond where events actually fall, keeping both in scroll sync.
+  double _calculateMinHeight(List<MapEntry<int, Timeline>> activeTimelines, DateTime earliest, DateTime latest) {
+    double maxHeight =
+        latest.difference(earliest).inMinutes * TimelineConstants.pixelsPerMinute;
 
     for (final entry in activeTimelines) {
       final widget = entry.value.timelineWidget;

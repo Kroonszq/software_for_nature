@@ -9,7 +9,12 @@ import 'package:software_for_nature/data/models/user.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
+import 'package:software_for_nature/presentation/widgets/event/drawer/event_comments.dart';
+import 'package:software_for_nature/presentation/widgets/event/drawer/event_content.dart';
 import 'package:software_for_nature/presentation/widgets/event/event_edit_drawer.dart';
+
+/// Which section of the panel is currently visible.
+enum _PanelTab { content, comments }
 
 /// A single panel shown in the drawer, displaying the full details of an event
 class EventPanel extends StatefulWidget {
@@ -22,6 +27,7 @@ class EventPanel extends StatefulWidget {
 }
 
 class _EventPanelState extends State<EventPanel> {
+  _PanelTab _tab = _PanelTab.content;
   User? _currentUser;
 
   @override
@@ -80,7 +86,38 @@ class _EventPanelState extends State<EventPanel> {
               '${event.coordinates!.lat.toStringAsFixed(4)}, ${event.coordinates!.lng.toStringAsFixed(4)}',
             ),
 
-          const Spacer(),
+          const SizedBox(height: 12),
+
+          // Tabs to switch between the event's content (description,
+          // attachments, charts) and its comments.
+          SegmentedButton<_PanelTab>(
+            segments: const [
+              ButtonSegment(
+                value: _PanelTab.content,
+                label: Text('Content'),
+                icon: Icon(Icons.article_outlined),
+              ),
+              ButtonSegment(
+                value: _PanelTab.comments,
+                label: Text('Comments'),
+                icon: Icon(Icons.mode_comment_outlined),
+              ),
+            ],
+            selected: {_tab},
+            onSelectionChanged: (selection) {
+              setState(() => _tab = selection.first);
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          Expanded(
+            child: _tab == _PanelTab.content
+                ? EventContent(event: event)
+                : EventComments(eventId: event.id),
+          ),
+
+          const SizedBox(height: 12),
 
           Row(
             children: [
@@ -190,33 +227,22 @@ class _EventPanelState extends State<EventPanel> {
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Timing', style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${TimeUtils.formatDateTime(event.startDuration)} – ${TimeUtils.formatDateTime(event.endDuration)}',
-                      style: const TextStyle(color: Colors.black87),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                TimeUtils.formatDuration(eventDuration),
-                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.blue.shade700),
-              ),
-            ],
+          const Text('Timing', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          _buildMetadataRow('Start', TimeUtils.formatDateTime(event.startDuration)),
+          _buildMetadataRow('End', TimeUtils.formatDateTime(event.endDuration)),
+          _buildMetadataRow('Duration', TimeUtils.formatDuration(eventDuration)),
+          _buildMetadataRow(
+            'Timestamp',
+            event.timestamp != null
+                ? TimeUtils.formatDateTime(event.timestamp!)
+                : '—',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _EventTimelineBar(event: event, timeRange: timeRange),
         ],
       ),

@@ -56,6 +56,9 @@ class Filter extends StatelessWidget {
           // Keep the search field compact; the chip strip takes the remaining
           // space but stays capped at 460 and scrolls horizontally inside it.
           final double searchWidth = constraints.maxWidth < 600 ? 140 : 200;
+          // On mobile there isn't room for the active filter chips, so drop
+          // them and just keep the controls spaced out.
+          final bool isCompact = constraints.maxWidth < 700;
           return Row(
             children: [
               OutlinedButton.icon(
@@ -64,12 +67,15 @@ class Filter extends StatelessWidget {
                 onPressed: () => _openFilters(context),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: const ActiveFilterChips(),
+              if (isCompact)
+                const Spacer()
+              else
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: const ActiveFilterChips(),
+                  ),
                 ),
-              ),
               const SizedBox(width: 8),
               SizedBox(width: searchWidth, child: const SearchFilter()),
               const SizedBox(width: 8),

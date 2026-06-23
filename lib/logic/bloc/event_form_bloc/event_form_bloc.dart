@@ -36,6 +36,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
             selectedTags: state.selectedTags.where((t) => t != e.tag).toList(),
           ),
         ));
+    on<TagCreated>(_onTagCreated);
     on<TitleChanged>((e, emit) => emit(state.copyWith(title: e.title)));
     on<DescriptionChanged>((e, emit) => emit(state.copyWith(description: e.description)));
     on<CategorySelected>((e, emit) => emit(state.copyWith(categoryId: e.categoryId)));
@@ -77,6 +78,39 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
   Future<void> _onCategoriesRequested(CategoriesRequested event, Emitter<EventFormBlocState> emit) async {
     final categories = await _categoryService.getAllCategories();
     emit(state.copyWith(categories: categories));
+  }
+
+  /// Adds a freshly created tag to the selection. A tag is considered to
+  /// already exist when another tag shares its label (case-insensitive); in
+  /// that case the existing tag is reused so we never store duplicates.
+  void _onTagCreated(TagCreated event, Emitter<EventFormBlocState> emit) {
+    final label = event.tag.label.trim();
+    if (label.isEmpty) {
+      return;
+    }
+
+    bool sameLabel(Tag tag) => tag.label.toLowerCase() == label.toLowerCase();
+
+    // Already selected: nothing to do.
+    if (state.selectedTags.any(sameLabel)) {
+      return;
+    }
+
+    // Reuse an existing available tag with the same label, otherwise use the
+    // new one and remember it as available too.
+    final existing = state.availableTags.where(sameLabel).toList();
+    final tag = existing.isNotEmpty
+        ? existing.first
+        : Tag(label: label, color: event.tag.color);
+
+    final availableTags = existing.isNotEmpty
+        ? state.availableTags
+        : [...state.availableTags, tag];
+
+    emit(state.copyWith(
+      availableTags: availableTags,
+      selectedTags: [...state.selectedTags, tag],
+    ));
   }
 
   Future<void> _onTagsRequested(TagsRequested event, Emitter<EventFormBlocState> emit) async {

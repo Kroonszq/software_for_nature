@@ -58,19 +58,19 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
   Future<void> _onFilterChanged(MapFilterChanged event, Emitter<MapState> emit ) async {
 
-    if(event.categoryIds != null || event.categoryIds!.isNotEmpty){
+    if (event.categoryIds != null && event.categoryIds!.isNotEmpty) {
       _categoryIds = event.categoryIds;
-    } else{
+    } else {
       _categoryIds = null;
     }
 
-    if(event.tagLabels != null || event.tagLabels!.isNotEmpty){
+    if (event.tagLabels != null && event.tagLabels!.isNotEmpty) {
       _tagLabels = event.tagLabels;
-    } else{
+    } else {
       _tagLabels = null;
     }
 
-    if(event.search != null || event.search!.trim().isNotEmpty){
+    if (event.search != null && event.search!.trim().isNotEmpty) {
       _search = event.search;
     } else {
       _search = null;

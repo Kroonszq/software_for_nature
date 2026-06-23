@@ -17,6 +17,13 @@ final class TagDeselected extends EventFormBlocEvent {
   TagDeselected(this.tag);
 }
 
+/// Creates a brand new tag (label + colour) and selects it. If a tag with the
+/// same label already exists it is reused instead of creating a duplicate.
+final class TagCreated extends EventFormBlocEvent {
+  final Tag tag;
+  TagCreated(this.tag);
+}
+
 final class TitleChanged extends EventFormBlocEvent {
   final String title;
   TitleChanged(this.title);

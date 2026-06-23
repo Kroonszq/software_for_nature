@@ -88,6 +88,8 @@ class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperS
         timelineScrollers: timelineScrollers,
         axisScrollController: ScrollController(),
         timelineOrder: grouppedEvents.keys.toList(),
+        filterStart: _startDate,
+        filterEnd: _endDate,
       ),
     );
   }

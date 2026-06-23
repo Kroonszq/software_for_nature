@@ -3,8 +3,45 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/logic/bloc/event_form_bloc/event_form_bloc.dart';
 
-class EventTagsField extends StatelessWidget {
+class EventTagsField extends StatefulWidget {
   const EventTagsField({super.key});
+
+  @override
+  State<EventTagsField> createState() => _EventTagsFieldState();
+}
+
+class _EventTagsFieldState extends State<EventTagsField> {
+  /// Colour choices for a brand new tag, matching the palette used elsewhere.
+  static const List<Color> _palette = [
+    Color(0xFFF44336),
+    Color(0xFFE91E63),
+    Color(0xFF9C27B0),
+    Color(0xFF3F51B5),
+    Color(0xFF2196F3),
+    Color(0xFF009688),
+    Color(0xFF4CAF50),
+    Color(0xFFFF9800),
+    Color(0xFF795548),
+    Color(0xFF607D8B),
+  ];
+
+  final TextEditingController _labelController = TextEditingController();
+  Color _color = _palette.first;
+
+  @override
+  void dispose() {
+    _labelController.dispose();
+    super.dispose();
+  }
+
+  void _createTag() {
+    final label = _labelController.text.trim();
+    if (label.isEmpty) return;
+
+    context.read<EventFormBloc>().add(TagCreated(Tag(label: label, color: _color)));
+    _labelController.clear();
+    setState(() {}); // refresh the add button's enabled state
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +100,76 @@ class EventTagsField extends StatelessWidget {
                 }).toList(),
               ),
             ],
+            const SizedBox(height: 16),
+            _buildCreateTag(),
           ],
         );
       },
+    );
+  }
+
+  /// Lets the user type a new tag label, pick a colour and add it. The bloc
+  /// reuses an existing tag if the label already exists.
+  Widget _buildCreateTag() {
+    final canAdd = _labelController.text.trim().isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Create a new tag',
+          style: TextStyle(color: Colors.black54, fontSize: 12),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _labelController,
+                decoration: const InputDecoration(
+                  hintText: 'New tag label',
+                  isDense: true,
+                  border: OutlineInputBorder(),
+                ),
+                textInputAction: TextInputAction.done,
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) => _createTag(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              icon: const Icon(Icons.add),
+              tooltip: 'Add tag',
+              onPressed: canAdd ? _createTag : null,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final color in _palette)
+              GestureDetector(
+                onTap: () => setState(() => _color = color),
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _color.toARGB32() == color.toARGB32()
+                          ? Colors.black
+                          : Colors.transparent,
+                      width: 3,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

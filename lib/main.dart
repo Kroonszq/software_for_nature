@@ -102,6 +102,7 @@ class MyApp extends StatelessWidget {
             eventPostRepository: context.read<EventPostRepositoryInterface>(),
             categoryRepository: context.read<CategoryRepositoryInterface>(),
             userRepository: context.read<UserRepositoryInterface>(),
+            groupRepository: context.read<GroupRepositoryInterface>(),
           ),
         ),
         RepositoryProvider<GroupServiceInterface>(
