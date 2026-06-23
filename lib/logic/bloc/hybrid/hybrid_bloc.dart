@@ -1,20 +1,19 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/geobounds.dart';
 import 'package:software_for_nature/data/models/event_query.dart';
 import 'package:software_for_nature/data/models/time_window.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
+import 'package:software_for_nature/logic/bloc/hybrid/hybrid_state.dart';
 
 part 'hybrid_event.dart';
-part 'hybrid_state.dart';
 
 class HybridBloc extends Bloc<HybridEvent, HybridState> {
   final EventPostRepository repository;
 
-  HybridBloc(this.repository) : super(const HybridState(events: [])) {
+
+  HybridBloc(this.repository) : super(HybridState(events: const [], timeWindow: TimeWindow(start: DateTime.now(), end: DateTime.now()))) {
     on<HybridBoundsChanged>(_onBoundsChanged);
-    on<HybridTimeRangeChanged>(_onTimeRangeChanged);
     on<HybridFilterChanged>(_onFilterChanged);
     on<HybridVisibleGroupsChanged>(_onVisibleGroupsChanged);
     on<HybridEventSelected>(_onSelected);
@@ -25,8 +24,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   }
 
   GeoBounds? _bounds;
-  DateTimeRange? _timeRange;
-
+  TimeWindow? _currentWindow;
 
   Set<String>? _groupIds;
   Set<String>? _tagLabels;
@@ -40,6 +38,30 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     HybridReloadRequested event,
     Emitter<HybridState> emit,
   ) async {
+    emit(state.copyWith(loading: true));
+
+    final events = await repository.queryEvents(const EventQuery());
+
+    if (events.isEmpty) {
+      _currentWindow = TimeWindow(
+        start: DateTime.now(),
+        end: DateTime.now(),
+      );
+    } else {
+      final start = events
+          .map((e) => e.startDuration)
+          .reduce((a, b) => a.isBefore(b) ? a : b);
+
+      final end = events
+          .where((e) => e.endDuration != null)
+          .map((e) => e.endDuration!)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+
+      _currentWindow = TimeWindow(start: start, end: end);
+    }
+
+    emit(state.copyWith(timeWindow: _currentWindow));
+
     await _fetch(emit);
   }
 
@@ -51,13 +73,6 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     await _fetch(emit);
   }
 
-  Future<void> _onTimeRangeChanged(
-    HybridTimeRangeChanged event,
-    Emitter<HybridState> emit,
-  ) async {
-    _timeRange = event.range;
-    await _fetch(emit);
-  }
 
   Future<void> _onFilterChanged(
     HybridFilterChanged event,
@@ -92,11 +107,8 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   Future<void> _fetch(Emitter<HybridState> emit) async {
     emit(state.copyWith(loading: true));
 
-    // The timeline's visible groups (when known) are the authoritative scope
-    final Set<String>? groupScope =
-        _visibleGroupIds ?? _groupIds;
+    final Set<String>? groupScope = _visibleGroupIds ?? _groupIds;
 
-    // An explicit empty scope means nothing is visible: show no markers
     if (groupScope != null && groupScope.isEmpty) {
       emit(state.copyWith(events: const [], loading: false));
       return;
@@ -105,7 +117,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     final events = await repository.queryEvents(
       EventQuery(
         bounds: _bounds,
-        timeRange: _timeRange,
+        timeWindow: _currentWindow,
         groupIds: groupScope,
         startDate: _startDate,
         endDate: _endDate,
@@ -114,19 +126,18 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       ),
     );
 
-    emit(state.copyWith(events: events, loading: false));
+    emit(state.copyWith(
+      events: events,
+      timeWindow: _currentWindow,
+      loading: false,
+    ));
   }
 
-  void _onTimeWindowChanged(
+  Future<void> _onTimeWindowChanged(
     HybridTimeWindowChanged event,
     Emitter<HybridState> emit,
-  ) {
-    final current = state;
-
-    final filtered = current.events.where((e) {
-      return event.window.contains(e.startDuration);
-    }).toList();
-
-    emit(current.copyWith(timeWindow: event.window, events: filtered));
+  ) async {
+    _currentWindow = event.window;
+    await _fetch(emit);
   }
 }

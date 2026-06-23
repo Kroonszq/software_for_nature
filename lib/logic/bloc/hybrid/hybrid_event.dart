@@ -8,12 +8,6 @@ class HybridBoundsChanged extends HybridEvent {
   HybridBoundsChanged(this.bounds);
 }
 
-/// Timeline range changed 
-class HybridTimeRangeChanged extends HybridEvent {
-  final DateTimeRange range;
-  HybridTimeRangeChanged(this.range);
-}
-
 /// The category / date / search filter changed
 class HybridFilterChanged extends HybridEvent {
   final Set<String>? groupIds;

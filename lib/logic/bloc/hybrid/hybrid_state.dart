@@ -1,41 +1,36 @@
-part of 'hybrid_bloc.dart';
+import 'package:software_for_nature/data/models/event_post.dart';
+import 'package:software_for_nature/data/models/geobounds.dart';
+import 'package:software_for_nature/data/models/time_window.dart';
+
 
 class HybridState {
   final List<EventPost> events;
-
   final GeoBounds? bounds;
-  final DateTimeRange? timeRange;
-
+  final TimeWindow timeWindow;
   final EventPost? selectedEvent;
-
   final bool loading;
-
-  final TimeWindow? timeWindow;
 
   const HybridState({
     required this.events,
     this.bounds,
-    this.timeRange,
+    required this.timeWindow,
     this.selectedEvent,
     this.loading = false,
-    this.timeWindow
   });
 
   HybridState copyWith({
     List<EventPost>? events,
     GeoBounds? bounds,
-    DateTimeRange? timeRange,
+    TimeWindow? timeWindow,
     EventPost? selectedEvent,
     bool? loading,
-    TimeWindow? timeWindow,
   }) {
     return HybridState(
       events: events ?? this.events,
       bounds: bounds ?? this.bounds,
-      timeRange: timeRange ?? this.timeRange,
+      timeWindow: timeWindow ?? this.timeWindow,
       selectedEvent: selectedEvent ?? this.selectedEvent,
       loading: loading ?? this.loading,
-      timeWindow: timeWindow ?? this.timeWindow,
     );
   }
 }

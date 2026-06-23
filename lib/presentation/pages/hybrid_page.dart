@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
+import 'package:software_for_nature/data/models/time_window.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 
 import 'package:software_for_nature/data/models/group.dart';
@@ -13,13 +15,16 @@ import 'package:software_for_nature/data/repositories/interfaces/user_repository
 
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
+import 'package:software_for_nature/logic/bloc/hybrid/hybrid_state.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 
 import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/map/hybrid_map_marker.dart';
+import 'package:software_for_nature/presentation/widgets/map/cluster_marker.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
+import 'package:software_for_nature/presentation/widgets/timeline_navigator.dart';
 
 class HybridPage extends StatefulWidget {
   const HybridPage({super.key});
@@ -33,11 +38,9 @@ class _HybridPageState extends State<HybridPage> {
 
   void _onMapMove(MapCamera camera) {
     final bounds = mapController.camera.visibleBounds.toDomain();
-
     context.read<HybridBloc>().add(HybridBoundsChanged(bounds));
   }
 
-  /// Zoom in/out
   void _zoom(double delta) {
     final camera = mapController.camera;
     final newZoom = (camera.zoom + delta).clamp(1.0, 18.0);
@@ -45,10 +48,8 @@ class _HybridPageState extends State<HybridPage> {
     mapController.move(camera.center, newZoom);
 
     context.read<HybridBloc>().add(
-          HybridBoundsChanged(
-            mapController.camera.visibleBounds.toDomain(),
-          ),
-        );
+      HybridBoundsChanged(mapController.camera.visibleBounds.toDomain()),
+    );
   }
 
   @override
@@ -70,8 +71,6 @@ class _HybridPageState extends State<HybridPage> {
           )..add(FilterStarted()),
         ),
       ],
-      // Forward filter changes to BOTH the timeline wrapper and the map's
-      // HybridBloc so the two stay in sync when something is filtered.
       child: BlocListener<FilterBloc, FilterState>(
         listener: (context, state) {
           if (state is FilterLoaded) {
@@ -98,6 +97,17 @@ class _HybridPageState extends State<HybridPage> {
                 search: state.searchQuery,
               ),
             );
+
+            if (state.startDate != null && state.endDate != null) {
+              context.read<HybridBloc>().add(
+                HybridTimeWindowChanged(
+                  TimeWindow(
+                    start: state.startDate!,
+                    end: state.endDate!,
+                  ),
+                ),
+              );
+            }
           }
         },
         child: Layout(
@@ -107,10 +117,8 @@ class _HybridPageState extends State<HybridPage> {
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final bool isCompact = constraints.maxWidth < 700;
+                    final isCompact = constraints.maxWidth < 700;
 
-                    // On mobile stack the map above the timeline; on wider
-                    // screens show them side by side.
                     if (isCompact) {
                       return Column(
                         children: [
@@ -142,16 +150,14 @@ class _HybridPageState extends State<HybridPage> {
       listener: (context, state) {
         if (state is! TimeLinesWrapperLoaded) return;
 
-        // Scope the map to the groups currently shown by the timeline. Active
-        // timelines already reflect the selected categories, so minimizing a
-        // timeline (or deselecting its category) also removes its markers.
         final visibleGroupIds = state.timelines.values
             .where((t) => t.active)
             .expand((t) => t.events.map((e) => e.groupId))
             .toSet();
-        context
-            .read<HybridBloc>()
-            .add(HybridVisibleGroupsChanged(visibleGroupIds));
+
+        context.read<HybridBloc>().add(
+          HybridVisibleGroupsChanged(visibleGroupIds),
+        );
 
         final selected = state.allEvents.firstOrNull;
         if (selected != null) {
@@ -166,12 +172,30 @@ class _HybridPageState extends State<HybridPage> {
   Widget _buildMap(BuildContext context) {
     return BlocBuilder<HybridBloc, HybridState>(
       builder: (context, state) {
+        final markers = state.events
+            .where((e) => e.coordinates != null)
+            .map((event) {
+              final isSelected = state.selectedEvent == event;
+
+              return Marker(
+                point: event.coordinates!.latLng,
+                width: HybridMapMarker.width,
+                height: HybridMapMarker.height,
+                alignment: Alignment.topCenter,
+                child: HybridMapMarker(
+                  event: event,
+                  isSelected: isSelected,
+                ),
+              );
+            })
+            .toList();
+
         return Stack(
           children: [
             FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                initialCenter: LatLng(52.0907, 5.1214),
+                initialCenter: const LatLng(52.0907, 5.1214),
                 initialZoom: 10,
                 onPositionChanged: (position, hasGesture) {
                   if (hasGesture) _onMapMove(position);
@@ -183,35 +207,31 @@ class _HybridPageState extends State<HybridPage> {
                       'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.myapp',
                 ),
-
-                MarkerLayer(
-                  markers: state.events
-                      .where((e) => e.coordinates != null)
-                      .map((event) {
-                        final isSelected = state.selectedEvent == event;
-
-                        return Marker(
-                          point: event.coordinates!.latLng,
-                          width: HybridMapMarker.width,
-                          height: HybridMapMarker.height,
-                          // Anchor the geographic point at the pin tip so the
-                          // details box floats above it.
-                          alignment: Alignment.topCenter,
-                          child: HybridMapMarker(
-                            event: event,
-                            isSelected: isSelected,
-                          ),
-                        );
-                      })
-                      .toList(),
+                MarkerClusterLayerWidget(
+                  options: MarkerClusterLayerOptions(
+                    markers: markers,
+                    maxClusterRadius: 70,
+                    size: const Size(60, 60),
+                    spiderfyCluster: true,
+                    zoomToBoundsOnClick: true,
+                    builder: (context, clusterMarkers) {
+                      return ClusterMarker(
+                        count: clusterMarkers.length,
+                        events: clusterMarkers
+                            .map((m) => (m.child as HybridMapMarker).event)
+                            .toList(),
+                        timeWindow: state.timeWindow,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
 
-            // Zoom controls in the bottom-right corner.
+            // ================= ZOOM BUTTONS (moved up) =================
             Positioned(
               right: 12,
-              bottom: 12,
+              bottom: 100, // 👈 key fix
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -229,6 +249,59 @@ class _HybridPageState extends State<HybridPage> {
                 ],
               ),
             ),
+
+            // ================= TIMELINE (fixed overlay zone) =================
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 12,
+              child: SafeArea(
+                top: false,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.black26,
+                      )
+                    ],
+                  ),
+                  child: BlocBuilder<HybridBloc, HybridState>(
+                    builder: (context, state) {
+                      final window = state.timeWindow;
+                      if (window == null) return const SizedBox();
+
+                      return TimelineNavigator(
+                        minTime: state.events.isEmpty
+                            ? DateTime.now()
+                            : state.events
+                                .map((e) => e.startDuration)
+                                .reduce((a, b) =>
+                                    a.isBefore(b) ? a : b),
+
+                        maxTime: state.events.isEmpty
+                            ? DateTime.now()
+                            : state.events
+                                .where((e) => e.endDuration != null)
+                                .map((e) => e.endDuration!)
+                                .reduce((a, b) =>
+                                    a.isAfter(b) ? a : b),
+
+                        window: window,
+                        onChanged: (newWindow) {
+                          context
+                              .read<HybridBloc>()
+                              .add(HybridTimeWindowChanged(newWindow));
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
           ],
         );
       },
@@ -236,7 +309,7 @@ class _HybridPageState extends State<HybridPage> {
   }
 }
 
-/// A small circular map control button used for the zoom in/out actions.
+// ================= ZOOM BUTTON =================
 class _ZoomButton extends StatelessWidget {
   final IconData icon;
   final String heroTag;

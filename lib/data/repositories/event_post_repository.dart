@@ -59,9 +59,9 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
       }
 
       // Duration overlap with the requested range
-      if (query.timeRange != null &&
-          !(event.endDuration.isAfter(query.timeRange!.start) &&
-              event.startDuration.isBefore(query.timeRange!.end))) {
+      if (query.timeWindow != null &&
+          !(event.endDuration.isAfter(query.timeWindow!.start) &&
+              event.startDuration.isBefore(query.timeWindow!.end))) {
         return false;
       }
       if (query.tagLabels != null && query.tagLabels!.isNotEmpty) {

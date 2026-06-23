@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/data/models/geobounds.dart';
+import 'package:software_for_nature/data/models/time_window.dart';
 
 
 class EventQuery {
@@ -8,7 +9,7 @@ class EventQuery {
   final DateTime? endDate;
   final String? search;
   final GeoBounds? bounds;
-  final DateTimeRange? timeRange;
+  final TimeWindow? timeWindow;
 
 
   final Set<String>? tagLabels;
@@ -19,7 +20,7 @@ class EventQuery {
     this.endDate,
     this.search,
     this.bounds,
-    this.timeRange,
+    this.timeWindow,
     this.tagLabels,
   });
 }
