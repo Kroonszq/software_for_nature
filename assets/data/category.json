@@ -1,0 +1,8 @@
+[
+  { "id": "c1", "name": "Cleanups", "color": "#FFF44336" },
+  { "id": "c2", "name": "Restoration", "color": "#FF4CAF50" },
+  { "id": "c3", "name": "Monitoring", "color": "#FF2196F3" },
+  { "id": "c4", "name": "Education", "color": "#FFFF9800" },
+  { "id": "c5", "name": "Seismology", "color": "#FF795548" },
+  { "id": "c6", "name": "Volcanology", "color": "#FFFF5722" }
+]

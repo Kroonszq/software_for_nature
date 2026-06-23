@@ -1,3 +1,12 @@
 [
-  { "id": "1", "name": "Test User" }
+  { "id": "1", "name": "Test User", "groupIds": ["g1", "g2", "g3", "g4", "d1", "d2"] },
+  { "id": "2", "name": "Anna Visser", "groupIds": ["g1", "d1"] },
+  { "id": "3", "name": "Bram de Wit", "groupIds": ["g2", "g3"] },
+  { "id": "4", "name": "Carla Jansen", "groupIds": ["g3", "g4", "d2"] },
+  { "id": "5", "name": "David Smit", "groupIds": ["g1", "g4"] },
+  { "id": "6", "name": "Eva Bakker", "groupIds": ["d1", "d2"] },
+  { "id": "7", "name": "Femke Mulder", "groupIds": ["g2"] },
+  { "id": "8", "name": "Gijs Kuiper", "groupIds": ["g3", "d1"] },
+  { "id": "9", "name": "Hanna Vos", "groupIds": [] },
+  { "id": "10", "name": "Ivo Peeters", "groupIds": ["g4", "d2"] }
 ]

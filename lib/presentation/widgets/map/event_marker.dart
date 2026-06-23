@@ -13,10 +13,12 @@ class EventMarker extends Marker {
     required Widget child,
     double width = 40,
     double height = 52,
+    Alignment? alignment,
   }) : super(
           point: point,
           width: width,
           height: height,
+          alignment: alignment,
           child: child,
         );
 }

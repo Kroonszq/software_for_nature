@@ -5,9 +5,6 @@ import 'package:software_for_nature/data/repositories/interfaces/base_repository
 
 abstract interface class EventPostRepositoryInterface implements BaseRepositoryInterface<EventPost>  {
 
-  /// Return all events matching the group [id]
-  Future<List<EventPost>?> getAllByGroupId(String id);
-
    /// Returns the events matching every criterion given in [query] argument
   Future<List<EventPost>> queryEvents(EventQuery query);
 
@@ -16,4 +13,6 @@ abstract interface class EventPostRepositoryInterface implements BaseRepositoryI
 
   /// The event that ends last [EventPost.endDuration]
   Future<EventPost> getLatestEvent();
+
+  Future<List<EventPost>?> getAllByCategoryId(String categoryId);
 }

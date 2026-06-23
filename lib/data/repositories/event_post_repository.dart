@@ -7,16 +7,7 @@ import '../models/event_post.dart';
 class EventPostRepository extends BaseRepository<EventPost> implements EventPostRepositoryInterface {
 
   EventPostRepository({required super.jsonClient});
-  
-  @override
-  Future<List<EventPost>?> getAllByGroupId(String id) async {
-    var allEvents = await getAll();
 
-    var filtered = allEvents.where((event) => event.groupId == id);
-    return filtered.toList();
-  }
-
- 
   @override
   Future<List<EventPost>> queryEvents(EventQuery query) async {
     final allEvents = await getAll();
@@ -27,10 +18,10 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
             : query.search!.toLowerCase();
 
     return allEvents.where((event) {
-      // Group filter
-      if (query.groupIds != null &&
-          query.groupIds!.isNotEmpty &&
-          !query.groupIds!.contains(event.groupId)) {
+      // Category filter
+      if (query.categoryIds != null &&
+          query.categoryIds!.isNotEmpty &&
+          !query.categoryIds!.contains(event.categoryId)) {
         return false;
       }
 
@@ -95,6 +86,14 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
     return allEvents.reduce(
       (a, b) => a.endDuration.isAfter(b.endDuration) ? a : b,
     );
+  }
+  
+  @override
+  Future<List<EventPost>?> getAllByCategoryId(String categoryId) async {
+    var allEvents = await getAll();
+
+    var filtered = allEvents.where((event) => event.categoryId == categoryId);
+    return filtered.toList();
   }
 }
 

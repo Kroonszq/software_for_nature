@@ -6,17 +6,26 @@ import 'package:software_for_nature/data/data_sources/attachment_storage.dart';
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
 import 'package:software_for_nature/core/constants/seed_config.dart';
 import 'package:software_for_nature/data/data_sources/json_client.dart';
+import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/comment.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/group.dart';
 import 'package:software_for_nature/data/models/user.dart';
+import 'package:software_for_nature/data/repositories/category_repository.dart';
 import 'package:software_for_nature/data/repositories/comment_repository.dart';
 import 'package:software_for_nature/data/repositories/event_post_repository.dart';
 import 'package:software_for_nature/data/repositories/group_repository.dart';
 import 'package:software_for_nature/data/repositories/user_repository.dart';
+import 'package:software_for_nature/data/repositories/interfaces/category_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/event_post_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/group_repository_interface.dart';
 import 'package:software_for_nature/data/repositories/interfaces/user_repository_interface.dart';
+import 'package:software_for_nature/logic/services/category_service.dart';
+import 'package:software_for_nature/logic/services/group_service.dart';
+import 'package:software_for_nature/logic/services/user_service.dart';
+import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/group_service_interface.dart';
+import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 import 'package:software_for_nature/logic/bloc/event_selection/event_selection_bloc.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
@@ -49,6 +58,16 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        RepositoryProvider<CategoryRepositoryInterface>(
+          create: (_) => CategoryRepository(
+            jsonClient: JsonClient<Category>(
+              assetPath: 'assets/data/category.json',
+              fromJson: Category.fromJson,
+              logger: Logger(printer: PrettyPrinter()),
+              seedVersion: kSeedDataVersion,
+            ),
+          ),
+        ),
         RepositoryProvider<EventPostRepository>(
           create: (context) => EventPostRepository(
             jsonClient: JsonClient<EventPost>(
@@ -72,6 +91,30 @@ class MyApp extends StatelessWidget {
               logger: Logger(printer: PrettyPrinter()),
               seedVersion: kSeedDataVersion,
             ),
+          ),
+        ),
+        // Declared after UserRepositoryInterface so it can read it; providers
+        // can only read siblings declared above them.
+        RepositoryProvider<CategoryServiceInterface>(
+          create: (context) => CategoryService(
+            eventPostRepository: context.read<EventPostRepositoryInterface>(),
+            categoryRepository: context.read<CategoryRepositoryInterface>(),
+            userRepository: context.read<UserRepositoryInterface>(),
+          ),
+        ),
+        RepositoryProvider<GroupServiceInterface>(
+          create: (context) => GroupService(
+            logger: Logger(printer: PrettyPrinter()),
+            groupRepository: context.read<GroupRepositoryInterface>(),
+            userRepository: context.read<UserRepositoryInterface>(),
+            categoryRepository: context.read<CategoryRepositoryInterface>(),
+          ),
+        ),
+        RepositoryProvider<UserServiceInterface>(
+          create: (context) => UserService(
+            userRepository: context.read<UserRepositoryInterface>(),
+            groupRepository: context.read<GroupRepositoryInterface>(),
+            categoryRepository: context.read<CategoryRepositoryInterface>(),
           ),
         ),
         RepositoryProvider<AttachmentStorageInterface>(

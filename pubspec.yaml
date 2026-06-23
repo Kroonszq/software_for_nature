@@ -74,6 +74,7 @@ flutter:
   assets:
     - assets/data/event.json
     - assets/data/group.json
+    - assets/data/category.json
     - assets/data/comment.json
     - assets/data/user.json
 
