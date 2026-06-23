@@ -51,6 +51,11 @@ class _HybridMapMarkerState extends State<HybridMapMarker> {
             ),
           ),
         ),
+        BlocBuilder<HybridBloc, HybridState>(
+          builder: (context, state) {
+            return _DurationBar(event: event, timeRange: state.timeRange);
+          },
+        ),
         // Only the pin reacts to hover/tap, so the box appears only when the
         // pointer is directly over the marker.
         MouseRegion(
@@ -106,6 +111,48 @@ class _HybridMapMarkerState extends State<HybridMapMarker> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DurationBar extends StatelessWidget {
+  final EventPost event;
+  final DateTimeRange? timeRange;
+
+  const _DurationBar({
+    required this.event,
+    required this.timeRange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final end = event.endDuration;
+    if (end == null || timeRange == null) return const SizedBox(height: 4);
+
+    final eventMinutes = end.difference(event.startDuration).inMinutes;
+    final windowMinutes = timeRange!.duration.inMinutes;
+    final fraction = (windowMinutes > 0)
+        ? (eventMinutes / windowMinutes).clamp(0.0, 1.0)
+        : 0.0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      width: 36,
+      height: 4,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade400,
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: FractionallySizedBox(
+        widthFactor: fraction,
+        alignment: Alignment.centerLeft,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ),
     );
   }
 }

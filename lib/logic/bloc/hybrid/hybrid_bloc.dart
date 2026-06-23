@@ -29,6 +29,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
 
   GeoBounds? _bounds;
   DateTimeRange? _timeRange;
+  TimeWindow? _timeWindow;
 
 
   Set<String>? _categoryIds;
@@ -77,6 +78,15 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     _search = (event.search == null || event.search!.trim().isEmpty)
         ? null
         : event.search;
+    // If an explicit start/end were provided via the filter, reflect them
+    // in the bloc's public `timeRange` state so consumers (e.g. markers)
+    // can render duration UI based on the active date range.
+    if (_startDate != null && _endDate != null) {
+      _timeRange = DateTimeRange(start: _startDate!, end: _endDate!);
+    } else {
+      _timeRange = null;
+    }
+
     await _fetch(emit);
   }
 
@@ -93,7 +103,7 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
   }
 
   Future<void> _fetch(Emitter<HybridState> emit) async {
-    emit(state.copyWith(loading: true));
+    emit(state.copyWith(loading: true, timeRange: _timeRange, timeWindow: _timeWindow));
 
     // The timeline's visible categories (when known) are the authoritative scope
     final Set<String>? categoryScope =
@@ -117,7 +127,24 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
       ),
     );
 
-    emit(state.copyWith(events: events, loading: false));
+    // If no explicit timeRange was provided (e.g. no date filter selected),
+    // set the visible range to fit all returned events
+    if (_timeRange == null && events.isNotEmpty) {
+      final earliest = events.reduce((a, b) =>
+          a.startDuration.isBefore(b.startDuration) ? a : b);
+      final latest = events.reduce(
+          (a, b) => a.endDuration.isAfter(b.endDuration) ? a : b);
+      _timeRange = DateTimeRange(start: earliest.startDuration, end: latest.endDuration);
+    }
+
+    // Ensure there's a TimeWindow (used by cluster markers). Prefer an
+    // explicitly set timeWindow (from timeline interactions), otherwise
+    // construct one from the current _timeRange.
+    if (_timeWindow == null && _timeRange != null) {
+      _timeWindow = TimeWindow(start: _timeRange!.start, end: _timeRange!.end);
+    }
+
+    emit(state.copyWith(events: events, loading: false, timeRange: _timeRange, timeWindow: _timeWindow));
   }
 
   void _onTimeWindowChanged(
@@ -125,6 +152,9 @@ class HybridBloc extends Bloc<HybridEvent, HybridState> {
     Emitter<HybridState> emit,
   ) {
     final current = state;
+
+    // Keep the private copy in sync so future emits include it.
+    _timeWindow = event.window;
 
     final filtered = current.events.where((e) {
       return event.window.contains(e.startDuration);

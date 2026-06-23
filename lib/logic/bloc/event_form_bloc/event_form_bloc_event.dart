@@ -5,7 +5,17 @@ sealed class EventFormBlocEvent {}
 
 final class CategoriesRequested extends EventFormBlocEvent {}
 
-final class TagsRequested extends  EventFormBlocEvent {}
+final class TagsRequested extends EventFormBlocEvent {}
+
+final class TagSelected extends EventFormBlocEvent {
+  final Tag tag;
+  TagSelected(this.tag);
+}
+
+final class TagDeselected extends EventFormBlocEvent {
+  final Tag tag;
+  TagDeselected(this.tag);
+}
 
 final class TitleChanged extends EventFormBlocEvent {
   final String title;

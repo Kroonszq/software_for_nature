@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/logic/bloc/event_form_bloc/event_form_bloc.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_attachments_field.dart';
+import 'package:software_for_nature/presentation/widgets/event/form/event_category_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_date_time_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_description_field.dart';
-import 'package:software_for_nature/presentation/widgets/event/form/event_category_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_submit_button.dart';
+import 'package:software_for_nature/presentation/widgets/event/form/event_tags_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_time_mode_field.dart';
 import 'package:software_for_nature/presentation/widgets/event/form/event_title_field.dart';
 
@@ -32,6 +33,8 @@ class EventForm extends StatelessWidget {
             EventDescriptionField(),
             SizedBox(height: 16),
             EventCategoryField(),
+            SizedBox(height: 16),
+            EventTagsField(),
             SizedBox(height: 16),
             EventTimeModeField(),
             SizedBox(height: 16),
