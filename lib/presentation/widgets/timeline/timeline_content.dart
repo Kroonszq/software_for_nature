@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:software_for_nature/presentation/models/timeline_geometry.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_event_card.dart';
 
 class TimelineContent extends StatefulWidget {
-
   final double minHeight;
   final List<EventPost> listOfEvents;
   final ScrollController? scrollController;
@@ -19,6 +19,10 @@ class TimelineContent extends StatefulWidget {
   /// MOBILE: When false the column's own horizontal scroll is disabled this is for mobile the user has to click the column first
   final bool enableHorizontalScroll;
 
+  /// Whether to overlay the floating "N events above/below" counters. Disabled
+  /// for the small sidebar previews, which should stay uncluttered.
+  final bool showOffscreenIndicators;
+
   const TimelineContent({
     super.key,
     required this.listOfEvents,
@@ -27,6 +31,7 @@ class TimelineContent extends StatefulWidget {
     this.groupColor,
     this.minHeight = 0,
     this.enableHorizontalScroll = true,
+    this.showOffscreenIndicators = true,
   });
 
   @override
@@ -37,6 +42,33 @@ class _TimelineContentState extends State<TimelineContent> {
   Map<int, List<EventPost>> listOfRows = {};
   final ScrollController _horizontalScrollController = ScrollController();
   bool _hasExpandedCard = false;
+
+  /// Live vertical scroll metrics for this column, fed from the scroll view's
+  /// notifications rather than the scroll controller. The hybrid view recreates
+  /// its controllers on every state change, so the controller's attach state is
+  /// unreliable at build time; ScrollMetricsNotification fires on layout and is
+  /// therefore a dependable signal for "how much is off-screen".
+  final ValueNotifier<ScrollMetrics?> _verticalMetrics =
+      ValueNotifier<ScrollMetrics?>(null);
+
+  /// The live vertical [ScrollPosition] for this column, resolved from scroll
+  /// notifications. Tapping an off-screen counter drives this directly, which
+  /// is reliable even when [widget.scrollController] is null or stale (the
+  /// hybrid view recreates its controllers on every state change).
+  ScrollPosition? _verticalPosition;
+
+  /// Records the latest vertical metrics (for the counters) and resolves the
+  /// active scroll position (for tap-to-scroll) from the notification context.
+  void _captureVertical(
+    ScrollMetrics metrics,
+    BuildContext? notificationContext,
+  ) {
+    if (metrics.axis != Axis.vertical) return;
+    _verticalMetrics.value = metrics;
+    if (notificationContext != null) {
+      _verticalPosition = Scrollable.maybeOf(notificationContext)?.position;
+    }
+  }
 
   // The last focus request handled, so a marker hover scrolls this column
   // horizontally to the event only once per request.
@@ -66,12 +98,13 @@ class _TimelineContentState extends State<TimelineContent> {
     }
 
     // MOBILE: Keep the scroll where the user left it when unfocusing a column on mobile
-    if (oldWidget.enableHorizontalScroll != widget.enableHorizontalScroll && _horizontalScrollController.hasClients) {
+    if (oldWidget.enableHorizontalScroll != widget.enableHorizontalScroll &&
+        _horizontalScrollController.hasClients) {
       final double offset = _horizontalScrollController.offset;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_horizontalScrollController.hasClients){
+        if (!mounted || !_horizontalScrollController.hasClients) {
           return;
-        } 
+        }
         final double max = _horizontalScrollController.position.maxScrollExtent;
         _horizontalScrollController.jumpTo(offset.clamp(0.0, max));
       });
@@ -81,6 +114,7 @@ class _TimelineContentState extends State<TimelineContent> {
   @override
   void dispose() {
     _horizontalScrollController.dispose();
+    _verticalMetrics.dispose();
     super.dispose();
   }
 
@@ -99,22 +133,26 @@ class _TimelineContentState extends State<TimelineContent> {
       );
     }
 
-    var timelineGeometry = TimelineGeometry.fromEvents(widget.listOfEvents, earliest: widget.earliest);
+    var timelineGeometry = TimelineGeometry.fromEvents(
+      widget.listOfEvents,
+      earliest: widget.earliest,
+    );
 
     final groupColor =
         widget.listOfEvents.first.category?.color ??
         widget.groupColor ??
         Colors.blue;
 
-
     return BlocListener<TimelineBloc, TimelineState>(
       listener: (context, state) {
-        if (state is! TimelineInitial){
+        if (state is! TimelineInitial) {
           return;
         }
 
         final selected = state.selectedPost;
-        final inThisColumn = selected != null && widget.listOfEvents.any((e) => e.id == selected.id);
+        final inThisColumn =
+            selected != null &&
+            widget.listOfEvents.any((e) => e.id == selected.id);
         _hasExpandedCard = inThisColumn;
 
         if (inThisColumn && state.focusRequestId != _lastFocusRequestId) {
@@ -125,69 +163,105 @@ class _TimelineContentState extends State<TimelineContent> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Listener(
-            onPointerSignal: (event) {
-              if (event is PointerScrollEvent) {
-                final scrollHorizontally = HardwareKeyboard.instance.isControlPressed || _hasExpandedCard;
-                if (scrollHorizontally) {
-                  final newOffset =(_horizontalScrollController.offset + event.scrollDelta.dy).clamp(0.0, _horizontalScrollController.position.maxScrollExtent,);
-                  _horizontalScrollController.jumpTo(newOffset);
-                }
-              }
+          // Capture vertical scroll metrics for the off-screen counters.
+          // ScrollMetricsNotification fires when content/viewport dimensions
+          // change (i.e. on layout), and ScrollNotification fires while the
+          // user scrolls — together they keep the counters accurate without
+          // depending on the scroll controller's transient attach state.
+          NotificationListener<ScrollMetricsNotification>(
+            onNotification: (n) {
+              _captureVertical(n.metrics, n.context);
+              return false;
             },
-            child: Container(
-              color: groupColor.withValues(alpha: 0.75),
-              child: Scrollbar(
-                controller: _horizontalScrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      controller: _horizontalScrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: widget.enableHorizontalScroll ? null : const NeverScrollableScrollPhysics(),
-
-                      child: SingleChildScrollView(
-                        controller: widget.scrollController,
-                        scrollDirection: Axis.vertical,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: widget.minHeight,
-                            minWidth: constraints.maxWidth,
-                          ),
-                          child: BlocBuilder<TimelineBloc, TimelineState>(
-                            builder: (context, state) {
-                              final selectedId = state is TimelineInitial ? state.selectedPost?.id : null;
-                              final result = _buildCards(selectedId, timelineGeometry.earliest);
-
-                              return SizedBox(
-                                height: timelineGeometry.totalHeight + 16,
-                                width: result.contentWidth,
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: result.cards,
-                                ),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                _captureVertical(n.metrics, n.context);
+                return false;
+              },
+              child: Listener(
+                onPointerSignal: (event) {
+                  if (event is PointerScrollEvent) {
+                    final scrollHorizontally =
+                        HardwareKeyboard.instance.isControlPressed ||
+                        _hasExpandedCard;
+                    if (scrollHorizontally) {
+                      final newOffset =
+                          (_horizontalScrollController.offset +
+                                  event.scrollDelta.dy)
+                              .clamp(
+                                0.0,
+                                _horizontalScrollController
+                                    .position
+                                    .maxScrollExtent,
                               );
-                            },
+                      _horizontalScrollController.jumpTo(newOffset);
+                    }
+                  }
+                },
+                child: Container(
+                  color: groupColor.withValues(alpha: 0.75),
+                  child: Scrollbar(
+                    controller: _horizontalScrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          controller: _horizontalScrollController,
+                          scrollDirection: Axis.horizontal,
+                          physics: widget.enableHorizontalScroll
+                              ? null
+                              : const NeverScrollableScrollPhysics(),
+
+                          child: SingleChildScrollView(
+                            controller: widget.scrollController,
+                            scrollDirection: Axis.vertical,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: widget.minHeight,
+                                minWidth: constraints.maxWidth,
+                              ),
+                              child: BlocBuilder<TimelineBloc, TimelineState>(
+                                builder: (context, state) {
+                                  final selectedId = state is TimelineInitial
+                                      ? state.selectedPost?.id
+                                      : null;
+                                  final result = _buildCards(
+                                    selectedId,
+                                    timelineGeometry.earliest,
+                                  );
+
+                                  return SizedBox(
+                                    height: timelineGeometry.totalHeight + 16,
+                                    width: result.contentWidth,
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: result.cards,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
           // Floating counters showing how many events sit above/below the
           // current vertical viewport.
-          Positioned.fill(
-            child: OffscreenEventIndicators(
-              controller: widget.scrollController,
-              events: widget.listOfEvents,
-              earliest: timelineGeometry.earliest,
+          if (widget.showOffscreenIndicators)
+            Positioned.fill(
+              child: OffscreenEventIndicators(
+                metrics: _verticalMetrics,
+                resolvePosition: () => _verticalPosition,
+                events: widget.listOfEvents,
+                earliest: timelineGeometry.earliest,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -196,10 +270,14 @@ class _TimelineContentState extends State<TimelineContent> {
   /// Builds the positioned event cards for the stack and reports the total
   /// content width. The selected card (if any) is added last so it paints on
   /// top, with a dimming scrim behind it to make it stand out.
-  ({List<Widget> cards, double contentWidth}) _buildCards(String? selectedId, DateTime earliest,) {
+  ({List<Widget> cards, double contentWidth}) _buildCards(
+    String? selectedId,
+    DateTime earliest,
+  ) {
     final cards = <Widget>[];
     Widget? selectedCard;
-    double contentWidth = TimelineConstants.cardWithIncMargins * listOfRows.length;
+    double contentWidth =
+        TimelineConstants.cardWithIncMargins * listOfRows.length;
 
     // Build rows * columns
     for (var entry in listOfRows.entries) {
@@ -207,13 +285,17 @@ class _TimelineContentState extends State<TimelineContent> {
         final card = Positioned(
           key: ValueKey(event.id),
           left: entry.key * TimelineConstants.cardWithIncMargins,
-          top: event.startDuration.difference(earliest).inMinutes * TimelineConstants.pixelsPerMinute,
+          top:
+              event.startDuration.difference(earliest).inMinutes *
+              TimelineConstants.pixelsPerMinute,
           child: TimelineEventCard(event: event),
         );
 
         if (event.id == selectedId) {
           selectedCard = card;
-          final expandedRight = entry.key * TimelineConstants.cardWithIncMargins + TimelineConstants.expandedCardWidth;
+          final expandedRight =
+              entry.key * TimelineConstants.cardWithIncMargins +
+              TimelineConstants.expandedCardWidth;
           if (expandedRight > contentWidth) {
             contentWidth = expandedRight;
           }
@@ -234,23 +316,26 @@ class _TimelineContentState extends State<TimelineContent> {
   /// layout or card content changes, so edits (same id, new values) are caught.
   String _eventsSignature(List<EventPost> events) {
     return events
-        .map((e) =>
-            '${e.id}:${e.startDuration.millisecondsSinceEpoch}:${e.endDuration.millisecondsSinceEpoch}:${e.timestamp?.millisecondsSinceEpoch ?? ''}:${e.title}:${e.description}:${e.categoryId}')
+        .map(
+          (e) =>
+              '${e.id}:${e.startDuration.millisecondsSinceEpoch}:${e.endDuration.millisecondsSinceEpoch}:${e.timestamp?.millisecondsSinceEpoch ?? ''}:${e.title}:${e.description}:${e.categoryId}',
+        )
         .join('|');
   }
 
   void calculateRows() {
-
     // Sort by start time
-    final sorted = [...widget.listOfEvents]..sort((a, b) => a.startDuration.compareTo(b.startDuration));
+    final sorted = [...widget.listOfEvents]
+      ..sort((a, b) => a.startDuration.compareTo(b.startDuration));
 
     for (EventPost event in sorted) {
       bool placed = false;
       for (int row = 0; row < listOfRows.length; row++) {
         bool overlaps = listOfRows[row]!.any(
           (existing) =>
-              event.startDuration.isBefore(existing.endDuration) && 
-              event.endDuration.isAfter(existing.startDuration) || event.startDuration == existing.startDuration,
+              event.startDuration.isBefore(existing.endDuration) &&
+                  event.endDuration.isAfter(existing.startDuration) ||
+              event.startDuration == existing.startDuration,
         );
 
         if (!overlaps) {
@@ -283,14 +368,15 @@ class _TimelineContentState extends State<TimelineContent> {
 
     final double targetLeft = rowIndex * TimelineConstants.cardWithIncMargins;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_horizontalScrollController.hasClients){
+      if (!_horizontalScrollController.hasClients) {
         return;
       }
 
       final position = _horizontalScrollController.position;
 
       // Add a little bit off offset
-      final double offset = (targetLeft - position.viewportDimension * 0.25).clamp(0.0, position.maxScrollExtent);
+      final double offset = (targetLeft - position.viewportDimension * 0.25)
+          .clamp(0.0, position.maxScrollExtent);
 
       // Scroll to the position
       _horizontalScrollController.animateTo(
@@ -306,84 +392,54 @@ class _TimelineContentState extends State<TimelineContent> {
 /// events are scrolled out of view above and below the current vertical
 /// viewport. Tapping a counter scrolls the column toward the nearest
 /// off-screen event in that direction.
-class OffscreenEventIndicators extends StatefulWidget {
-  final ScrollController? controller;
+class OffscreenEventIndicators extends StatelessWidget {
+  /// Live vertical scroll metrics for the column, captured from the scroll
+  /// view's notifications. This is decoupled from [controller]'s attach state,
+  /// which is unreliable because the hybrid view recreates its controllers on
+  /// every state change.
+  final ValueListenable<ScrollMetrics?> metrics;
+
+  /// Resolves the live vertical scroll position, used to drive [animateTo] when
+  /// a badge is tapped. Returns null while the column has no attached viewport.
+  final ScrollPosition? Function() resolvePosition;
   final List<EventPost> events;
   final DateTime earliest;
 
   const OffscreenEventIndicators({
     super.key,
-    required this.controller,
+    required this.metrics,
+    required this.resolvePosition,
     required this.events,
     required this.earliest,
   });
 
-  @override
-  State<OffscreenEventIndicators> createState() =>
-      _OffscreenEventIndicatorsState();
-}
-
-class _OffscreenEventIndicatorsState extends State<OffscreenEventIndicators> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller?.addListener(_onScroll);
-    // The controller has no clients on the first frame, so refresh once the
-    // viewport is laid out to surface any initially off-screen events.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant OffscreenEventIndicators oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) {
-      oldWidget.controller?.removeListener(_onScroll);
-      widget.controller?.addListener(_onScroll);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.controller?.removeListener(_onScroll);
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   /// Vertical pixel offset of an event's top edge within the column content.
   double _eventTop(EventPost event) =>
-      event.startDuration.difference(widget.earliest).inMinutes *
+      event.startDuration.difference(earliest).inMinutes *
       TimelineConstants.pixelsPerMinute;
 
   /// Vertical pixel offset of an event's bottom edge within the column content.
   double _eventBottom(EventPost event) =>
-      event.endDuration.difference(widget.earliest).inMinutes *
+      event.endDuration.difference(earliest).inMinutes *
       TimelineConstants.pixelsPerMinute;
 
   /// Scrolls the column so the nearest off-screen event in [downwards]
   /// direction comes into view.
   void _scrollTowards(bool downwards) {
-    final controller = widget.controller;
-    if (controller == null || !controller.hasClients) {
+    final position = resolvePosition();
+    if (position == null ||
+        !position.hasContentDimensions ||
+        !position.hasViewportDimension) {
       return;
     }
 
-    final position = controller.position;
     final double top = position.pixels;
     final double bottom = top + position.viewportDimension;
 
     double? target;
     if (downwards) {
       // Closest event whose top sits below the current viewport.
-      for (final event in widget.events) {
+      for (final event in events) {
         final double eTop = _eventTop(event);
         if (eTop > bottom) {
           if (target == null || eTop < target) {
@@ -395,7 +451,7 @@ class _OffscreenEventIndicatorsState extends State<OffscreenEventIndicators> {
       target = (target ?? position.maxScrollExtent) - 24;
     } else {
       // Closest event whose bottom sits above the current viewport.
-      for (final event in widget.events) {
+      for (final event in events) {
         final double eBottom = _eventBottom(event);
         if (eBottom < top) {
           if (target == null || eBottom > target) {
@@ -406,7 +462,7 @@ class _OffscreenEventIndicatorsState extends State<OffscreenEventIndicators> {
       target = (target ?? 0) - position.viewportDimension + 24;
     }
 
-    controller.animateTo(
+    position.animateTo(
       target.clamp(0.0, position.maxScrollExtent),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -415,60 +471,61 @@ class _OffscreenEventIndicatorsState extends State<OffscreenEventIndicators> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = widget.controller;
-    if (controller == null ||
-        !controller.hasClients ||
-        !controller.position.hasViewportDimension ||
-        !controller.position.hasContentDimensions) {
-      return const SizedBox.shrink();
-    }
+    return ValueListenableBuilder<ScrollMetrics?>(
+      valueListenable: metrics,
+      builder: (context, m, _) {
+        if (m == null || !m.hasViewportDimension || !m.hasContentDimensions) {
+          return const SizedBox.shrink();
+        }
 
-    final position = controller.position;
-    final double top = position.pixels;
-    final double bottom = top + position.viewportDimension;
+        final double top = m.pixels;
+        final double bottom = top + m.viewportDimension;
 
-    int above = 0;
-    int below = 0;
-    for (final event in widget.events) {
-      if (_eventBottom(event) < top) {
-        above++;
-      } else if (_eventTop(event) > bottom) {
-        below++;
-      }
-    }
+        int above = 0;
+        int below = 0;
+        for (final event in events) {
+          if (_eventBottom(event) < top) {
+            above++;
+          } else if (_eventTop(event) > bottom) {
+            below++;
+          }
+        }
 
-    return IgnorePointer(
-      ignoring: above == 0 && below == 0,
-      child: Stack(
-        children: [
-          if (above > 0)
-            Positioned(
-              top: 6,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: _OffscreenBadge(
-                  count: above,
-                  downwards: false,
-                  onTap: () => _scrollTowards(false),
+        if (above == 0 && below == 0) {
+          return const SizedBox.shrink();
+        }
+
+        return Stack(
+          children: [
+            if (above > 0)
+              Positioned(
+                top: 6,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _OffscreenBadge(
+                    count: above,
+                    downwards: false,
+                    onTap: () => _scrollTowards(false),
+                  ),
                 ),
               ),
-            ),
-          if (below > 0)
-            Positioned(
-              bottom: 6,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: _OffscreenBadge(
-                  count: below,
-                  downwards: true,
-                  onTap: () => _scrollTowards(true),
+            if (below > 0)
+              Positioned(
+                bottom: 6,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _OffscreenBadge(
+                    count: below,
+                    downwards: true,
+                    onTap: () => _scrollTowards(true),
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

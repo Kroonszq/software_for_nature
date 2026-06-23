@@ -12,6 +12,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   final EventPostRepository repository;
 
   List<EventPost> _allPosts = [];
+  List<EventPost> _scopedPosts = [];
 
   late EventPost earliest;
   late EventPost latest;
@@ -19,16 +20,21 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   GeoBounds? _currentBounds;
   late TimeWindow _currentWindow;
 
+  // active filter constraints
+  Set<String>? _categoryIds;
+  Set<String>? _tagLabels;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _search;
+
   MapBloc(this.repository) : super(MapInitial()) {
     on<LoadMapEvents>(_onLoad);
     on<UpdateMapBounds>(_onBoundsUpdated);
     on<UpdateTimeWindow>(_onTimeWindowChanged);
+    on<MapFilterChanged>(_onFilterChanged);
   }
 
-  Future<void> _onLoad(
-    LoadMapEvents event,
-    Emitter<MapState> emit,
-  ) async {
+  Future<void> _onLoad(LoadMapEvents event, Emitter<MapState> emit) async {
     emit(MapLoading());
 
     final results = await Future.wait([
@@ -38,6 +44,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     ]);
 
     _allPosts = results[0] as List<EventPost>;
+    _scopedPosts = _allPosts;
     earliest = results[1] as EventPost;
     latest = results[2] as EventPost;
 
@@ -49,38 +56,69 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     _emitFiltered(emit);
   }
 
-  void _onBoundsUpdated(
-    UpdateMapBounds event,
-    Emitter<MapState> emit,
-  ) {
+  Future<void> _onFilterChanged(MapFilterChanged event, Emitter<MapState> emit ) async {
+
+    if(event.categoryIds != null || event.categoryIds!.isNotEmpty){
+      _categoryIds = event.categoryIds;
+    } else{
+      _categoryIds = null;
+    }
+
+    if(event.tagLabels != null || event.tagLabels!.isNotEmpty){
+      _tagLabels = event.tagLabels;
+    } else{
+      _tagLabels = null;
+    }
+
+    if(event.search != null || event.search!.trim().isNotEmpty){
+      _search = event.search;
+    } else {
+      _search = null;
+    }
+
+    _startDate = event.startDate;
+    _endDate = event.endDate;
+
+    _scopedPosts = await repository.queryEvents(
+      EventQuery(
+        categoryIds: _categoryIds,
+        tagLabels: _tagLabels,
+        startDate: _startDate,
+        endDate: _endDate,
+        search: _search,
+      ),
+    );
+
+    _emitFiltered(emit);
+  }
+
+  void _onBoundsUpdated(UpdateMapBounds event, Emitter<MapState> emit) {
     _currentBounds = event.bounds;
     _emitFiltered(emit);
   }
 
-  void _onTimeWindowChanged(
-    UpdateTimeWindow event,
-    Emitter<MapState> emit,
-  ) {
+  void _onTimeWindowChanged(UpdateTimeWindow event, Emitter<MapState> emit) {
     _currentWindow = event.window;
     _emitFiltered(emit);
   }
 
   void _emitFiltered(Emitter<MapState> emit) {
-    final filtered = _allPosts.where((post) {
+    final filtered = _scopedPosts.where((post) {
+
       final coords = post.coordinates;
-      if (coords == null) return false;
+      if (coords == null){ 
+        return false;
+      }
 
-      final inBounds =
-          _currentBounds?.contains(coords) ?? true;
 
-      final inTime =
-          _currentWindow.contains(post.startDuration);
+      final inBounds = _currentBounds?.contains(coords) ?? true;
+      final inTime = _currentWindow.contains(post.startDuration);
 
       return inBounds && inTime;
     }).toList();
 
     emit(MapLoaded(
-      posts: _allPosts,
+      posts: _scopedPosts,
       visiblePosts: filtered,
       bounds: _currentBounds,
       timeWindow: _currentWindow,

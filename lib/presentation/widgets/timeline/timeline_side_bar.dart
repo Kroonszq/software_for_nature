@@ -282,6 +282,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
                               minHeight: widget.contentHeight ?? 0,
                               groupColor: entry.value.color,
                               enableHorizontalScroll: false,
+                              showOffscreenIndicators: false,
                             ),
                           ),
                         ),

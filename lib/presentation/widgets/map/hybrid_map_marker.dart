@@ -5,22 +5,27 @@ import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/presentation/widgets/map/marker_label.dart';
 
 
 class HybridMapMarker extends StatefulWidget {
   final EventPost event;
   final bool isSelected;
 
+  /// Colour of the pin, derived from the event's category.
+  final Color color;
+
   const HybridMapMarker({
     super.key,
     required this.event,
     required this.isSelected,
+    this.color = Colors.blue,
   });
 
   /// Total size of the marker box. The pin sits at the bottom-center while the
   /// remaining space above is reserved for the hover details box.
   static const double width = 200;
-  static const double height = 132;
+  static const double height = 156;
 
   @override
   State<HybridMapMarker> createState() => _HybridMapMarkerState();
@@ -102,7 +107,7 @@ class _HybridMapMarkerState extends State<HybridMapMarker> {
                     ),
                     Icon(
                       Icons.location_pin,
-                      color: widget.isSelected ? Colors.red : Colors.blue,
+                      color: widget.isSelected ? Colors.red : widget.color,
                     ),
                   ],
                 );
@@ -110,6 +115,8 @@ class _HybridMapMarkerState extends State<HybridMapMarker> {
             ),
           ),
         ),
+        // Title label beneath the pin, mirroring the plain map marker.
+        MarkerLabel(title: event.title, maxWidth: 150),
       ],
     );
   }

@@ -23,7 +23,7 @@ class TimelineView extends StatefulWidget {
 
 class _TimelineViewState extends State<TimelineView> {
   final ScrollController _axisScrollController = ScrollController();
-  Map<int, ScrollController> _timelineScrollControllers = {};
+  final Map<int, ScrollController> _timelineScrollControllers = {};
 
   /// The shared vertical scroll offset of the timelines mirrored to the previews in the sidebar
   final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0);
@@ -33,42 +33,65 @@ class _TimelineViewState extends State<TimelineView> {
 
   bool _overlaySidebarMinimized = false;
 
-  void _initControllers(TimeLinesWrapperLoaded state) {
-    // Dispose old controller so we dont have dupes
-    for (final c in _timelineScrollControllers.values) {
-      c.dispose();
+  /// Ensures exactly one scroll controller exists per active timeline, adding
+  /// controllers for new timelines and disposing those whose timeline is gone.
+  ///
+  /// This is idempotent so it can run on every build. That matters because the
+  /// wrapper bloc may already be in its loaded state when this view mounts, so
+  /// the BlocConsumer.listener would never fire and the columns would get null
+  /// controllers — leaving them without the listener that syncs the other
+  /// columns and the time axis bar. Recreating controllers on every emit (the
+  /// old behaviour) would instead reset the scroll offset and churn the
+  /// offscreen counters, so we only create/dispose what actually changed.
+  void _syncControllers(TimeLinesWrapperLoaded state) {
+    final keys = state.timelines.keys.toSet();
+
+    // Drop controllers for timelines that no longer exist.
+    final stale = _timelineScrollControllers.keys
+        .where((k) => !keys.contains(k))
+        .toList();
+    for (final k in stale) {
+      _timelineScrollControllers.remove(k)?.dispose();
     }
 
-    // For each timeline create a controller with a listener so we can react and modify based upon event that are happening.
-    // Seed each new controller with the current shared offset so a timeline
-    // that gets re-activated mounts aligned with the others (all columns share
-    // the same content height) instead of snapping back to the top.
-    _timelineScrollControllers = {
-      for (final entry in state.timelines.entries)
-        entry.key: ScrollController(initialScrollOffset: _scrollOffset.value)
-          ..addListener(() {
-            final controller = _timelineScrollControllers[entry.key]!;
-            final offset = controller.offset;
+    // Create controllers for newly added timelines, seeded with the shared
+    // offset so a re-activated column mounts aligned with the others (all
+    // columns share the same content height) instead of snapping to the top.
+    for (final key in keys) {
+      if (_timelineScrollControllers.containsKey(key)) continue;
+      _timelineScrollControllers[key] =
+          ScrollController(initialScrollOffset: _scrollOffset.value)
+            ..addListener(() => _syncScroll(key));
+    }
+  }
 
-            // Mirror to the preview rail
-            _scrollOffset.value = offset;
+  /// Mirrors [sourceKey]'s scroll offset to the preview rail, the time axis bar
+  /// and every other timeline column so they all scroll together. Driven both
+  /// by the user dragging a column and by the offscreen-counter tap, which
+  /// animates the column's scroll position (the attached controller forwards
+  /// that change here).
+  void _syncScroll(int sourceKey) {
+    final source = _timelineScrollControllers[sourceKey];
+    if (source == null || !source.hasClients) return;
+    final offset = source.offset;
 
-            // Sync axis bar
-            if (_axisScrollController.hasClients &&
-                _axisScrollController.offset != offset) {
-              _axisScrollController.jumpTo(offset);
-            }
+    // Mirror to the preview rail
+    _scrollOffset.value = offset;
 
-            // Sync all other timeline controllers
-            for (final other in _timelineScrollControllers.entries) {
-              if (other.key != entry.key &&
-                  other.value.hasClients &&
-                  other.value.offset != offset) {
-                other.value.jumpTo(offset);
-              }
-            }
-          }),
-    };
+    // Sync axis bar
+    if (_axisScrollController.hasClients &&
+        _axisScrollController.offset != offset) {
+      _axisScrollController.jumpTo(offset);
+    }
+
+    // Sync all other timeline controllers
+    for (final entry in _timelineScrollControllers.entries) {
+      if (entry.key != sourceKey &&
+          entry.value.hasClients &&
+          entry.value.offset != offset) {
+        entry.value.jumpTo(offset);
+      }
+    }
   }
 
   @override
@@ -92,12 +115,7 @@ class _TimelineViewState extends State<TimelineView> {
           _scrollToEvent(state.selectedPost!);
         }
       },
-      child: BlocConsumer<TimeLinesWrapperBloc, TimeLinesWrapperState>(
-        listener: (context, state) {
-          if (state is TimeLinesWrapperLoaded) {
-            setState(() => _initControllers(state));
-          }
-        },
+      child: BlocBuilder<TimeLinesWrapperBloc, TimeLinesWrapperState>(
         builder: (context, state) {
           if (state is! TimeLinesWrapperLoaded) {
             return const Center(child: CircularProgressIndicator());
@@ -107,6 +125,12 @@ class _TimelineViewState extends State<TimelineView> {
           if (state.timelines.isEmpty) {
             return const Center(child: Text('No timelines'));
           }
+
+          // Make sure each column has a (synced) scroll controller for the
+          // current state before building. Doing this in the builder rather
+          // than a listener handles the case where the bloc is already loaded
+          // when this view mounts.
+          _syncControllers(state);
 
           return _buildLoaded(context, state);
         },

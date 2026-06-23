@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:software_for_nature/data/adapters/coordinates_latlng_adapter.dart';
 import 'package:software_for_nature/data/adapters/geobounds_latlngbounds_adapter.dart';
@@ -18,9 +16,10 @@ import 'package:software_for_nature/logic/services/interfaces/event_service_inte
 
 import 'package:software_for_nature/presentation/widgets/filter.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
-import 'package:software_for_nature/presentation/widgets/map/cluster_marker.dart';
 import 'package:software_for_nature/presentation/widgets/map/event_marker.dart';
 import 'package:software_for_nature/presentation/widgets/map/hybrid_map_marker.dart';
+import 'package:software_for_nature/presentation/widgets/map/map.dart';
+import 'package:software_for_nature/presentation/widgets/map/zoom_button.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_view.dart';
 
 class HybridPage extends StatefulWidget {
@@ -32,11 +31,23 @@ class HybridPage extends StatefulWidget {
 
 class _HybridPageState extends State<HybridPage> {
   final MapController mapController = MapController();
+  Map<String, Color> _categoryColors = const {};
 
-  void _onMapMove(MapCamera camera) {
-    final bounds = mapController.camera.visibleBounds.toDomain();
+  @override
+  void initState() {
+    super.initState();
+    _loadCategoryColors();
+  }
 
-    context.read<HybridBloc>().add(HybridBoundsChanged(bounds));
+  Future<void> _loadCategoryColors() async {
+    final categories = await context.read<CategoryServiceInterface>().getAllCategories();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _categoryColors = {for (final c in categories) c.id: c.color};
+    });
   }
 
   /// Zoom in/out
@@ -178,6 +189,7 @@ class _HybridPageState extends State<HybridPage> {
                 child: HybridMapMarker(
                   event: event,
                   isSelected: isSelected,
+                  color: _categoryColors[event.categoryId] ?? Colors.blue,
                 ),
               );
             })
@@ -185,55 +197,13 @@ class _HybridPageState extends State<HybridPage> {
 
         return Stack(
           children: [
-            FlutterMap(
+            EventMap(
               mapController: mapController,
-              options: MapOptions(
-                initialCenter: LatLng(52.0907, 5.1214),
-                initialZoom: 10,
-                onPositionChanged: (position, hasGesture) {
-                  if (hasGesture) _onMapMove(position);
-                },
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.myapp',
-                ),
-
-                MarkerClusterLayerWidget(
-                  options: MarkerClusterLayerOptions(
-                    markers: markers,
-                    maxClusterRadius: 70,
-                    size: const Size(60, 60),
-                    spiderfyCluster: true,
-                    zoomToBoundsOnClick: false,
-                    // Let each HybridMapMarker handle its own hover/tap. Without
-                    // this the layer wraps every marker in an opaque
-                    // GestureDetector spanning its full (mostly empty) box, so a
-                    // marker near a cluster covers its neighbours' pins and
-                    // swallows the hover effect.
-                    markerChildBehavior: true,
-                    builder: (context, clusterMarkers) {
-                      final eventMarkers = clusterMarkers.cast<EventMarker>();
-
-                      // Fall back to a plain count bubble until the HybridBloc
-                      // has initialised its time window.
-                      if (timeWindow == null) {
-                        return _ClusterCountBubble(
-                          count: eventMarkers.length,
-                        );
-                      }
-
-                      return ClusterMarker(
-                        count: eventMarkers.length,
-                        events: eventMarkers.map((m) => m.event).toList(),
-                        timeWindow: timeWindow,
-                      );
-                    },
-                  ),
-                ),
-              ],
+              markers: markers,
+              categoryColors: _categoryColors,
+              timeWindow: timeWindow,
+              onBoundsChanged: (bounds) =>
+                  context.read<HybridBloc>().add(HybridBoundsChanged(bounds)),
             ),
 
             // Zoom controls in the bottom-right corner.
@@ -243,13 +213,13 @@ class _HybridPageState extends State<HybridPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _ZoomButton(
+                  ZoomButton(
                     icon: Icons.add,
                     heroTag: 'hybrid_zoom_in',
                     onPressed: () => _zoom(1),
                   ),
                   const SizedBox(height: 8),
-                  _ZoomButton(
+                  ZoomButton(
                     icon: Icons.remove,
                     heroTag: 'hybrid_zoom_out',
                     onPressed: () => _zoom(-1),
@@ -260,61 +230,6 @@ class _HybridPageState extends State<HybridPage> {
           ],
         );
       },
-    );
-  }
-}
-
-/// A plain circular bubble showing the number of events in a cluster, used as
-/// a fallback before the time window (and therefore the richer [ClusterMarker])
-/// is available.
-class _ClusterCountBubble extends StatelessWidget {
-  final int count;
-
-  const _ClusterCountBubble({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 44,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 3),
-      ),
-      child: Text(
-        '$count',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-/// A small circular map control button used for the zoom in/out actions.
-class _ZoomButton extends StatelessWidget {
-  final IconData icon;
-  final String heroTag;
-  final VoidCallback onPressed;
-
-  const _ZoomButton({
-    required this.icon,
-    required this.heroTag,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.small(
-      heroTag: heroTag,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black87,
-      elevation: 2,
-      onPressed: onPressed,
-      child: Icon(icon),
     );
   }
 }

@@ -1,42 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:software_for_nature/core/utils/time_utils.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/time_window.dart';
 import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
+import 'package:software_for_nature/presentation/widgets/map/marker_label.dart';
 
-class MapMarker extends StatelessWidget {
+class MapMarker extends StatefulWidget {
   final EventPost event;
   final TimeWindow timeWindow;
+
+  /// Colour of the pin, derived from the event's category.
+  final Color color;
 
   const MapMarker({
     super.key,
     required this.event,
     required this.timeWindow,
+    this.color = Colors.blue,
   });
 
-  static const double markerWidth = 40;
-  static const double markerHeight = 52;
+  /// Total size of the marker box. The pin sits near the bottom while the space
+  /// above it is reserved for the hover details box.
+  static const double markerWidth = 200;
+  static const double markerHeight = 160;
+
+  @override
+  State<MapMarker> createState() => _MapMarkerState();
+}
+
+class _MapMarkerState extends State<MapMarker> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.read<EventInteractionCubit>().select(event);
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _DurationBar(
-            event: event,
-            timeWindow: timeWindow,
+    final event = widget.event;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        // Details box floats in the space above the pin. It never captures the
+        // pointer so it can't keep itself visible.
+        Expanded(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: IgnorePointer(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 120),
+                opacity: _hovered ? 1 : 0,
+                child: _EventDetailsBox(event: event),
+              ),
+            ),
           ),
-          const Icon(
-            Icons.location_pin,
-            size: 32,
-            color: Colors.blue,
+        ),
+        _DurationBar(event: event, timeWindow: widget.timeWindow),
+        // Only the pin reacts to hover/tap, so the box appears only when the
+        // pointer is directly over the marker.
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: GestureDetector(
+            // Clicking a pin opens the event in the details drawer.
+            onTap: () {
+              context.read<EventInteractionCubit>().select(event);
+              Scaffold.of(context).openDrawer();
+            },
+            child: Icon(
+              Icons.location_pin,
+              size: 32,
+              color: widget.color,
+            ),
           ),
-        ],
-      ),
+        ),
+        MarkerLabel(title: event.title, maxWidth: MapMarker.markerWidth),
+      ],
     );
   }
 }
@@ -52,17 +91,14 @@ class _DurationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final end = event.endDuration;
-    if (end == null) return const SizedBox(height: 4);
-
     final eventMinutes =
-        end.difference(event.startDuration).inMinutes;
+        event.endDuration.difference(event.startDuration).inMinutes;
 
-    final windowMinutes =
-        timeWindow.duration.inMinutes;
+    final windowMinutes = timeWindow.duration.inMinutes;
 
-    final fraction =
-        (eventMinutes / windowMinutes).clamp(0.0, 1.0);
+    final fraction = windowMinutes > 0
+        ? (eventMinutes / windowMinutes).clamp(0.0, 1.0)
+        : 0.0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
@@ -81,6 +117,68 @@ class _DurationBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The details card shown above the pin while it is hovered.
+class _EventDetailsBox extends StatelessWidget {
+  final EventPost event;
+
+  const _EventDetailsBox({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.blue.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Category: ${event.category?.name ?? 'Uncategorized'}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+          ),
+          Text(
+            'Start: ${TimeUtils.formatDateTime(event.startDuration)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+          ),
+          Text(
+            'Duration: '
+            '${TimeUtils.formatDuration(event.endDuration.difference(event.startDuration))}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+          ),
+        ],
       ),
     );
   }
