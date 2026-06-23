@@ -16,7 +16,6 @@ import 'package:software_for_nature/presentation/widgets/map/event_marker.dart';
 import 'package:software_for_nature/presentation/widgets/map/map_marker.dart';
 import 'package:software_for_nature/presentation/widgets/layout.dart';
 import 'package:software_for_nature/presentation/widgets/timeline_navigator.dart';
-import 'package:software_for_nature/presentation/widgets/event/event_view_drawer.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -64,7 +63,7 @@ class _MapPageState extends State<MapPage> {
 
             return Stack(
               children: [
-                // 1. MAP (always bottom)
+                // 1. MAP
                 FlutterMap(
                   mapController: mapController,
                   options: const MapOptions(
@@ -99,7 +98,7 @@ class _MapPageState extends State<MapPage> {
                   ],
                 ),
 
-                // 2. TIMELINE NAVIGATOR (kept low priority)
+                // 2. TIMELINE NAVIGATOR
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
@@ -114,7 +113,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 ),
-                // 3. EVENT DRAWER (MUST BE ABOVE EVERYTHING UI-RELATED)
                 //const EventViewDrawer(),
               ],
             );
