@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
 import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
@@ -26,6 +26,15 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
 
   EventFormBloc({required this._attachmentStorage, required this._categoryService, required this._eventService, required this._userService, EventPost? initialEvent,}): _initialEvent = initialEvent, super(_initialStateFor(initialEvent)) {
     on<CategoriesRequested>(_onCategoriesRequested);
+    on<TagsRequested>(_onTagsRequested);
+    on<TagSelected>((e, emit) => emit(
+          state.copyWith(selectedTags: [...state.selectedTags, e.tag]),
+        ));
+    on<TagDeselected>((e, emit) => emit(
+          state.copyWith(
+            selectedTags: state.selectedTags.where((t) => t != e.tag).toList(),
+          ),
+        ));
     on<TitleChanged>((e, emit) => emit(state.copyWith(title: e.title)));
     on<DescriptionChanged>((e, emit) => emit(state.copyWith(description: e.description)));
     on<CategorySelected>((e, emit) => emit(state.copyWith(categoryId: e.categoryId)));
@@ -38,6 +47,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     on<FormSubmitted>(_onSubmitted);
 
     add(CategoriesRequested());
+    add(TagsRequested());
   }
 
   /// Builds the form's starting state, pre-filled from [event] when editing.
@@ -50,6 +60,8 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
       title: event.title,
       description: event.description,
       categoryId: event.categoryId,
+      availableTags: const [],
+      selectedTags: event.tags,
       mode: event.isMoment ? EventTimeMode.timestamp : EventTimeMode.range,
       start: event.startDuration,
       end: event.endDuration,
@@ -61,6 +73,17 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
   Future<void> _onCategoriesRequested(CategoriesRequested event, Emitter<EventFormBlocState> emit) async {
     final categories = await _categoryService.getAllCategories();
     emit(state.copyWith(categories: categories));
+  }
+
+  Future<void> _onTagsRequested(TagsRequested event, Emitter<EventFormBlocState> emit) async {
+    final events = await _eventService.getAllEvents();
+    final Map<String, Tag> distinctTags = {};
+    for (final e in events) {
+      for (final tag in e.tags) {
+        distinctTags.putIfAbsent(tag.label, () => tag);
+      }
+    }
+    emit(state.copyWith(availableTags: distinctTags.values.toList()));
   }
 
   Future<void> _onSubmitted(FormSubmitted event, Emitter<EventFormBlocState> emit) async {
@@ -117,7 +140,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
           coordinates: _initialEvent.coordinates,
           attachments: attachments,
           charts: _initialEvent.charts,
-          tags: _initialEvent.tags,
+          tags: state.selectedTags,
         )
           ..category = _initialEvent.category
           ..user = _initialEvent.user;
@@ -148,6 +171,7 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
         categoryId: state.categoryId!,
         userId: userId,
         attachments: attachments,
+        tags: state.selectedTags,
       );
 
       await _eventService.createEvent(eventPost);

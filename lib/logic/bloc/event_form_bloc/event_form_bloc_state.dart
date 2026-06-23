@@ -12,7 +12,8 @@ final class EventFormBlocState {
   final String description;
   final List<Category> categories;
   final String? categoryId;
-  final List<Tag> tags;
+  final List<Tag> availableTags;
+  final List<Tag> selectedTags;
   final EventTimeMode mode;
   final DateTime? start;
   final DateTime? end;
@@ -24,7 +25,8 @@ final class EventFormBlocState {
   const EventFormBlocState({
     this.title = '',
     this.description = '',
-    this.tags = const [],
+    this.availableTags = const [],
+    this.selectedTags = const [],
     this.categories = const [],
     this.categoryId,
     this.mode = EventTimeMode.range,
@@ -40,7 +42,8 @@ final class EventFormBlocState {
     String? title,
     String? description,
     List<Category>? categories,
-    List<Tag>? tags,
+    List<Tag>? availableTags,
+    List<Tag>? selectedTags,
     String? categoryId,
     EventTimeMode? mode,
     DateTime? start,
@@ -54,7 +57,8 @@ final class EventFormBlocState {
       title: title ?? this.title,
       description: description ?? this.description,
       categories: categories ?? this.categories,
-      tags: tags ?? this.tags,
+      availableTags: availableTags ?? this.availableTags,
+      selectedTags: selectedTags ?? this.selectedTags,
       categoryId: categoryId ?? this.categoryId,
       mode: mode ?? this.mode,
       start: start ?? this.start,
