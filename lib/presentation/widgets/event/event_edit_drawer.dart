@@ -7,17 +7,22 @@ import 'package:software_for_nature/logic/services/interfaces/category_service_i
 import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
 import 'package:software_for_nature/presentation/widgets/event/event_form.dart';
+import 'package:software_for_nature/presentation/widgets/event/event_refresh.dart';
 
 /// Opens the event editor as a panel that slides in from the right, pre-filled
 /// with [event]. The editor reuses [EventForm]; on success the form pops this
-/// route, closing the panel.
-void openEventEditor(BuildContext context, EventPost event) {
+/// route, closing the panel, and the timeline/map refreshes to show the change.
+Future<void> openEventEditor(BuildContext context, EventPost event) async {
   final categoryService = context.read<CategoryServiceInterface>();
   final eventService = context.read<EventServiceInterface>();
   final userService = context.read<UserServiceInterface>();
   final attachmentStorage = context.read<AttachmentStorageInterface>();
 
-  showGeneralDialog(
+  // Capture the refresh now: the panel that opened the editor may be closed
+  // before the editor returns, which would unmount its context.
+  final refresh = captureEventRefresh(context);
+
+  final saved = await showGeneralDialog<bool>(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Edit event',
@@ -49,6 +54,12 @@ void openEventEditor(BuildContext context, EventPost event) {
       );
     },
   );
+
+  // Refresh the event-displaying blocs on the page that opened the editor so the
+  // edit is reflected immediately.
+  if (saved == true) {
+    refresh();
+  }
 }
 
 class _EventEditPanel extends StatelessWidget {

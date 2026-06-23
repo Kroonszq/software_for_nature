@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/core/constants/timeline_constants.dart';
+import 'package:software_for_nature/core/utils/attachment_service.dart';
 import 'package:software_for_nature/core/utils/time_utils.dart';
+import 'package:software_for_nature/data/models/event_attachment.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
@@ -35,8 +39,15 @@ class TimelineEventCard extends StatelessWidget {
         final rawHeight = getRawHeight(event);
         final isClamped = !isExpanded && rawHeight < collapsedHeight;
 
-        // When expanded expand big enough to fit the extra details
-        final height = isExpanded && collapsedHeight < 220 ? 220.0 : collapsedHeight;
+        // When expanded expand big enough to fit the extra details. An image
+        // preview and a tag list each need extra room on top of the text-only
+        // minimum.
+        var expandedMinHeight = 220.0;
+        if (_firstImageAttachment != null) expandedMinHeight += 100.0;
+        if (event.tags.isNotEmpty) expandedMinHeight += 40.0;
+        final height = isExpanded && collapsedHeight < expandedMinHeight
+            ? expandedMinHeight
+            : collapsedHeight;
 
         return Padding(
           padding: const EdgeInsets.only(
@@ -157,11 +168,26 @@ class TimelineEventCard extends StatelessWidget {
     );
   }
 
+  /// The first image attachment on this event, or null if there is none.
+  EventAttachment? get _firstImageAttachment {
+    for (final attachment in event.attachments) {
+      if (AttachmentService.kindOf(attachment) == AttachmentKind.image) {
+        return attachment;
+      }
+    }
+    return null;
+  }
+
   List<Widget> _buildDetails() {
+    final image = _firstImageAttachment;
     return [
       const SizedBox(height: 6),
       Divider(height: 1, color: Colors.blue.shade200),
       const SizedBox(height: 6),
+      if (image != null) ...[
+        _HoverImagePreview(attachment: image),
+        const SizedBox(height: 6),
+      ],
       Text(
         'Category: ${event.category?.name ?? 'Uncategorized'}',
         style: TextStyle(
@@ -169,6 +195,13 @@ class TimelineEventCard extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: Colors.blue.shade900),
           overflow: TextOverflow.ellipsis,
+      ),
+      const SizedBox(height: 2),
+      Text(
+        'Duration: '
+        '${TimeUtils.formatDuration(event.endDuration.difference(event.startDuration))}',
+        style: TextStyle(fontSize: 10, color: Colors.blue.shade900),
+        overflow: TextOverflow.ellipsis,
       ),
       if (event.coordinates != null) ...[
         const SizedBox(height: 2),
@@ -186,6 +219,23 @@ class TimelineEventCard extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         maxLines: 6,
       ),
+      if (event.tags.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Text(
+          'Tags',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue.shade900,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: event.tags.map((t) => _TagChip(tag: t)).toList(),
+        ),
+      ],
     ];
   }
 
@@ -251,6 +301,72 @@ class TimelineEventCard extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows the first image attachment inside the expanded (hovered) event card.
+/// The file is resolved asynchronously; while it loads (or if it can't be
+/// resolved) the widget collapses to nothing so the card layout stays clean.
+class _HoverImagePreview extends StatelessWidget {
+  final EventAttachment attachment;
+
+  const _HoverImagePreview({required this.attachment});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<File?>(
+      future: AttachmentService.resolveFile(attachment),
+      builder: (context, snapshot) {
+        final file = snapshot.data;
+        if (file == null) {
+          return const SizedBox.shrink();
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Image.file(
+            file,
+            height: 90,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A single tag rendered as a small rounded chip, used inside the expanded
+/// card's details section.
+class _TagChip extends StatelessWidget {
+  final Tag tag;
+
+  const _TagChip({required this.tag});
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
+            ? Colors.white
+            : Colors.black87;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: tag.color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        tag.label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+          color: textColor,
         ),
       ),
     );
