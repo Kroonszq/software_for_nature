@@ -18,15 +18,12 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
             : query.search!.toLowerCase();
 
     return allEvents.where((event) {
-      // Category filter
       if (query.categoryIds != null &&
           query.categoryIds!.isNotEmpty &&
           !query.categoryIds!.contains(event.categoryId)) {
         return false;
       }
 
-      // Date window — filter by when the event occurs (the moment timestamp for
-      // moment events, otherwise the start of the range).
       if (query.startDate != null && event.occurredAt.isBefore(query.startDate!)) {
         return false;
       }
@@ -34,14 +31,12 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
         return false;
       }
 
-      // text search across title and description
       if (normalizedSearch != null &&
           !event.title.toLowerCase().contains(normalizedSearch) &&
           !event.description.toLowerCase().contains(normalizedSearch)) {
         return false;
       }
 
-      // Geographic bounds
       if (query.bounds != null) {
         final c = event.coordinates;
         if (c == null || !query.bounds!.contains(c)) {
@@ -49,7 +44,6 @@ class EventPostRepository extends BaseRepository<EventPost> implements EventPost
         }
       }
 
-      // Duration overlap with the requested range
       if (query.timeRange != null &&
           !(event.endDuration.isAfter(query.timeRange!.start) &&
               event.startDuration.isBefore(query.timeRange!.end))) {

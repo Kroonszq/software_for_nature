@@ -14,12 +14,8 @@ class ChartPoint {
     );
   }
 
-  // Value equality: two points with the same coordinates are the same point.
-  // Without this, the form's chart removal (which filters by `!=`) would rely on
-  // object identity and could fail to drop the intended point/chart.
   @override
-  bool operator ==(Object other) =>
-      other is ChartPoint && other.x == x && other.y == y;
+  bool operator ==(Object other) => other is ChartPoint && other.x == x && other.y == y;
 
   @override
   int get hashCode => Object.hash(x, y);
@@ -59,27 +55,23 @@ class EventChart {
     );
   }
 
-  // Value equality: two charts built from the same file, labels and points are
-  // the same chart. The event form removes a chart with
-  // `state.charts.where((c) => c != chart)`; relying on object identity there is
-  // fragile (a re-hydrated copy from the repository is a different instance with
-  // the same data), so compare by value instead.
   @override
   bool operator ==(Object other) {
-    if (other is! EventChart) return false;
-    if (other.fileName != fileName ||
-        other.xLabel != xLabel ||
-        other.yLabel != yLabel ||
-        other.points.length != points.length) {
+    if (other is! EventChart){
       return false;
     }
+
+    if (other.fileName != fileName || other.xLabel != xLabel || other.yLabel != yLabel || other.points.length != points.length) {
+      return false;
+    }
+
     for (var i = 0; i < points.length; i++) {
       if (other.points[i] != points[i]) return false;
     }
+
     return true;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(fileName, xLabel, yLabel, Object.hashAll(points));
+  int get hashCode => Object.hash(fileName, xLabel, yLabel, Object.hashAll(points));
 }

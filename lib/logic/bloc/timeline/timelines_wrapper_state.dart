@@ -11,9 +11,7 @@ final class TimeLinesWrapperLoaded extends TimeLinesWrapperState {
   final ScrollController axisScrollController;
   final List<int> timelineOrder;
 
-  /// The active date-filter bounds, when one is set. The time axis spans the
-  /// whole filtered window so the user sees the full range they selected, not
-  /// just the slice where events happen to fall.
+
   final DateTime? filterStart;
   final DateTime? filterEnd;
 
@@ -68,14 +66,7 @@ final class TimeLinesWrapperLoaded extends TimeLinesWrapperState {
         .reduce((a, b) => a.isAfter(b) ? a : b);
   }
 
-  /// The earliest point the time axis should cover. When a date filter is
-  /// active the axis follows the selected window exactly, so it starts at the
-  /// chosen start regardless of where events fall. Otherwise it falls back to
-  /// the earliest event.
-  DateTime? get earliest => filterStart ?? _eventEarliest;
 
-  /// The latest point the time axis should cover. Mirrors [earliest]: when a
-  /// date filter is active the axis ends at the chosen end, instead of
-  /// stretching to a long-running event that overlaps the window.
+  DateTime? get earliest => filterStart ?? _eventEarliest;
   DateTime? get latest => filterEnd ?? _eventLatest;
 }

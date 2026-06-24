@@ -19,10 +19,8 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
   final EventServiceInterface _eventService;
   final UserServiceInterface _userService;
 
-  /// When set, the form edits this existing event instead of creating a new one.
   final EventPost? _initialEvent;
 
-  /// Whether the form is editing an existing event rather than creating one.
   bool get isEditing => _initialEvent != null;
 
   EventFormBloc({required this._attachmentStorage, required this._categoryService, required this._eventService, required this._userService, EventPost? initialEvent,}): _initialEvent = initialEvent, super(_initialStateFor(initialEvent)) {
@@ -54,7 +52,6 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     add(TagsRequested());
   }
 
-  /// Builds the form's starting state, pre-filled from [event] when editing.
   static EventFormBlocState _initialStateFor(EventPost? event) {
     if (event == null) {
       return const EventFormBlocState();
@@ -80,9 +77,6 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     emit(state.copyWith(categories: categories));
   }
 
-  /// Adds a freshly created tag to the selection. A tag is considered to
-  /// already exist when another tag shares its label (case-insensitive); in
-  /// that case the existing tag is reused so we never store duplicates.
   void _onTagCreated(TagCreated event, Emitter<EventFormBlocState> emit) {
     final label = event.tag.label.trim();
     if (label.isEmpty) {
@@ -91,13 +85,10 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
 
     bool sameLabel(Tag tag) => tag.label.toLowerCase() == label.toLowerCase();
 
-    // Already selected: nothing to do.
     if (state.selectedTags.any(sameLabel)) {
       return;
     }
 
-    // Reuse an existing available tag with the same label, otherwise use the
-    // new one and remember it as available too.
     final existing = state.availableTags.where(sameLabel).toList();
     final tag = existing.isNotEmpty
         ? existing.first
@@ -160,8 +151,6 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     emit(state.copyWith(status: EventFormStatus.submitting));
     try {
 
-      // Editing an existing event: keep its identity (id, author, created date)
-      // and only update the edited fields.
       if (_initialEvent != null) {
         final attachments = await _persistEditedAttachments(_initialEvent);
 
@@ -220,9 +209,6 @@ class EventFormBloc extends Bloc<EventFormBlocEvent, EventFormBlocState> {
     }
   }
 
-  /// Persists only the attachments newly added during an edit; existing ones are
-  /// already on disk and must not be re-copied (their path is relative, not a
-  /// real source file).
   Future<List<EventAttachment>> _persistEditedAttachments(EventPost original) async {
     final kept = <EventAttachment>[];
     final added = <EventAttachment>[];

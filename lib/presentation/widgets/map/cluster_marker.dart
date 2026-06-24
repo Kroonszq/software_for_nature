@@ -71,7 +71,7 @@ class _CategorySlice {
   const _CategorySlice({required this.color, required this.count});
 }
 
-/// A pie chart of the cluster's categories with the event count in the centre.
+/// A pie chart of the cluster's categories with the event count in the centre
 class _CategoryPie extends StatelessWidget {
   final int count;
   final List<_CategorySlice> slices;

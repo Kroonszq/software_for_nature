@@ -21,6 +21,14 @@ abstract final class TimeUtils {
     return '${m}m';
   }
 
+  static String formatDate(DateTime dt) {
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  }
+
+  static String formatTime(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
   static String formatSize(int bytes) {
     if (bytes < 1024) {
       return '$bytes B';

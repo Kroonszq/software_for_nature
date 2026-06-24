@@ -10,6 +10,7 @@ import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/presentation/models/timeline_geometry.dart';
 import 'package:software_for_nature/presentation/widgets/timeline/timeline_event_card.dart';
+import 'package:software_for_nature/presentation/widgets/timeline/timeline_offscreen_event_indicator.dart';
 
 class TimelineContent extends StatefulWidget {
   final double minHeight;
@@ -21,8 +22,7 @@ class TimelineContent extends StatefulWidget {
   /// MOBILE: When false the column's own horizontal scroll is disabled this is for mobile the user has to click the column first
   final bool enableHorizontalScroll;
 
-  /// Whether to overlay the floating "N events above/below" counters. Disabled
-  /// for the small sidebar previews, which should stay uncluttered.
+  /// Whether to overlay the floating "N events above/below" counter disabled  for the small sidebar previews, which should stay uncluttered.
   final bool showOffscreenIndicators;
 
   const TimelineContent({
@@ -44,36 +44,22 @@ class _TimelineContentState extends State<TimelineContent> {
   Map<int, List<EventPost>> listOfRows = {};
   final ScrollController _horizontalScrollController = ScrollController();
   bool _hasExpandedCard = false;
-
-  /// Live vertical scroll metrics for this column, fed from the scroll view's
-  /// notifications rather than the scroll controller. The hybrid view recreates
-  /// its controllers on every state change, so the controller's attach state is
-  /// unreliable at build time; ScrollMetricsNotification fires on layout and is
-  /// therefore a dependable signal for "how much is off-screen".
-  final ValueNotifier<ScrollMetrics?> _verticalMetrics =
-      ValueNotifier<ScrollMetrics?>(null);
-
-  /// The live vertical [ScrollPosition] for this column, resolved from scroll
-  /// notifications. Tapping an off-screen counter drives this directly, which
-  /// is reliable even when [widget.scrollController] is null or stale (the
-  /// hybrid view recreates its controllers on every state change).
+  final ValueNotifier<ScrollMetrics?> _verticalMetrics = ValueNotifier<ScrollMetrics?>(null);
   ScrollPosition? _verticalPosition;
 
   /// Records the latest vertical metrics (for the counters) and resolves the
   /// active scroll position (for tap-to-scroll) from the notification context.
-  void _captureVertical(
-    ScrollMetrics metrics,
-    BuildContext? notificationContext,
-  ) {
-    if (metrics.axis != Axis.vertical) return;
+  void _captureVertical(ScrollMetrics metrics,BuildContext? notificationContext) {
+    if (metrics.axis != Axis.vertical){
+      return;
+    } 
+
     _verticalMetrics.value = metrics;
     if (notificationContext != null) {
       _verticalPosition = Scrollable.maybeOf(notificationContext)?.position;
     }
   }
 
-  // The last focus request handled, so a marker hover scrolls this column
-  // horizontally to the event only once per request.
   int _lastFocusRequestId = 0;
 
   @override
@@ -86,11 +72,7 @@ class _TimelineContentState extends State<TimelineContent> {
   void didUpdateWidget(covariant TimelineContent oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Recalculate the row layout when the events change. This must detect more
-    // than added/removed ids: editing an event keeps its id but changes its
-    // time/title/description, and the rows hold the actual event objects used
-    // for both positioning and card content, so a stale signature would leave
-    // the column showing the old data.
+    // recalculate the row layout when the events change
     final oldSignature = _eventsSignature(oldWidget.listOfEvents);
     final newSignature = _eventsSignature(widget.listOfEvents);
 
@@ -165,11 +147,7 @@ class _TimelineContentState extends State<TimelineContent> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Capture vertical scroll metrics for the off-screen counters.
-          // ScrollMetricsNotification fires when content/viewport dimensions
-          // change (i.e. on layout), and ScrollNotification fires while the
-          // user scrolls — together they keep the counters accurate without
-          // depending on the scroll controller's transient attach state.
+          // capture vertical scroll metrics for the off screen counters
           NotificationListener<ScrollMetricsNotification>(
             onNotification: (n) {
               _captureVertical(n.metrics, n.context);
@@ -183,18 +161,10 @@ class _TimelineContentState extends State<TimelineContent> {
               child: Listener(
                 onPointerSignal: (event) {
                   if (event is PointerScrollEvent) {
-                    final scrollHorizontally =
-                        HardwareKeyboard.instance.isControlPressed ||
-                        _hasExpandedCard;
+                    final scrollHorizontally = HardwareKeyboard.instance.isControlPressed || _hasExpandedCard;
                     if (scrollHorizontally) {
-                      final newOffset =
-                          (_horizontalScrollController.offset +
-                                  event.scrollDelta.dy)
-                              .clamp(
-                                0.0,
-                                _horizontalScrollController
-                                    .position
-                                    .maxScrollExtent,
+                      final newOffset = (_horizontalScrollController.offset + event.scrollDelta.dy)
+                              .clamp(0.0,_horizontalScrollController.position.maxScrollExtent,
                               );
                       _horizontalScrollController.jumpTo(newOffset);
                     }
@@ -253,8 +223,7 @@ class _TimelineContentState extends State<TimelineContent> {
               ),
             ),
           ),
-          // Floating counters showing how many events sit above/below the
-          // current vertical viewport.
+          // floating counters showing how many events sit above/below the current vertical viewport
           if (widget.showOffscreenIndicators)
             Positioned.fill(
               child: OffscreenEventIndicators(
@@ -269,13 +238,8 @@ class _TimelineContentState extends State<TimelineContent> {
     );
   }
 
-  /// Builds the positioned event cards for the stack and reports the total
-  /// content width. The selected card (if any) is added last so it paints on
-  /// top, with a dimming scrim behind it to make it stand out.
-  ({List<Widget> cards, double contentWidth}) _buildCards(
-    String? selectedId,
-    DateTime earliest,
-  ) {
+  /// builds the positioned event cards for the stack and reports the total content width 
+  ({List<Widget> cards, double contentWidth}) _buildCards(String? selectedId, DateTime earliest) {
     final cards = <Widget>[];
     Widget? selectedCard;
     double contentWidth =
@@ -287,9 +251,7 @@ class _TimelineContentState extends State<TimelineContent> {
         final card = Positioned(
           key: ValueKey(event.id),
           left: entry.key * TimelineConstants.cardWithIncMargins,
-          top:
-              event.startDuration.difference(earliest).inMinutes *
-              TimelineConstants.pixelsPerMinute,
+          top: event.startDuration.difference(earliest).inMinutes * TimelineConstants.pixelsPerMinute,
           child: TimelineEventCard(event: event),
         );
 
@@ -315,14 +277,8 @@ class _TimelineContentState extends State<TimelineContent> {
   }
 
   /// A fingerprint of the events that changes whenever any field affecting the
-  /// layout or card content changes, so edits (same id, new values) are caught.
-  ///
-  /// Charts and attachments are included too: editing an event can leave every
-  /// time/text field untouched while only adding or removing a chart, and the
-  /// rows hold the actual event objects that get handed to the details panel on
-  /// tap. Leaving them out of the signature means such an edit is missed, so a
-  /// tapped card would re-open the pre-edit copy (e.g. still showing a removed
-  /// graph) until the column is rebuilt from scratch.
+  /// layout or card content changes, so edits are caught
+  /// nighmare ass hell
   String _eventsSignature(List<EventPost> events) {
     return events
         .map(
@@ -331,16 +287,8 @@ class _TimelineContentState extends State<TimelineContent> {
         )
         .join('|');
   }
-
-  /// Compact fingerprint of an event's charts: catches a chart being added or
-  /// removed, or its file/point count changing.
-  String _chartsSignature(List<EventChart> charts) =>
-      charts.map((c) => '${c.fileName}#${c.points.length}').join(',');
-
-  /// Compact fingerprint of an event's attachments: catches one being added or
-  /// removed during an edit.
-  String _attachmentsSignature(List<EventAttachment> attachments) =>
-      attachments.map((a) => a.name).join(',');
+  String _chartsSignature(List<EventChart> charts) => charts.map((c) => '${c.fileName}#${c.points.length}').join(',');
+  String _attachmentsSignature(List<EventAttachment> attachments) => attachments.map((a) => a.name).join(',');
 
   void calculateRows() {
     // Sort by start time
@@ -407,191 +355,3 @@ class _TimelineContentState extends State<TimelineContent> {
   }
 }
 
-/// Floating counters that sit on top of a timeline column and report how many
-/// events are scrolled out of view above and below the current vertical
-/// viewport. Tapping a counter scrolls the column toward the nearest
-/// off-screen event in that direction.
-class OffscreenEventIndicators extends StatelessWidget {
-  /// Live vertical scroll metrics for the column, captured from the scroll
-  /// view's notifications. This is decoupled from [controller]'s attach state,
-  /// which is unreliable because the hybrid view recreates its controllers on
-  /// every state change.
-  final ValueListenable<ScrollMetrics?> metrics;
-
-  /// Resolves the live vertical scroll position, used to drive [animateTo] when
-  /// a badge is tapped. Returns null while the column has no attached viewport.
-  final ScrollPosition? Function() resolvePosition;
-  final List<EventPost> events;
-  final DateTime earliest;
-
-  const OffscreenEventIndicators({
-    super.key,
-    required this.metrics,
-    required this.resolvePosition,
-    required this.events,
-    required this.earliest,
-  });
-
-  /// Vertical pixel offset of an event's top edge within the column content.
-  double _eventTop(EventPost event) =>
-      event.startDuration.difference(earliest).inMinutes *
-      TimelineConstants.pixelsPerMinute;
-
-  /// Vertical pixel offset of an event's bottom edge within the column content.
-  double _eventBottom(EventPost event) =>
-      event.endDuration.difference(earliest).inMinutes *
-      TimelineConstants.pixelsPerMinute;
-
-  /// Scrolls the column so the nearest off-screen event in [downwards]
-  /// direction comes into view.
-  void _scrollTowards(bool downwards) {
-    final position = resolvePosition();
-    if (position == null ||
-        !position.hasContentDimensions ||
-        !position.hasViewportDimension) {
-      return;
-    }
-
-    final double top = position.pixels;
-    final double bottom = top + position.viewportDimension;
-
-    double? target;
-    if (downwards) {
-      // Closest event whose top sits below the current viewport.
-      for (final event in events) {
-        final double eTop = _eventTop(event);
-        if (eTop > bottom) {
-          if (target == null || eTop < target) {
-            target = eTop;
-          }
-        }
-      }
-      // Land the event a little below the top edge for context.
-      target = (target ?? position.maxScrollExtent) - 24;
-    } else {
-      // Closest event whose bottom sits above the current viewport.
-      for (final event in events) {
-        final double eBottom = _eventBottom(event);
-        if (eBottom < top) {
-          if (target == null || eBottom > target) {
-            target = eBottom;
-          }
-        }
-      }
-      target = (target ?? 0) - position.viewportDimension + 24;
-    }
-
-    position.animateTo(
-      target.clamp(0.0, position.maxScrollExtent),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<ScrollMetrics?>(
-      valueListenable: metrics,
-      builder: (context, m, _) {
-        if (m == null || !m.hasViewportDimension || !m.hasContentDimensions) {
-          return const SizedBox.shrink();
-        }
-
-        final double top = m.pixels;
-        final double bottom = top + m.viewportDimension;
-
-        int above = 0;
-        int below = 0;
-        for (final event in events) {
-          if (_eventBottom(event) < top) {
-            above++;
-          } else if (_eventTop(event) > bottom) {
-            below++;
-          }
-        }
-
-        if (above == 0 && below == 0) {
-          return const SizedBox.shrink();
-        }
-
-        return Stack(
-          children: [
-            if (above > 0)
-              Positioned(
-                top: 6,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: _OffscreenBadge(
-                    count: above,
-                    downwards: false,
-                    onTap: () => _scrollTowards(false),
-                  ),
-                ),
-              ),
-            if (below > 0)
-              Positioned(
-                bottom: 6,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: _OffscreenBadge(
-                    count: below,
-                    downwards: true,
-                    onTap: () => _scrollTowards(true),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// A small translucent pill showing a direction arrow and an event count.
-class _OffscreenBadge extends StatelessWidget {
-  final int count;
-  final bool downwards;
-  final VoidCallback onTap;
-
-  const _OffscreenBadge({
-    required this.count,
-    required this.downwards,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black.withValues(alpha: 0.7),
-      shape: const StadiumBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                downwards ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                size: 16,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '$count event${count == 1 ? '' : 's'}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

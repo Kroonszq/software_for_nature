@@ -18,17 +18,13 @@ final class CategoryService  implements CategoryServiceInterface {
 
   const CategoryService({required this._eventPostRepository, required this._categoryRepository, required this._userRepository, required this._groupRepository});
 
-  /// The set of category ids the current user may view, derived from the
-  /// categories granted by every group the user belongs to. A user that is no
-  /// longer in a group loses access to that group's categories.
+
   Future<Set<String>> _viewableCategoryIds() async {
     final users = await _userRepository.getAll() ?? const <User>[];
     if (users.isEmpty) {
       return const <String>{};
     }
 
-    // The "current" user is the first one, matching getCurrentUser() and the
-    // way new events are attributed.
     final currentUser = users.first;
 
     final groups = await _groupRepository.getAll() ?? const <Group>[];
@@ -45,7 +41,6 @@ final class CategoryService  implements CategoryServiceInterface {
       return const <Category>[];
     }
 
-    // Only expose the categories the current user has access to through groups.
     final viewableIds = await _viewableCategoryIds();
     final scoped = categories.where((c) => viewableIds.contains(c.id)).toList();
 
@@ -63,8 +58,7 @@ final class CategoryService  implements CategoryServiceInterface {
       return const <Category>[];
     }
 
-    // No view-access filtering here: group administration must be able to assign
-    // any category, including ones the current user cannot otherwise see.
+
     for (final c in categories) {
       c.events = await _eventPostRepository.getAllByCategoryId(c.id) ?? const <EventPost>[];
     }
@@ -79,7 +73,6 @@ final class CategoryService  implements CategoryServiceInterface {
       return const <Category>[];
     }
 
-    // Start from the categories the current user is allowed to view.
     final viewableIds = await _viewableCategoryIds();
     var scoped = categories.where((c) => viewableIds.contains(c.id)).toList();
     if(query.categoryIds != null && query.categoryIds!.isNotEmpty){
@@ -107,7 +100,6 @@ final class CategoryService  implements CategoryServiceInterface {
         e.category = c;
       }
 
-      // Hydrate category with events
       c.events = events;
     }
 

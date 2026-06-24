@@ -10,21 +10,14 @@ import 'package:software_for_nature/logic/services/interfaces/user_service_inter
 import 'package:software_for_nature/presentation/widgets/event/event_form.dart';
 import 'package:software_for_nature/presentation/widgets/event/event_refresh.dart';
 
-/// Opens the event editor as a panel that slides in from the right, pre-filled
-/// with [event]. The editor reuses [EventForm]; on success the form pops this
-/// route, closing the panel, and the timeline/map refreshes to show the change.
+
 Future<void> openEventEditor(BuildContext context, EventPost event) async {
   final categoryService = context.read<CategoryServiceInterface>();
   final eventService = context.read<EventServiceInterface>();
   final userService = context.read<UserServiceInterface>();
   final attachmentStorage = context.read<AttachmentStorageInterface>();
 
-  // Capture the refresh now: the panel that opened the editor may be closed
-  // before the editor returns, which would unmount its context.
   final refresh = captureEventRefresh(context);
-
-  // The drawer's interaction state holds the event currently shown in the open
-  // panel. Capture it up-front so we can swap in the edited copy afterwards.
   final interaction = context.read<EventInteractionCubit>();
 
   final saved = await showGeneralDialog<bool>(
@@ -60,14 +53,10 @@ Future<void> openEventEditor(BuildContext context, EventPost event) async {
     },
   );
 
-  // Refresh the event-displaying blocs on the page that opened the editor so the
-  // edit is reflected immediately.
+
   if (saved == true) {
     refresh();
 
-    // refresh() only reloads the timeline/map/hybrid blocs. The drawer panel is
-    // driven by EventInteractionCubit, which still holds the pre-edit copy, so
-    // pull the freshly-saved event from the repository and swap it in by id.
     EventPost? fresh;
     for (final candidate in await eventService.getAllEvents()) {
       if (candidate.id == event.id) {

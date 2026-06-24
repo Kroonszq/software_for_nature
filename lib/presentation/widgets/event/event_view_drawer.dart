@@ -20,23 +20,13 @@ class EventViewDrawer extends StatelessWidget {
       builder: (context, state) {
         final hasStack = state.minimizedEvents.isNotEmpty;
 
-        final stackWidth =
-            hasStack ? MinimizedEventsStack.width : 0.0;
-
+        final stackWidth = hasStack ? MinimizedEventsStack.width : 0.0;
         final openEvents = state.openEvents;
-
         final panelCount = openEvents.isEmpty ? 1 : openEvents.length;
-
         final maxPanelWidth = maxDrawerWidth - stackWidth;
-
-        final panelWidth =
-            preferredPanelWidth.clamp(0.0, maxPanelWidth).toDouble();
-
-        final desiredWidth =
-            stackWidth + panelCount * panelWidth;
-
-        final drawerWidth =
-            desiredWidth.clamp(panelWidth, maxDrawerWidth).toDouble();
+        final panelWidth = preferredPanelWidth.clamp(0.0, maxPanelWidth).toDouble();
+        final desiredWidth = stackWidth + panelCount * panelWidth;
+        final drawerWidth = desiredWidth.clamp(panelWidth, maxDrawerWidth).toDouble();
 
         return Drawer(
           width: drawerWidth,

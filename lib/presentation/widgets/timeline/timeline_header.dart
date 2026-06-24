@@ -26,7 +26,7 @@ class TimelineHeader extends StatelessWidget{
  @override
   Widget build(BuildContext context) {
 
-    // Use a more compact header on mobile
+    // use a more compact header on mobile
     final bool isCompact = MediaQuery.sizeOf(context).width < TimelineConstants.compactBreakpoint;
 
     return Container(
@@ -34,10 +34,6 @@ class TimelineHeader extends StatelessWidget{
       height: isCompact ? 32 : 50,
       child: Row(
         children: [
-          // Drag handle: the ONLY region that starts a reorder drag. Keeping
-          // the drag listener confined to the handle (instead of the whole
-          // header) avoids a race where a minimize tap removes this timeline
-          // from the active set mid-drag, which crashes the reorderable list.
           ReorderableDragStartListener(
             index: position,
             child: MouseRegion(

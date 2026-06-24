@@ -145,7 +145,6 @@ class TimeLinesWrapperBloc extends Bloc<TimeLinesWrapperEvent, TimeLinesWrapperS
 
       final updatedTimelines = Map<int, Timeline>.from(current.timelines);
 
-      // Flip so pressing the icon expands, and pressing again reverts.
       timeline.fullscreen = !timeline.fullscreen;
       updatedTimelines[timelineHash] = timeline;
 

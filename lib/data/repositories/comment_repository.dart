@@ -6,7 +6,6 @@ class CommentRepository  extends BaseRepository<Comment> implements CommentRepos
 
   CommentRepository({ required super.jsonClient });
 
-  /// Returns the comments for a single event, oldest first.
   @override
   Future<List<Comment>> getForEvent(String eventId) async {
     final all = await getAll();
@@ -14,7 +13,6 @@ class CommentRepository  extends BaseRepository<Comment> implements CommentRepos
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
   }
 
-  /// Creates  a new comment on [eventId] the created [Comment] is returned
   @override
   Future<Comment> addComment({required String eventId, required String author, required String text}) {
     final comment = Comment(

@@ -10,18 +10,12 @@ class MapMarker extends StatefulWidget {
   final EventPost event;
   final TimeWindow timeWindow;
 
-  /// Colour of the pin, derived from the event's category.
+  /// colour of the pin from the category
   final Color color;
 
-  const MapMarker({
-    super.key,
-    required this.event,
-    required this.timeWindow,
-    this.color = Colors.blue,
-  });
+  const MapMarker({super.key, required this.event, required this.timeWindow, this.color = Colors.blue});
 
-  /// Total size of the marker box. The pin sits near the bottom while the space
-  /// above it is reserved for the hover details box.
+  /// total size of the marker box
   static const double markerWidth = 200;
   static const double markerHeight = 160;
 
@@ -40,8 +34,6 @@ class _MapMarkerState extends State<MapMarker> {
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.max,
       children: [
-        // Details box floats in the space above the pin. It never captures the
-        // pointer so it can't keep itself visible.
         Expanded(
           child: Align(
             alignment: Alignment.bottomCenter,
@@ -55,14 +47,11 @@ class _MapMarkerState extends State<MapMarker> {
           ),
         ),
         _DurationBar(event: event, timeWindow: widget.timeWindow),
-        // Only the pin reacts to hover/tap, so the box appears only when the
-        // pointer is directly over the marker.
         MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
           child: GestureDetector(
-            // Clicking a pin opens the event in the details drawer.
             onTap: () {
               context.read<EventInteractionCubit>().select(event);
               Scaffold.of(context).openDrawer();
@@ -91,8 +80,7 @@ class _DurationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventMinutes =
-        event.endDuration.difference(event.startDuration).inMinutes;
+    final eventMinutes = event.endDuration.difference(event.startDuration).inMinutes;
 
     final windowMinutes = timeWindow.duration.inMinutes;
 
@@ -122,7 +110,6 @@ class _DurationBar extends StatelessWidget {
   }
 }
 
-/// The details card shown above the pin while it is hovered.
 class _EventDetailsBox extends StatelessWidget {
   final EventPost event;
 

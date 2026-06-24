@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// A small white chip showing an event's title beneath a map marker. Kept
-/// compact (single line, ellipsised) so it doesn't crowd the map.
 class MarkerLabel extends StatelessWidget {
   final String title;
   final double maxWidth;
 
-  const MarkerLabel({
-    super.key,
-    required this.title,
-    this.maxWidth = 120,
-  });
+  const MarkerLabel({super.key, required this.title, this.maxWidth = 120});
 
   @override
   Widget build(BuildContext context) {

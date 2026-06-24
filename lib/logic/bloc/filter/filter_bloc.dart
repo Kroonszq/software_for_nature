@@ -27,8 +27,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       }
       final tags = distinctTags.values.toList();
 
-      // Start with every category and every tag selected, and no date range so
-      // the timeline shows everything until the user picks one.
       emit(FilterLoaded(
         categories: categories,
         activeCategories: List<Category>.of(categories),

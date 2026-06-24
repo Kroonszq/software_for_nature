@@ -7,15 +7,10 @@ import 'package:software_for_nature/data/models/user.dart';
 class Group implements JsonModel {
   @override
   final String id;
-
   final String title;
   final Color color;
-
-  /// Ids of the categories this group grants access to. A user that belongs to
-  /// this group may view the events of these categories.
   final List<String> categoryIds;
 
-  /// Hydrated relation: the categories resolved from [categoryIds].
   List<Category> categories = const [];
   List<User> users = const [];
 

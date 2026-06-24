@@ -14,7 +14,6 @@ final class CategoryChanged extends FilterEvent{
 }
 
 
-/// Toggles a tag in/out of the active tag selection
 final class TagChanged extends FilterEvent {
   final Tag tag;
 

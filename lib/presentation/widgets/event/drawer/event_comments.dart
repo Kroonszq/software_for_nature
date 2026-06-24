@@ -28,7 +28,7 @@ class _EventCommentsState extends State<EventComments> {
   void didUpdateWidget(covariant EventComments oldWidget) {
     super.didUpdateWidget(oldWidget);
     
-    // Reload when the panel switches to a different event.
+    // reload when the panel switches to a different event.
     if (oldWidget.eventId != widget.eventId) {
       setState(() {
         _commentsFuture = _load();
@@ -42,12 +42,13 @@ class _EventCommentsState extends State<EventComments> {
     super.dispose();
   }
 
-  Future<List<Comment>> _load() =>
-      context.read<CommentRepository>().getForEvent(widget.eventId);
+  Future<List<Comment>> _load() => context.read<CommentRepository>().getForEvent(widget.eventId);
 
   Future<void> _submit() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _submitting) return;
+    if (text.isEmpty || _submitting){
+      return;
+    }
 
     setState(() => _submitting = true);
     try {
@@ -56,13 +57,20 @@ class _EventCommentsState extends State<EventComments> {
             author: 'You',
             text: text,
           );
+
       _controller.clear();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         _commentsFuture = _load();
       });
+
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted){ 
+        setState(() => _submitting = false);
+      }
     }
   }
 
@@ -132,7 +140,6 @@ class _EventCommentsState extends State<EventComments> {
   }
 }
 
-/// The text field + send button used to post a new comment.
 class _Composer extends StatelessWidget {
   final TextEditingController controller;
   final bool submitting;

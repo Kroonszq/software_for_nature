@@ -4,14 +4,9 @@ import 'package:software_for_nature/logic/bloc/hybrid/hybrid_bloc.dart';
 import 'package:software_for_nature/logic/bloc/map/map_bloc.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 
-/// A callback that re-fetches event data on the blocs it captured.
 typedef EventRefresher = void Function();
 
-/// Captures the event-displaying blocs currently in scope and returns a
-/// callback that reloads them. Capturing the bloc references up-front means the
-/// refresh still works even if [context] is later unmounted (e.g. because the
-/// originating drawer/panel closed). Each page wires up only some of these
-/// blocs, so missing ones are skipped.
+// This makes sure it refreshes for now it fixes it :)
 EventRefresher captureEventRefresh(BuildContext context) {
   final actions = <void Function()>[];
 

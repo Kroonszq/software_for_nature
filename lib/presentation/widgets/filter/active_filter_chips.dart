@@ -5,10 +5,6 @@ import 'package:software_for_nature/data/models/category.dart';
 import 'package:software_for_nature/data/models/tag.dart';
 import 'package:software_for_nature/logic/bloc/filter/filter_bloc.dart';
 
-/// A horizontally scrollable strip of the currently active filters, shown next
-/// to the Filters button. Chips are grouped into sections (date, categories,
-/// tags); when an entire group is fully selected it collapses into a single
-/// "All" chip instead of listing every member.
 class ActiveFilterChips extends StatelessWidget {
   const ActiveFilterChips({super.key});
 
@@ -107,9 +103,6 @@ class ActiveFilterChips extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        // Cap the chip strip at 200px wide; it shrink-wraps to its content up
-        // to that bound and scrolls horizontally once the chips overflow. The
-        // fixed height gives the horizontal viewport its bounded cross-axis.
         return SizedBox(
           height: 40,
           child: ListView(
@@ -133,12 +126,9 @@ class ActiveFilterChips extends StatelessWidget {
     );
   }
 
-  /// Whether [active] covers every available option (and there is at least one).
-  static bool _allSelected(List<Object?> active, List<Object?> all) =>
-      all.isNotEmpty && active.length >= all.length;
+  static bool _allSelected(List<Object?> active, List<Object?> all) => all.isNotEmpty && active.length >= all.length;
 }
 
-/// A labelled group of chips, e.g. "Categories: [chip] [chip]".
 class _Section extends StatelessWidget {
   final String label;
   final List<Widget> children;
@@ -168,8 +158,7 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// A compact chip for a single active filter. When [onDeleted] is null (e.g. the
-/// collapsed "All" chip) no delete icon is shown.
+
 class _ActiveChip extends StatelessWidget {
   final String label;
   final Color? color;
@@ -185,12 +174,10 @@ class _ActiveChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background =
-        color ?? Theme.of(context).colorScheme.surfaceContainerHighest;
-    final foreground =
-        ThemeData.estimateBrightnessForColor(background) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final background = color ?? Theme.of(context).colorScheme.surfaceContainerHighest;
+    final foreground = ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+      ? Colors.white
+      : Colors.black87;
 
     return Chip(
       backgroundColor: background,
@@ -200,8 +187,7 @@ class _ActiveChip extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(color: foreground),
       ),
-      deleteIcon:
-          onDeleted != null ? Icon(Icons.close, size: 16, color: foreground) : null,
+      deleteIcon: onDeleted != null ? Icon(Icons.close, size: 16, color: foreground) : null,
       onDeleted: onDeleted,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

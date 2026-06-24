@@ -8,13 +8,10 @@ class User implements JsonModel {
   final String name;
   final List<String> groupIds;
 
-  /// Hydrated relation: the groups this user belongs to.
   List<Group> groups = const [];
 
   User({required this.id, required this.name, required this.groupIds});
 
-  /// The categories this user is allowed to view, derived from the categories
-  /// of every group the user belongs to (de-duplicated by id).
   List<Category> get viewableCategories {
     final byId = <String, Category>{};
     for (final group in groups) {

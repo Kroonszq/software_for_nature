@@ -56,7 +56,6 @@ abstract class BaseRepository<T extends JsonModel> implements BaseRepositoryInte
   @override
   Future<int> remove(T type) async
   {
-    // Match on the raw (string) id so non-numeric ids such as "g1" work too.
     final typeCollection = await _load();
     final before = typeCollection.length;
     typeCollection.removeWhere((e) => e.id == type.id);

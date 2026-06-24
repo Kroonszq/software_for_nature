@@ -6,14 +6,14 @@ import 'package:software_for_nature/data/models/event_post.dart';
 enum _ExportMode { currentQuery, cherryPick }
 
 class ExportDrawer extends StatefulWidget {
-  /// Events matching the filters currently applied in the window
+
+  /// events matching the filters currently applied in the window
   final List<EventPost> currentQueryEvents;
 
-  /// Every event in the dataset
+  /// every event in the dataset
   final List<EventPost> allEvents;
 
-  const ExportDrawer({super.key, required this.currentQueryEvents, required this.allEvents,
-  });
+  const ExportDrawer({super.key, required this.currentQueryEvents, required this.allEvents});
 
   @override
   State<ExportDrawer> createState() => _ExportDrawerState();
@@ -40,16 +40,14 @@ class _ExportDrawerState extends State<ExportDrawer> {
     super.dispose();
   }
 
-  /// The cherry-pick pool narrowed by the search query 
+  /// checrry pick filtered
   List<EventPost> get _filteredEvents {
     final q = _search.trim().toLowerCase();
     if (q.isEmpty) {
       return widget.allEvents;
     }
     return widget.allEvents
-        .where((e) =>
-            e.title.toLowerCase().contains(q) ||
-            e.description.toLowerCase().contains(q))
+        .where((e) => e.title.toLowerCase().contains(q) || e.description.toLowerCase().contains(q))
         .toList();
   }
 
@@ -237,7 +235,7 @@ class _ExportDrawerState extends State<ExportDrawer> {
 
     return Column(
       children: [
-        // Search within the cherry-pick pool.
+        // search
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: TextField(
@@ -261,7 +259,8 @@ class _ExportDrawerState extends State<ExportDrawer> {
             ),
           ),
         ),
-        // Select all / clear (operate on the currently matching events).
+       
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(

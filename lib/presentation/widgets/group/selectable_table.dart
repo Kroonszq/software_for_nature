@@ -4,7 +4,7 @@ class SelectableRow {
   final String id;
   final String label;
 
-  /// Text matched against the search query
+  /// text match
   final String searchText;
   final Widget? leading;
 

@@ -13,12 +13,14 @@ class CategoryFilter extends StatelessWidget {
         final categories = state is FilterLoaded
             ? (state.categories ?? const <Category>[])
             : const <Category>[];
+        
         final activeCategories = state is FilterLoaded
             ? (state.activeCategories ?? const <Category>[])
             : const <Category>[];
+        
         final selectableCategories = categories
             .where((category) => !activeCategories
-                .any((activeCategory) => activeCategory.id == category.id))
+            .any((activeCategory) => activeCategory.id == category.id))
             .toList();
 
         return Column(
@@ -38,7 +40,10 @@ class CategoryFilter extends StatelessWidget {
                   ),
               ],
               onChanged: (String? id) {
-                if (id == null) return;
+                if (id == null){
+                  return;
+                }
+
                 final category = categories.firstWhere((c) => c.id == id);
                 context.read<FilterBloc>().add(CategoryChanged(category));
               },
@@ -53,9 +58,7 @@ class CategoryFilter extends StatelessWidget {
                 children: [
                   for (final activeCategory in activeCategories)
                     ElevatedButton.icon(
-                      onPressed: () => context
-                          .read<FilterBloc>()
-                          .add(CategoryChanged(activeCategory)),
+                      onPressed: () => context.read<FilterBloc>().add(CategoryChanged(activeCategory)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: activeCategory.color,
                       ),

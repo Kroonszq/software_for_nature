@@ -22,7 +22,6 @@ final class UserService implements UserServiceInterface {
     final categoriesById = {for (final c in categories) c.id: c};
     final groupsById = {for (final g in groups) g.id: g};
 
-    // Resolve each group's categories from its categoryIds.
     for (final g in groups) {
       g.categories = g.categoryIds
           .map((id) => categoriesById[id])
@@ -30,7 +29,6 @@ final class UserService implements UserServiceInterface {
           .toList();
     }
 
-    // Resolve each user's groups from its groupIds.
     for (final u in users) {
       u.groups = u.groupIds
           .map((id) => groupsById[id])

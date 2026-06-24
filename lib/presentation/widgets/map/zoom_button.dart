@@ -6,12 +6,7 @@ class ZoomButton extends StatelessWidget {
   final String heroTag;
   final VoidCallback onPressed;
 
-  const ZoomButton({
-    super.key,
-    required this.icon,
-    required this.heroTag,
-    required this.onPressed,
-  });
+  const ZoomButton({super.key, required this.icon, required this.heroTag, required this.onPressed });
 
   @override
   Widget build(BuildContext context) {

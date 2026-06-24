@@ -6,18 +6,17 @@ import 'package:software_for_nature/presentation/widgets/timeline/timeline_conte
 import 'package:software_for_nature/logic/bloc/timeline/timelines_wrapper_bloc.dart';
 
 class TimelineSideBar extends StatefulWidget {
-  /// The direction of the previews vertical is the desktop right rail, horizontal is the mobile bottom bar
   final Axis axis;
   final bool? minimized;
   final ValueChanged<bool>? onMinimizedChanged;
 
-  /// The shared vertical scroll offset of the main timelines
+  /// yhe shared vertical scroll offset of the main timelines
   final ValueListenable<double>? scrollOffset;
 
-  /// The full  height of the timeline content in timeline pixels
+  /// the full  height of the timeline content in timeline pixels
   final double? contentHeight;
 
-  /// The earliest timestamp shared by every timeline
+  /// the earliest timestamp shared by every timeline in here
   final DateTime? earliest;
 
   const TimelineSideBar({
@@ -68,7 +67,7 @@ class _TimelineSideBarState extends State<TimelineSideBar> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Toggle to hide/show the previews.
+            // Toggle to hide/show the previews
             SizedBox(
               height: 32,
               child: InkWell(

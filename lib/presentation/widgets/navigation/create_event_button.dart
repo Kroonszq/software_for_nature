@@ -21,7 +21,7 @@ class CreateEventButton extends StatelessWidget {
           : null,
     );
 
-    // Opens the EventCreationDrawer registered as the Scaffold's endDrawer.
+    // ppens the EventCreationDrawer registered as the scafolds endDrawe
     void openCreateDrawer() => Scaffold.of(context).openEndDrawer();
 
     if (compact) {

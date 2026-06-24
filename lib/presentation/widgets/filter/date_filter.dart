@@ -36,8 +36,13 @@ class DateFilter extends StatelessWidget {
                       : null,
                 );
 
-                if (pickedRange == null) return;
-                if (!context.mounted) return;
+                if (pickedRange == null){
+                  return;
+                };
+
+                if (!context.mounted){
+                  return;
+                }
 
                 // Pick the start time of the range.
                 final startTime = await showTimePicker(
@@ -48,8 +53,13 @@ class DateFilter extends StatelessWidget {
                       : const TimeOfDay(hour: 0, minute: 0),
                 );
 
-                if (startTime == null) return;
-                if (!context.mounted) return;
+                if (startTime == null){
+                  return;
+                };
+
+                if (!context.mounted) {
+                  return;
+                }
 
                 // Pick the end time of the range.
                 final endTime = await showTimePicker(
@@ -60,8 +70,13 @@ class DateFilter extends StatelessWidget {
                       : const TimeOfDay(hour: 23, minute: 59),
                 );
 
-                if (endTime == null) return;
-                if (!context.mounted) return;
+                if (endTime == null) {
+                  return;
+                }
+
+                if (!context.mounted){
+                  return;
+                }
 
                 final start = DateTime(
                   pickedRange.start.year,
@@ -70,6 +85,7 @@ class DateFilter extends StatelessWidget {
                   startTime.hour,
                   startTime.minute,
                 );
+
                 final end = DateTime(
                   pickedRange.end.year,
                   pickedRange.end.month,
@@ -90,9 +106,7 @@ class DateFilter extends StatelessWidget {
                 child: TextButton.icon(
                   icon: const Icon(Icons.close),
                   label: const Text('Clear date filter'),
-                  onPressed: () => context
-                      .read<FilterBloc>()
-                      .add(DateRangeChanged(null, null)),
+                  onPressed: () => context.read<FilterBloc>().add(DateRangeChanged(null, null)),
                 ),
               ),
             ],

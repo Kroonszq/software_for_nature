@@ -9,6 +9,5 @@ abstract final class ColorUtils {
     return Color(int.parse(hex, radix: 16));
   }
 
-  static String toHex(Color color) =>
-      '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
+  static String toHex(Color color) => '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
 }

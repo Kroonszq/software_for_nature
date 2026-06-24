@@ -53,17 +53,14 @@ class _UserPageBodyState extends State<_UserPageBody> {
     final userRepository = context.read<UserRepositoryInterface>();
     final eventRepository = context.read<EventPostRepository>();
 
-    // There is a single "current" user (the first one), matching how new
-    // events are attributed in the event form.
+   
     final users = await userRepository.getAll() ?? const <User>[];
     final user = users.isNotEmpty
         ? users.first
         : User(id: '1', name: 'Unknown user', groupIds: []);
 
     final allEvents = await eventRepository.getAll();
-    final createdEvents =
-        allEvents.where((e) => e.userId == user.id).toList()
-          ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final createdEvents = allEvents.where((e) => e.userId == user.id).toList()..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
 
     return _UserData(user: user, createdEvents: createdEvents);
   }
@@ -239,9 +236,15 @@ class _UserPageBodyState extends State<_UserPageBody> {
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first)
-        .toUpperCase();
+
+    if (parts.isEmpty || parts.first.isEmpty) {
+      return '?';
+    }
+
+    if (parts.length == 1) {
+      return parts.first.characters.first.toUpperCase();
+    }
+
+    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
   }
 }

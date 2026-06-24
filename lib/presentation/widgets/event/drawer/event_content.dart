@@ -84,11 +84,8 @@ class _AttachmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Attachments whose contents we can render (images, text) are shown inline
-    // right here in the details; everything else stays a plain row.
     final kind = AttachmentService.kindOf(attachment);
-    final canPreviewInline =
-        kind == AttachmentKind.image || kind == AttachmentKind.text;
+    final canPreviewInline = kind == AttachmentKind.image || kind == AttachmentKind.text;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -157,9 +154,6 @@ class _AttachmentTile extends StatelessWidget {
   }
 }
 
-/// Renders an image or text attachment inline within the event details. The
-/// file is resolved asynchronously; while it loads it shows a small spinner,
-/// and if it can't be resolved/displayed it falls back to a short notice.
 class _InlineAttachmentPreview extends StatelessWidget {
   final EventAttachment attachment;
 

@@ -11,7 +11,6 @@ class EventTagsField extends StatefulWidget {
 }
 
 class _EventTagsFieldState extends State<EventTagsField> {
-  /// Colour choices for a brand new tag, matching the palette used elsewhere.
   static const List<Color> _palette = [
     Color(0xFFF44336),
     Color(0xFFE91E63),
@@ -108,8 +107,6 @@ class _EventTagsFieldState extends State<EventTagsField> {
     );
   }
 
-  /// Lets the user type a new tag label, pick a colour and add it. The bloc
-  /// reuses an existing tag if the label already exists.
   Widget _buildCreateTag() {
     final canAdd = _labelController.text.trim().isNotEmpty;
 

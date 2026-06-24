@@ -16,9 +16,8 @@ class TagFilter extends StatelessWidget {
         final activeTags = state is FilterLoaded
             ? (state.activeTags ?? const <Tag>[])
             : const <Tag>[];
-        final selectableTags = tags
-            .where((tag) => !activeTags.any((active) => active.label == tag.label))
-            .toList();
+
+        final selectableTags = tags .where((tag) => !activeTags.any((active) => active.label == tag.label)).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,8 +60,7 @@ class TagFilter extends StatelessWidget {
   }
 }
 
-/// A removable chip for a selected tag, filled with the tag's own colour and
-/// using a readable text/icon colour for contrast.
+
 class _TagChip extends StatelessWidget {
   final Tag tag;
 
@@ -70,10 +68,9 @@ class _TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground =
-        ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final foreground = ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
+      ? Colors.white
+      : Colors.black87;
 
     return ElevatedButton.icon(
       onPressed: () => context.read<FilterBloc>().add(TagChanged(tag)),

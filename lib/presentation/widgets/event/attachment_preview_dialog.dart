@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:software_for_nature/core/utils/attachment_service.dart';
 import 'package:software_for_nature/data/models/event_attachment.dart';
 
-/// A dialog that previews an [EventAttachment]. Images are shown inline, small
-/// text-based files are rendered as selectable text, and anything else falls
-/// back to a "no preview" placeholder. A download action is always available.
+
 class AttachmentPreviewDialog extends StatelessWidget {
   final EventAttachment attachment;
 
@@ -171,7 +169,7 @@ class AttachmentPreviewDialog extends StatelessWidget {
   }
 }
 
-/// A button that downloads (saves a copy of) the attachment, with busy state.
+/// A button that downloads the attachment
 class _DownloadButton extends StatefulWidget {
   final EventAttachment attachment;
 

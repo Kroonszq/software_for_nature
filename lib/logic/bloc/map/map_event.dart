@@ -22,7 +22,6 @@ class UpdateTimeWindow extends MapEvent {
   UpdateTimeWindow(this.window);
 }
 
-/// Applies the shared filter (categories, tags, date range, search) to themap's events
 class MapFilterChanged extends MapEvent {
   final Set<String>? categoryIds;
   final Set<String>? tagLabels;

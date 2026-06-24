@@ -9,7 +9,6 @@ final class Category implements JsonModel {
   final String name;
   final Color color;
 
-  /// Hydrated relation: the events that belong to this category.
   List<EventPost> events = const[];
 
   Category({

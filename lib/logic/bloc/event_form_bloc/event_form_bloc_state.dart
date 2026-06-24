@@ -2,8 +2,7 @@ part of 'event_form_bloc.dart';
 
 enum EventFormStatus { editing, submitting, success, failure }
 
-/// Whether the event spans a date range (start + end) or happens at a single
-/// point in time (timestamp).
+
 enum EventTimeMode { range, timestamp }
 
 @immutable

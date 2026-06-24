@@ -30,10 +30,7 @@ class TimelineBloc extends Bloc<TimelineEvent, TimelineState> {
     });
   }
 
-  void _onSelectTimelineEvent(
-    SelectTimelineEvent event,
-    Emitter<TimelineState> emit,
-  ) {
+  void _onSelectTimelineEvent(SelectTimelineEvent event, Emitter<TimelineState> emit) {
     final current = state;
 
     if (current is TimelineInitial) {

@@ -12,7 +12,6 @@ class HybridMapMarker extends StatefulWidget {
   final EventPost event;
   final bool isSelected;
 
-  /// Colour of the pin, derived from the event's category.
   final Color color;
 
   const HybridMapMarker({
@@ -22,8 +21,7 @@ class HybridMapMarker extends StatefulWidget {
     this.color = Colors.blue,
   });
 
-  /// Total size of the marker box. The pin sits at the bottom-center while the
-  /// remaining space above is reserved for the hover details box.
+  /// total size of the marker box
   static const double width = 200;
   static const double height = 156;
 

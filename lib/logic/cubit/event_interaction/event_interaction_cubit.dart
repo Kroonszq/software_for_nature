@@ -6,10 +6,7 @@ class EventInteractionCubit extends Cubit<EventInteractionState> {
   EventInteractionCubit() : super(const EventInteractionState());
 
   void select(EventPost event) {
-    // Match on id, not object identity: after an event is edited a brand-new
-    // EventPost instance (same id) comes back from the timeline. Dropping any
-    // existing entry with the same id and adding the fresh one keeps the open
-    // panel up to date instead of showing the stale copy or a duplicate.
+   
     final updated = List<EventPost>.from(state.openEvents)
       ..removeWhere((e) => e.id == event.id)
       ..add(event);
@@ -20,9 +17,6 @@ class EventInteractionCubit extends Cubit<EventInteractionState> {
     ));
   }
 
-  /// Swaps any open, minimized or selected copy of [event] (matched by id) for
-  /// this fresh instance. Called after an edit is saved so the already-open
-  /// panel reflects the change instead of keeping the pre-edit copy.
   void replace(EventPost event) {
     List<EventPost> swap(List<EventPost> list) =>
         [for (final e in list) e.id == event.id ? event : e];

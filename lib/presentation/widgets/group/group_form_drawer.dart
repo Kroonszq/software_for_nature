@@ -40,7 +40,7 @@ class _GroupFormDrawerState extends State<GroupFormDrawer> {
   String _categoryQuery = '';
   String _userQuery = '';
 
-  /// While true the footer shows an inline delete confirmation
+  /// while true the footer shows an inline delete confirmation
   bool _confirmingDelete = false;
   bool _busy = false;
 
@@ -51,7 +51,7 @@ class _GroupFormDrawerState extends State<GroupFormDrawer> {
     _color = widget.existing?.color ?? _palette.first;
     _selectedCategoryIds = {...?widget.existing?.categoryIds};
 
-    // Members are the users that already reference this group
+    // members are the users that already reference this group
     final groupId = widget.existing?.id;
     if(groupId != null){
       _selectedUserIds = widget.users.where((u) => u.groupIds.contains(groupId)).map((u) => u.id).toSet();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:software_for_nature/core/utils/time_utils.dart';
 
 class TimeAxisBar extends StatelessWidget {
   static const double pixelsPerMinute = 2.0;
@@ -16,8 +17,7 @@ class TimeAxisBar extends StatelessWidget {
   /// The timelineaxis width
   static const double _width = 72;
 
-  /// A narrower width used on mobile/narrow screens to give the timelines more
-  /// horizontal room.
+  /// A smaller width used on mobile screens to give the timelines more horizontal room
   static const double _compactWidth = 48;
 
 @override
@@ -40,11 +40,11 @@ Widget build(BuildContext context) {
     final tickTime = earliest.add(Duration(minutes: i));
     final tickDay = DateTime(tickTime.year, tickTime.month, tickTime.day);
 
-    // Show the date label if its the first tick
+    // show the date label if its the first tick
     final showDate = previousDay == null || tickDay != previousDay;
     previousDay = tickDay;
 
-    // Display date label
+    // display date label
     if (showDate) {
       stackChildren.add(
         Positioned(
@@ -52,7 +52,7 @@ Widget build(BuildContext context) {
           left: 0,
           right: 10,
           child: Text(
-            _formatDate(tickTime),
+            TimeUtils.formatDate(tickTime),
             textAlign: TextAlign.end,
             style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
           ),
@@ -60,7 +60,7 @@ Widget build(BuildContext context) {
       );
     }
 
-    // Add tick to stack
+    // add tick to stack
     stackChildren.add(
       Positioned(
         top: i * pixelsPerMinute,
@@ -70,7 +70,7 @@ Widget build(BuildContext context) {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              _formatTime(tickTime),
+              TimeUtils.formatTime(tickTime),
               style: const TextStyle(fontSize: 9),
             ),
             const SizedBox(width: 2),
@@ -79,25 +79,22 @@ Widget build(BuildContext context) {
         ),
       ),
     );
+    }
+
+    // display axis
+    return SizedBox(
+      width: width,
+      height: totalHeight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(height: headerHeight),
+          Stack(
+            clipBehavior: Clip.none,
+            children: stackChildren,
+          ),
+        ],
+      ),
+    );
   }
-
-  // Display axis
-  return SizedBox(
-    width: width,
-    height: totalHeight,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        SizedBox(height: headerHeight),
-        Stack(
-          clipBehavior: Clip.none,
-          children: stackChildren,
-        ),
-      ],
-    ),
-  );
-}
-
-  String _formatTime(DateTime dt) => '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  String _formatDate(DateTime dt) => '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
 }

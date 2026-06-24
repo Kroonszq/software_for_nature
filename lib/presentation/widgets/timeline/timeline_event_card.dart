@@ -39,12 +39,16 @@ class TimelineEventCard extends StatelessWidget {
         final rawHeight = getRawHeight(event);
         final isClamped = !isExpanded && rawHeight < collapsedHeight;
 
-        // When expanded expand big enough to fit the extra details. An image
-        // preview and a tag list each need extra room on top of the text-only
-        // minimum.
+        // when expanded expand big enough to fit the extra details
         var expandedMinHeight = 220.0;
-        if (_firstImageAttachment != null) expandedMinHeight += 100.0;
-        if (event.tags.isNotEmpty) expandedMinHeight += 40.0;
+        if (_firstImageAttachment != null) {
+          expandedMinHeight += 100.0;
+        }
+
+        if (event.tags.isNotEmpty) {
+          expandedMinHeight += 40.0;
+        }
+        
         final height = isExpanded && collapsedHeight < expandedMinHeight
             ? expandedMinHeight
             : collapsedHeight;
@@ -92,9 +96,6 @@ class TimelineEventCard extends StatelessWidget {
 
                 child: Stack(
                   children: [
-                    // Honest duration cue: only the top `rawHeight` slice
-                    // represents the event's real length; the rest of the card
-                    // is extra room added so the label stays readable.
                     if (isClamped)
                       Positioned(
                         top: 0,
@@ -239,7 +240,6 @@ class TimelineEventCard extends StatelessWidget {
     ];
   }
 
-  /// The event's true-to-scale height, straight from its duration.
   double getRawHeight(EventPost event) {
     final minutes = event.endDuration.difference(event.startDuration).inMinutes;
     return minutes * TimelineConstants.pixelsPerMinute;
@@ -252,14 +252,11 @@ class TimelineEventCard extends StatelessWidget {
 
     final rawHeight = getRawHeight(event);
 
-    // Clamp short events up so they stay readable instead of rendering as a
-    // tiny stroke.
     return rawHeight < TimelineConstants.minEventHeight
         ? TimelineConstants.minEventHeight
         : rawHeight;
   }
 
-  /// Builds a "moment/timestamp" event
   Widget _buildMoment(BuildContext context, {required bool highlighted}) {
     final Color orange = Colors.orange.shade800;
     return Padding(
@@ -307,9 +304,7 @@ class TimelineEventCard extends StatelessWidget {
   }
 }
 
-/// Shows the first image attachment inside the expanded (hovered) event card.
-/// The file is resolved asynchronously; while it loads (or if it can't be
-/// resolved) the widget collapses to nothing so the card layout stays clean.
+
 class _HoverImagePreview extends StatelessWidget {
   final EventAttachment attachment;
 
@@ -341,8 +336,6 @@ class _HoverImagePreview extends StatelessWidget {
   }
 }
 
-/// A single tag rendered as a small rounded chip, used inside the expanded
-/// card's details section.
 class _TagChip extends StatelessWidget {
   final Tag tag;
 
@@ -350,10 +343,9 @@ class _TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor =
-        ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final textColor = ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
+      ? Colors.white
+      : Colors.black87;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -373,9 +365,7 @@ class _TagChip extends StatelessWidget {
   }
 }
 
-/// Renders an event's tags as a full-width bar at the bottom of the card. The
-/// bar is split into equal segments, one per tag, each filled with the tag's
-/// own colour and labelled.
+
 class _TagStrip extends StatelessWidget {
   final List<Tag> tags;
 
@@ -392,7 +382,6 @@ class _TagStrip extends StatelessWidget {
   }
 }
 
-/// One coloured segment of the full-width tag bar.
 class _TagSegment extends StatelessWidget {
   final Tag tag;
 
@@ -400,11 +389,9 @@ class _TagSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pick a readable text colour for the segment's fill.
-    final textColor =
-        ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final textColor = ThemeData.estimateBrightnessForColor(tag.color) == Brightness.dark
+      ? Colors.white
+      : Colors.black87;
 
     return Container(
       height: 16,

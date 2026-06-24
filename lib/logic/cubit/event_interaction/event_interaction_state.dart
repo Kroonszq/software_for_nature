@@ -1,13 +1,10 @@
 import 'package:software_for_nature/data/models/event_post.dart';
 
 class EventInteractionState {
-  /// Panels shown horizontally in the drawer
   final List<EventPost> openEvents;
 
-  /// Minimized stack on the side
   final List<EventPost> minimizedEvents;
 
-  /// Optional: currently focused event (not strictly required for UI)
   final EventPost? selectedEvent;
 
   final Set<EventPost> pinnedEvents;

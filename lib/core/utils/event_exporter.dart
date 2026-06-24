@@ -19,7 +19,6 @@ enum ExportFormat {
 abstract final class EventExporter {
   const EventExporter._();
 
-  /// Serializes [events] to a UTF-8 string in the given [format].
   static String serialize(List<EventPost> events, ExportFormat format) {
     switch (format) {
       case ExportFormat.json:

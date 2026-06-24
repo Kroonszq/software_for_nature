@@ -2,10 +2,7 @@ class TimeWindow {
   final DateTime start;
   final DateTime end;
 
-  const TimeWindow({
-    required this.start,
-    required this.end,
-  });
+  const TimeWindow({ required this.start, required this.end});
 
   Duration get duration => end.difference(start);
 

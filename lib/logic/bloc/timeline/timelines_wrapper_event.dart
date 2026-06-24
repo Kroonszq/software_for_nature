@@ -22,14 +22,12 @@ final class FilterChanged extends TimeLinesWrapperEvent {
   });
 }
 
-/// Sets the timeline active in the wrapper.
 final class SetTimelineActive extends TimeLinesWrapperEvent {
   final int timelineHash;
 
   SetTimelineActive(this.timelineHash);
 }
 
-/// Sets the timeline inactive in the wrapper.
 final class SetTimelineInActive extends TimeLinesWrapperEvent {
   final int timelineHash;
 

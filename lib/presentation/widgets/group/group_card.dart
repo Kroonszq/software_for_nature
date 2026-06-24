@@ -24,7 +24,7 @@ class GroupCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Coloured header with the group title
+            // cololored header
             Container(
               color: group.color,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
