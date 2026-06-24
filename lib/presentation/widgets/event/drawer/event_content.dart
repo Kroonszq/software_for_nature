@@ -19,10 +19,9 @@ class EventContent extends StatelessWidget {
 
 
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
           // Description.
           const SizedBox(height: 16),
             Text('Description', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -74,12 +73,9 @@ class EventContent extends StatelessWidget {
             ),
           ],
         ],
-      ),
     );
   }
-
 }
-
 
 class _AttachmentTile extends StatelessWidget {
   final EventAttachment attachment;

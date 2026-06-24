@@ -7,7 +7,9 @@ import 'package:software_for_nature/presentation/widgets/export/export_drawer.da
 
 
 class ExportButton extends StatelessWidget {
-  const ExportButton({super.key});
+  final bool isCompact;
+
+  const ExportButton({super.key, this.isCompact = false});
 
   Future<void> _open(BuildContext context) async {
     final wrapperState = context.read<TimeLinesWrapperBloc>().state;
@@ -60,6 +62,14 @@ class ExportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isCompact) {
+      return IconButton(
+        icon: const Icon(Icons.download),
+        tooltip: 'Export',
+        onPressed: () => _open(context),
+      );
+    }
+
     return ElevatedButton.icon(
       onPressed: () => _open(context),
       icon: const Icon(Icons.download),

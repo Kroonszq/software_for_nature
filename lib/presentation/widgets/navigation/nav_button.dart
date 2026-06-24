@@ -6,11 +6,37 @@ class NavButton extends StatelessWidget {
   final String label;
   final String route;
   final bool isActive;
+  final bool isCompact;
 
-  const NavButton({super.key, required this.label, required this.route, required this.isActive});
+  const NavButton({
+    super.key,
+    required this.label,
+    required this.route,
+    required this.isActive,
+    this.isCompact = false,
+  });
+
+  IconData _getIconForRoute(String label) {
+    switch (label.toLowerCase()) {
+      case 'timeline':
+        return Icons.timeline;
+      case 'map':
+        return Icons.map;
+      case 'hybrid':
+        return Icons.layers;
+      case 'groups':
+        return Icons.group;
+      default:
+        return Icons.dashboard;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final buttonPadding = isCompact
+        ? const EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+        : EdgeInsets.zero;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -29,6 +55,10 @@ class NavButton extends StatelessWidget {
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
+            padding: WidgetStateProperty.all(buttonPadding),
+            minimumSize: isCompact
+                ? WidgetStateProperty.all(const Size(40, 40))
+                : null,
             backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
               if (states.contains(WidgetState.hovered)) {
                 return Color(0xFFFF5900).withValues(alpha: 0.1);
@@ -37,12 +67,18 @@ class NavButton extends StatelessWidget {
             }),
           elevation: WidgetStateProperty.all(0),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Color(0xFFFF5900) : Colors.white,
-          ),
-        ),
+        child: isCompact
+            ? Icon(
+                _getIconForRoute(label),
+                color: isActive ? Color(0xFFFF5900) : Colors.white,
+                size: 20,
+              )
+            : Text(
+                label,
+                style: TextStyle(
+                  color: isActive ? Color(0xFFFF5900) : Colors.white,
+                ),
+              ),
       ),
     );
   }
