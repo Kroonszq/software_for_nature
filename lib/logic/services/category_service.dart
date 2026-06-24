@@ -57,6 +57,22 @@ final class CategoryService  implements CategoryServiceInterface {
   }
 
   @override
+  Future<List<Category>> getAllCategoriesUnscoped() async {
+    final categories = await _categoryRepository.getAll();
+    if (categories == null) {
+      return const <Category>[];
+    }
+
+    // No view-access filtering here: group administration must be able to assign
+    // any category, including ones the current user cannot otherwise see.
+    for (final c in categories) {
+      c.events = await _eventPostRepository.getAllByCategoryId(c.id) ?? const <EventPost>[];
+    }
+
+    return categories;
+  }
+
+  @override
   Future<List<Category>> getCategories(EventQuery query) async {
     final categories = await _categoryRepository.getAll();
     if (categories == null) {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:software_for_nature/data/data_sources/interfaces/attachment_storage.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/event_form_bloc/event_form_bloc.dart';
+import 'package:software_for_nature/logic/cubit/event_interaction/event_interaction_cubit.dart';
 import 'package:software_for_nature/logic/services/interfaces/category_service_interface.dart';
 import 'package:software_for_nature/logic/services/interfaces/event_service_interface.dart';
 import 'package:software_for_nature/logic/services/interfaces/user_service_interface.dart';
@@ -21,6 +22,10 @@ Future<void> openEventEditor(BuildContext context, EventPost event) async {
   // Capture the refresh now: the panel that opened the editor may be closed
   // before the editor returns, which would unmount its context.
   final refresh = captureEventRefresh(context);
+
+  // The drawer's interaction state holds the event currently shown in the open
+  // panel. Capture it up-front so we can swap in the edited copy afterwards.
+  final interaction = context.read<EventInteractionCubit>();
 
   final saved = await showGeneralDialog<bool>(
     context: context,
@@ -59,6 +64,20 @@ Future<void> openEventEditor(BuildContext context, EventPost event) async {
   // edit is reflected immediately.
   if (saved == true) {
     refresh();
+
+    // refresh() only reloads the timeline/map/hybrid blocs. The drawer panel is
+    // driven by EventInteractionCubit, which still holds the pre-edit copy, so
+    // pull the freshly-saved event from the repository and swap it in by id.
+    EventPost? fresh;
+    for (final candidate in await eventService.getAllEvents()) {
+      if (candidate.id == event.id) {
+        fresh = candidate;
+        break;
+      }
+    }
+    if (fresh != null) {
+      interaction.replace(fresh);
+    }
   }
 }
 

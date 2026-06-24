@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:software_for_nature/core/constants/timeline_constants.dart';
+import 'package:software_for_nature/data/models/event_attachment.dart';
+import 'package:software_for_nature/data/models/event_chart.dart';
 import 'package:software_for_nature/data/models/event_post.dart';
 import 'package:software_for_nature/logic/bloc/timeline/timeline_bloc.dart';
 import 'package:software_for_nature/presentation/models/timeline_geometry.dart';
@@ -314,14 +316,31 @@ class _TimelineContentState extends State<TimelineContent> {
 
   /// A fingerprint of the events that changes whenever any field affecting the
   /// layout or card content changes, so edits (same id, new values) are caught.
+  ///
+  /// Charts and attachments are included too: editing an event can leave every
+  /// time/text field untouched while only adding or removing a chart, and the
+  /// rows hold the actual event objects that get handed to the details panel on
+  /// tap. Leaving them out of the signature means such an edit is missed, so a
+  /// tapped card would re-open the pre-edit copy (e.g. still showing a removed
+  /// graph) until the column is rebuilt from scratch.
   String _eventsSignature(List<EventPost> events) {
     return events
         .map(
           (e) =>
-              '${e.id}:${e.startDuration.millisecondsSinceEpoch}:${e.endDuration.millisecondsSinceEpoch}:${e.timestamp?.millisecondsSinceEpoch ?? ''}:${e.title}:${e.description}:${e.categoryId}',
+              '${e.id}:${e.startDuration.millisecondsSinceEpoch}:${e.endDuration.millisecondsSinceEpoch}:${e.timestamp?.millisecondsSinceEpoch ?? ''}:${e.title}:${e.description}:${e.categoryId}:${_chartsSignature(e.charts)}:${_attachmentsSignature(e.attachments)}',
         )
         .join('|');
   }
+
+  /// Compact fingerprint of an event's charts: catches a chart being added or
+  /// removed, or its file/point count changing.
+  String _chartsSignature(List<EventChart> charts) =>
+      charts.map((c) => '${c.fileName}#${c.points.length}').join(',');
+
+  /// Compact fingerprint of an event's attachments: catches one being added or
+  /// removed during an edit.
+  String _attachmentsSignature(List<EventAttachment> attachments) =>
+      attachments.map((a) => a.name).join(',');
 
   void calculateRows() {
     // Sort by start time

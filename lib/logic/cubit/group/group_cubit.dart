@@ -18,7 +18,9 @@ class GroupCubit extends Cubit<GroupState> {
     try {
       final groups = await _groupService.getAllGroups() ?? const <Group>[];
       final users = await _userService.getAllUsers();
-      final categories = await _categoryService.getAllCategories();
+      // Group administration assigns access, so it must list every category,
+      // not just the ones the current user can already view.
+      final categories = await _categoryService.getAllCategoriesUnscoped();
 
       emit(state.copyWith(
         status: GroupStatus.ready,
