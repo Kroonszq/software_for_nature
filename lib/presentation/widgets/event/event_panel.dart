@@ -56,108 +56,107 @@ class _EventPanelState extends State<EventPanel> {
         border: Border(right: BorderSide(color: Color(0x22000000))),
       ),
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            event.title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-
-          _buildCategoryAndTags(event),
-
-          const SizedBox(height: 12),
-
-          BlocBuilder<HybridBloc, HybridState>(
-            builder: (context, state) {
-              return _buildTimelineSummary(event, state.timeRange);
-            },
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildMetadataRow('Created', TimeUtils.formatDateTime(event.createdAt)),
-          _buildMetadataRow('Author', event.user?.name ?? ''),
-          _buildMetadataRow('Event ID', event.id),
-          if (event.coordinates != null)
-            _buildMetadataRow(
-              'Location',
-              '${event.coordinates!.lat.toStringAsFixed(4)}, ${event.coordinates!.lng.toStringAsFixed(4)}',
-            ),
-
-          const SizedBox(height: 12),
-
-          // Tabs to switch between the event's content (description,
-          // attachments, charts) and its comments.
-          SegmentedButton<_PanelTab>(
-            segments: const [
-              ButtonSegment(
-                value: _PanelTab.content,
-                label: Text('Content'),
-                icon: Icon(Icons.article_outlined),
-              ),
-              ButtonSegment(
-                value: _PanelTab.comments,
-                label: Text('Comments'),
-                icon: Icon(Icons.mode_comment_outlined),
-              ),
-            ],
-            selected: {_tab},
-            onSelectionChanged: (selection) {
-              setState(() => _tab = selection.first);
-            },
-          ),
-
-          const SizedBox(height: 12),
-
-          Expanded(
-            child: _tab == _PanelTab.content
-                ? EventContent(event: event)
-                : EventComments(eventId: event.id),
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_isAuthor) ...[
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit'),
-                    onPressed: () {
-                      // Launch the editor (its synchronous part shows the dialog
-                      // and captures the refresh), then close this event panel.
-                      openEventEditor(context, event);
-                      context.read<EventInteractionCubit>().dismiss(event);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.minimize),
-                  label: const Text('Minimize'),
-                  onPressed: () {
-                    context.read<EventInteractionCubit>().minimize(event);
-                  },
-                ),
+              Text(
+                event.title,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.close),
-                  label: const Text('Close'),
-                  onPressed: () {
-                    context.read<EventInteractionCubit>().dismiss(event);
-                  },
+              const SizedBox(height: 12),
+
+              _buildCategoryAndTags(event),
+
+              const SizedBox(height: 12),
+
+              BlocBuilder<HybridBloc, HybridState>(
+                builder: (context, state) {
+                  return _buildTimelineSummary(event, state.timeRange);
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildMetadataRow('Created', TimeUtils.formatDateTime(event.createdAt)),
+              _buildMetadataRow('Author', event.user?.name ?? ''),
+              _buildMetadataRow('Event ID', event.id),
+              if (event.coordinates != null)
+                _buildMetadataRow(
+                  'Location',
+                  '${event.coordinates!.lat.toStringAsFixed(4)}, ${event.coordinates!.lng.toStringAsFixed(4)}',
                 ),
+
+              const SizedBox(height: 12),
+
+              SegmentedButton<_PanelTab>(
+                segments: const [
+                  ButtonSegment(
+                    value: _PanelTab.content,
+                    label: Text('Content'),
+                    icon: Icon(Icons.article_outlined),
+                  ),
+                  ButtonSegment(
+                    value: _PanelTab.comments,
+                    label: Text('Comments'),
+                    icon: Icon(Icons.mode_comment_outlined),
+                  ),
+                ],
+                selected: {_tab},
+                onSelectionChanged: (selection) {
+                  setState(() => _tab = selection.first);
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              _tab == _PanelTab.content
+                  ? EventContent(event: event)
+                  : EventComments(eventId: event.id),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  if (_isAuthor) ...[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Edit'),
+                        onPressed: () {
+                          openEventEditor(context, event);
+                          context.read<EventInteractionCubit>().dismiss(event);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.minimize),
+                      label: const Text('Minimize'),
+                      onPressed: () {
+                        context.read<EventInteractionCubit>().minimize(event);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.close),
+                      label: const Text('Close'),
+                      onPressed: () {
+                        context.read<EventInteractionCubit>().dismiss(event);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

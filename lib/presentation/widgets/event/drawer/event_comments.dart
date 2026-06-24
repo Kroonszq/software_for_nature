@@ -71,55 +71,55 @@ class _EventCommentsState extends State<EventComments> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: FutureBuilder<List<Comment>>(
-            future: _commentsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final comments = snapshot.data ?? const <Comment>[];
-              if (comments.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No comments yet',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                );
-              }
-              return ListView.separated(
-                itemCount: comments.length,
-                separatorBuilder: (_, _) => const Divider(height: 16),
-                itemBuilder: (context, i) {
-                  final c = comments[i];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.account_circle_outlined, size: 18),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              c.author,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Text(
-                            TimeUtils.formatDateTime(c.timestamp),
-                            style: const TextStyle(
-                                color: Colors.black54, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(c.text),
-                    ],
-                  );
-                },
+        FutureBuilder<List<Comment>>(
+          future: _commentsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final comments = snapshot.data ?? const <Comment>[];
+            if (comments.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No comments yet',
+                  style: TextStyle(color: Colors.black54),
+                ),
               );
-            },
-          ),
+            }
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: comments.length,
+              separatorBuilder: (_, _) => const Divider(height: 16),
+              itemBuilder: (context, i) {
+                final c = comments[i];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.account_circle_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            c.author,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          TimeUtils.formatDateTime(c.timestamp),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(c.text),
+                  ],
+                );
+              },
+            );
+          },
         ),
         const Divider(height: 16),
         _Composer(
