@@ -92,18 +92,7 @@ class _EventPanelState extends State<EventPanel> {
               const SizedBox(height: 12),
 
               SegmentedButton<_PanelTab>(
-                segments: const [
-                  ButtonSegment(
-                    value: _PanelTab.content,
-                    label: Text('Content'),
-                    icon: Icon(Icons.article_outlined),
-                  ),
-                  ButtonSegment(
-                    value: _PanelTab.comments,
-                    label: Text('Comments'),
-                    icon: Icon(Icons.mode_comment_outlined),
-                  ),
-                ],
+                segments: _buildTabSegments(context),
                 selected: {_tab},
                 onSelectionChanged: (selection) {
                   setState(() => _tab = selection.first);
@@ -118,42 +107,7 @@ class _EventPanelState extends State<EventPanel> {
 
               const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  if (_isAuthor) ...[
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.edit),
-                        label: const Text('Edit'),
-                        onPressed: () {
-                          openEventEditor(context, event);
-                          context.read<EventInteractionCubit>().dismiss(event);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.minimize),
-                      label: const Text('Minimize'),
-                      onPressed: () {
-                        context.read<EventInteractionCubit>().minimize(event);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.close),
-                      label: const Text('Close'),
-                      onPressed: () {
-                        context.read<EventInteractionCubit>().dismiss(event);
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              _buildActionButtons(context, event),
             ],
           ),
         ),
@@ -264,6 +218,92 @@ class _EventPanelState extends State<EventPanel> {
         ],
       ),
     );
+  }
+
+  Widget _buildActionButtons(BuildContext context, EventPost event) {
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    return Row(
+      children: [
+        if (_isAuthor) ...[
+          if (isSmallScreen)
+            IconButton.filled(
+              icon: const Icon(Icons.edit),
+              tooltip: 'Edit',
+              onPressed: () {
+                openEventEditor(context, event);
+                context.read<EventInteractionCubit>().dismiss(event);
+              },
+            )
+          else
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit'),
+                onPressed: () {
+                  openEventEditor(context, event);
+                  context.read<EventInteractionCubit>().dismiss(event);
+                },
+              ),
+            ),
+          const SizedBox(width: 8),
+        ],
+        if (isSmallScreen)
+          IconButton.filled(
+            icon: const Icon(Icons.minimize),
+            tooltip: 'Minimize',
+            onPressed: () {
+              context.read<EventInteractionCubit>().minimize(event);
+            },
+          )
+        else
+          Expanded(
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.minimize),
+              label: const Text('Minimize'),
+              onPressed: () {
+                context.read<EventInteractionCubit>().minimize(event);
+              },
+            ),
+          ),
+        const SizedBox(width: 8),
+        if (isSmallScreen)
+          IconButton.outlined(
+            icon: const Icon(Icons.close),
+            tooltip: 'Close',
+            onPressed: () {
+              context.read<EventInteractionCubit>().dismiss(event);
+            },
+          )
+        else
+          Expanded(
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.close),
+              label: const Text('Close'),
+              onPressed: () {
+                context.read<EventInteractionCubit>().dismiss(event);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  List<ButtonSegment<_PanelTab>> _buildTabSegments(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    return [
+      ButtonSegment(
+        value: _PanelTab.content,
+        icon: const Icon(Icons.article_outlined),
+        label: isSmallScreen ? null : const Text('Content'),
+      ),
+      ButtonSegment(
+        value: _PanelTab.comments,
+        icon: const Icon(Icons.mode_comment_outlined),
+        label: isSmallScreen ? null : const Text('Comments'),
+      ),
+    ];
   }
 }
 

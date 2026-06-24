@@ -45,6 +45,7 @@ class Navigation extends StatelessWidget implements PreferredSizeWidget {
                         label: entry.key,
                         route: entry.value,
                         isActive: isActive,
+                        isCompact: isCompact,
                       );
                     },
                   ),
@@ -52,7 +53,7 @@ class Navigation extends StatelessWidget implements PreferredSizeWidget {
             );
 
             final profile = IconButton(
-              padding: const EdgeInsets.all(16),
+              padding: isCompact ? const EdgeInsets.all(8) : const EdgeInsets.all(16),
               icon: const Icon(Icons.person, color: Colors.white, size: 18),
               tooltip: 'Profile',
               onPressed: () => context

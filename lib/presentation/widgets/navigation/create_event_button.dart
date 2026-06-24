@@ -14,7 +14,10 @@ class CreateEventButton extends StatelessWidget {
         RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       ),
       padding: compact
-          ? WidgetStateProperty.all(const EdgeInsets.all(12))
+          ? WidgetStateProperty.all(const EdgeInsets.all(8))
+          : null,
+      minimumSize: compact
+          ? WidgetStateProperty.all(const Size(40, 40))
           : null,
     );
 
@@ -25,7 +28,7 @@ class CreateEventButton extends StatelessWidget {
       return ElevatedButton(
         onPressed: openCreateDrawer,
         style: style,
-        child: Icon(Icons.add, color: Colors.white, size: 18),
+        child: const Icon(Icons.add, color: Colors.white, size: 16),
       );
     }
 

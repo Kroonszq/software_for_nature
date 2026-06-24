@@ -61,25 +61,39 @@ class Filter extends StatelessWidget {
           final bool isCompact = constraints.maxWidth < 700;
           return Row(
             children: [
-              OutlinedButton.icon(
-                icon: const Icon(Icons.filter_list),
-                label: const Text('Filters'),
-                onPressed: () => _openFilters(context),
-              ),
+              isCompact
+                  ? IconButton(
+                      icon: const Icon(Icons.filter_list),
+                      tooltip: 'Filters',
+                      onPressed: () => _openFilters(context),
+                    )
+                  : OutlinedButton.icon(
+                      icon: const Icon(Icons.filter_list),
+                      label: const Text('Filters'),
+                      onPressed: () => _openFilters(context),
+                    ),
               const SizedBox(width: 8),
-              if (isCompact)
-                const Spacer()
-              else
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: const ActiveFilterChips(),
-                  ),
-                ),
+                if (!isCompact)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const ActiveFilterChips(),
+                    ),
+                  )
+                else
+                  const SizedBox(width: 8),
+                if (!isCompact) const SizedBox(width: 8),
+                if (isCompact)
+                  Flexible(
+                    child: SizedBox(
+                      width: constraints.maxWidth < 500 ? 40 : 120,
+                      child: SearchFilter(isCompact: isCompact),
+                    ),
+                  )
+                else
+                  SizedBox(width: searchWidth, child: SearchFilter(isCompact: isCompact)),
               const SizedBox(width: 8),
-              SizedBox(width: searchWidth, child: const SearchFilter()),
-              const SizedBox(width: 8),
-              const ExportButton(),
+              ExportButton(isCompact: isCompact),
             ],
           );
         },
